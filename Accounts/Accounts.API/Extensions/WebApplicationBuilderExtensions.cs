@@ -1,4 +1,4 @@
-﻿using Accounts.Domain.Infrastructure;
+﻿using Accounts.Domain.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -25,6 +25,15 @@ namespace Accounts.API.Extensions
                         ValidateIssuerSigningKey = true
                     };
                 });
+
+            builder.Services.AddSingleton(new JwtSettings()
+            {
+                Key = jwtSettings.Key,
+                Issuer = jwtSettings.Issuer,
+                Audience = jwtSettings.Audience,
+                ExpirationInMinutes = jwtSettings.ExpirationInMinutes
+            });
+
             return builder;
         }
     }

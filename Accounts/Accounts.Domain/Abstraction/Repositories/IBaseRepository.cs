@@ -1,4 +1,6 @@
-﻿namespace Accounts.Domain.Abstraction.Repositories
+﻿using Accounts.Domain.Pagination;
+
+namespace Accounts.Domain.Abstraction.Repositories
 {
     public interface IBaseRepository
     {
@@ -6,9 +8,10 @@
             where TOutput : new();
         Task<TOutput> GetByIdAsync<TOutput>(Guid id)
             where TOutput : new();
-        Task<List<TOutput>> GetAllAsync<TOutput>()
+        Task<PaginatedResult<TOutput>> GetPageAsync<TOutput>(int pageNumber, int pageSize)
             where TOutput : new();
-        Task UpdateAsync<TInput>(Guid id, TInput dto);
+        Task<TOutput> UpdateAsync<TInput, TOutput>(Guid id, TInput dto)
+            where TOutput : new();
         Task DeleteAsync(Guid id);
     }
 }

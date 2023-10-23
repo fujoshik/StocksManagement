@@ -1,11 +1,11 @@
 ﻿using Accounts.Domain.Enums;
 
-namespace Accounts.Infrastructure.Entities
+namespace Accounts.Domain.DTOs.Wallet
 {
-    public class Wallet : BaseEntity
+    public class WalletRequestDto
     {
         public decimal InitialBalance { get; set; }
         public decimal CurrentBalance { get; set; }
-        public CurrencyCode CurrencyCode { get; set; }
+        public int CurrencyCode { get; set; }
     }
 }

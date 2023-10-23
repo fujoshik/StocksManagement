@@ -16,19 +16,19 @@ namespace Accounts.API.Controllers
             _service = authenticationService;
         }
 
-        //[AllowAnonymous]
-        //[HttpPost("login")]
-        //public IActionResult Login(LoginDto account)
-        //{
-        //    var token = _service.Login(account);
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<ActionResult<string>> Login(LoginDto account)
+        {
+            var token = await _service.LoginAsync(account);
 
-        //    if (token is null)
-        //    {
-        //        return Unauthorized();
-        //    }
+            if (token is null)
+            {
+                return Unauthorized();
+            }
 
-        //    return Ok(token);
-        //}
+            return Ok(token);
+        }
 
         [AllowAnonymous]
         [HttpPost("register")]

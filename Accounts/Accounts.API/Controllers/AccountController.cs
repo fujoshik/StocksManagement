@@ -23,13 +23,5 @@ namespace Accounts.API.Controllers
 
             return Ok(account);
         }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteAsync([FromRoute] Guid id)
-        {
-            await _accountService.DeleteAsync(id);
-
-            return NoContent();
-        }
     }
 }

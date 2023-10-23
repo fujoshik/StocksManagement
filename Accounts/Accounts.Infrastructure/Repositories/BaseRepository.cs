@@ -1,5 +1,7 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
+using Accounts.Domain.Pagination;
 using Accounts.Infrastructure.Entities;
+using Accounts.Infrastructure.Extensions;
 using Microsoft.Extensions.Configuration;
 using System.Data;
 using System.Data.SqlClient;
@@ -94,7 +96,7 @@ namespace Accounts.Infrastructure.Repositories
             return DataRowToEntity<TOutput>(dataTable.Rows[0]);
         }
 
-        public virtual async Task<List<TOutput>> GetAllAsync<TOutput>()
+        public virtual async Task<PaginatedResult<TOutput>> GetPageAsync<TOutput>(int pageNumber, int pageSize)
             where TOutput : new()
         {
             var dataTable = new DataTable();
@@ -108,10 +110,15 @@ namespace Accounts.Infrastructure.Repositories
                 }
             }
 
-            return dataTable.AsEnumerable().Select(x => DataRowToEntity<TOutput>(x)).ToList();
+            return dataTable
+                .AsEnumerable()
+                .Select(x => DataRowToEntity<TOutput>(x))
+                .ToList()
+                .Paginate(pageNumber, pageSize);
         }
 
-        public async Task UpdateAsync<TInput>(Guid id, TInput entity)
+        public async Task<TOutput> UpdateAsync<TInput, TOutput>(Guid id, TInput entity)
+            where TOutput : new()
         {
             var properties = typeof(TInput).GetProperties().Where(x => x.CanRead).ToArray();
             StringBuilder valuesToProps = new StringBuilder();
@@ -133,12 +140,20 @@ namespace Accounts.Infrastructure.Repositories
                 }
             }
 
+            var dataTable = new DataTable();
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"UPDATE {TableName} SET ({valuesToProps})", connection);
-                await cmd.ExecuteNonQueryAsync();
+                SqlCommand cmd = new SqlCommand($"DECLARE @MyTableVar table([testID] [uniqueidentifier]); " +
+                    $"UPDATE {TableName} SET {valuesToProps} " +
+                    $"OUTPUT INSERTED.Id INTO @MyTableVar " +
+                    $"SELECT * FROM {TableName} WHERE Id = CAST((SELECT TOP 1 testID from @MyTableVar) AS nvarchar(250))", connection);
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    dataTable.Load(reader);
+                }
             }
+            return DataRowToEntity<TOutput>(dataTable.Rows[0]);
         }
 
         public async Task DeleteAsync(Guid id)

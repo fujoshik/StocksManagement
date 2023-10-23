@@ -1,4 +1,4 @@
-﻿namespace Accounts.Domain.Infrastructure
+﻿namespace Accounts.Domain.Settings
 {
     public class JwtSettings
     {
