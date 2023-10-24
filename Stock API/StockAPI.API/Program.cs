@@ -1,3 +1,7 @@
+using Microsoft.Extensions.Configuration;
+using StockAPI.Domain.Abstraction.Services;
+using StockAPI.Domain.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +10,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//adding my service
+builder.Services.AddScoped<IStockAPIService, StockAPIService>();
+
+//adding caching
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
@@ -23,3 +33,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+//logger
+builder.Logging.AddConsole();
