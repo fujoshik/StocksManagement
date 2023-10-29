@@ -13,11 +13,58 @@ namespace Accounts.Infrastructure.Repositories
         where TEntity : BaseEntity
     {
         protected readonly string _connectionString;
+        protected readonly string _dbConnectionString;
         protected string TableName { get; set; }
 
         public BaseRepository(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("StocksConnection");
+            _dbConnectionString = SetDbConnectionString(_connectionString);
+        }
+
+        private string SetDbConnectionString(string connectionString)
+        {
+            return connectionString.Replace("master", "StocksDB");
+        }
+
+        private async Task<bool> CheckIfDbExistsAsync()
+        {
+            var dataTable = new DataTable();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand("DECLARE @MyTableVar table([test] [varchar](250)); " +
+                    "IF DB_ID('StocksDB') IS NOT NULL INSERT INTO @MyTableVar (test) values('db exists') " +
+                    "ELSE INSERT INTO @MyTableVar (test) values('no') " +
+                    "SELECT * FROM @MyTableVar", connection);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    dataTable.Load(reader);
+                }
+            }
+
+            if (dataTable.Rows[0]["test"].ToString() == "db exists")
+                return true;
+
+            return false;
+        }
+
+        protected virtual async Task CreateDbIfNotExist()
+        {
+            if (await CheckIfDbExistsAsync())
+            {
+                return;
+            }
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand("CreateStockDb", connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                await cmd.ExecuteNonQueryAsync();
+            }
         }
 
         protected virtual TOutput DataRowToEntity<TOutput>(DataRow dataRow)
@@ -34,12 +81,17 @@ namespace Accounts.Infrastructure.Repositories
                 return null;
             }
 
-            return table.AsEnumerable().Select(x => DataRowToEntity<TOutput>(x)).ToList();
+            return table
+                .AsEnumerable()
+                .Select(x => DataRowToEntity<TOutput>(x))
+                .ToList();
         }
 
         public virtual async Task<TOutput> InsertAsync<TInput, TOutput>(TInput entity)
             where TOutput : new()
         {
+            await CreateDbIfNotExist();
+
             var properties = typeof(TInput).GetProperties().Where(x => x.CanRead).ToArray();
             string columnNames = string.Join(", ", properties.Select(x => x.Name));
             StringBuilder values = new StringBuilder();
@@ -62,11 +114,11 @@ namespace Accounts.Infrastructure.Repositories
             }
 
             var dataTable = new DataTable();
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
                 SqlCommand cmd = new SqlCommand(
-                    "DECLARE @MyTableVar table([testID] [uniqueidentifier]); " +
+                    "USE StocksDB; DECLARE @MyTableVar table([testID] [uniqueidentifier]); " +
                     $"INSERT INTO {TableName} ({columnNames}) " +
                     "OUTPUT INSERTED.Id INTO @MyTableVar " +
                     $"VALUES ({values}) " +
@@ -82,8 +134,10 @@ namespace Accounts.Infrastructure.Repositories
         public virtual async Task<TOutput> GetByIdAsync<TOutput>(Guid id)
             where TOutput : new()
         {
+            await CreateDbIfNotExist();
+
             var dataTable = new DataTable();
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
                 SqlCommand cmd = new SqlCommand($"SELECT * FROM {TableName} WHERE Id = '{id}'", connection);
@@ -100,10 +154,10 @@ namespace Accounts.Infrastructure.Repositories
             where TOutput : new()
         {
             var dataTable = new DataTable();
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"SELECT * FROM {TableName}", connection);
+                SqlCommand cmd = new SqlCommand($"USE StocksDB; SELECT * FROM {TableName}", connection);
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     dataTable.Load(reader);
@@ -120,6 +174,8 @@ namespace Accounts.Infrastructure.Repositories
         public async Task<TOutput> UpdateAsync<TInput, TOutput>(Guid id, TInput entity)
             where TOutput : new()
         {
+            await CreateDbIfNotExist();
+
             var properties = typeof(TInput).GetProperties().Where(x => x.CanRead).ToArray();
             StringBuilder valuesToProps = new StringBuilder();
 
@@ -141,11 +197,11 @@ namespace Accounts.Infrastructure.Repositories
             }
 
             var dataTable = new DataTable();
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
                 SqlCommand cmd = new SqlCommand($"DECLARE @MyTableVar table([testID] [uniqueidentifier]); " +
-                    $"UPDATE {TableName} SET {valuesToProps} " +
+                    $"USE StocksDB; UPDATE {TableName} SET {valuesToProps} " +
                     $"OUTPUT INSERTED.Id INTO @MyTableVar " +
                     $"SELECT * FROM {TableName} WHERE Id = CAST((SELECT TOP 1 testID from @MyTableVar) AS nvarchar(250))", connection);
                 using (var reader = await cmd.ExecuteReaderAsync())
@@ -158,7 +214,9 @@ namespace Accounts.Infrastructure.Repositories
 
         public async Task DeleteAsync(Guid id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            await CreateDbIfNotExist();
+
+            using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
                 SqlCommand cmd = new SqlCommand($"DELETE FROM {TableName} WHERE Id = '{id}'", connection);

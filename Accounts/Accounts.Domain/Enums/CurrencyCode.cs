@@ -2,8 +2,8 @@
 {
     public enum CurrencyCode
     {
-        BGN,
+        USD,
         EUR,
-        USD
+        BGN
     }
 }

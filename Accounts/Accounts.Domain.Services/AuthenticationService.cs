@@ -14,19 +14,19 @@ namespace Accounts.Domain.Services
         private readonly IAccountService _accountService;
         private readonly IUserService _userService;
         private readonly IPasswordService _passwordService;
-        private readonly IAccountRepository _accountRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly JwtSettings _jwtSettings;
 
         public AuthenticationService(IAccountService accountService,
                                      IUserService userService,
                                      IPasswordService passwordService,
-                                     IAccountRepository repository,
+                                     IUnitOfWork unitOfWork,
                                      JwtSettings jwtSettings) 
         {
             _accountService = accountService;
             _userService = userService;
             _passwordService = passwordService;
-            _accountRepository = repository;
+            _unitOfWork = unitOfWork;
             _jwtSettings = jwtSettings;
         }
 
@@ -39,7 +39,7 @@ namespace Accounts.Domain.Services
 
         public async Task<string> LoginAsync(LoginDto loginDto)
         {
-            var accounts = await _accountRepository.GetAccountsByEmail(loginDto.Email);
+            var accounts = await _unitOfWork.AccountRepository.GetAccountsByEmail(loginDto.Email);
 
             if (accounts == null || accounts.Count == 0)
             {
