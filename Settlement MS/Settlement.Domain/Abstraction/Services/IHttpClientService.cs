@@ -10,6 +10,5 @@ namespace Settlement.Domain.Abstraction.Services
     public interface IHttpClientService
     {
         Task<UserAccountInfoDto> GetUserAccountBalance(string userId);
-        public HttpClient GetAccountClient();
     }
 }

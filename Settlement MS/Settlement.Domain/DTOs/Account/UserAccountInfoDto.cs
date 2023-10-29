@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Settlement.Domain.DTOs.Account
 {
-    public class UserAccountInfoDto : BaseDto
+    public class UserAccountInfoDto
     {
+        public Guid AccountId { get; set; }
         public decimal InitialBalance { get; set; }
         public decimal CurrentBalance { get; set; }
     }

@@ -19,12 +19,6 @@ namespace Settlement.Domain.Services
             this.httpClient = httpClient;
         }
 
-        public HttpClient GetAccountClient()
-        {
-            httpClient.BaseAddress = new Uri("");
-            return httpClient;
-        }
-
         public Task<UserAccountInfoDto> GetUserAccountBalance(string userId)
         {
             UserAccountInfoDto info = new UserAccountInfoDto();
