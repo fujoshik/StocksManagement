@@ -1,4 +1,5 @@
-﻿using Settlement.Domain.Abstraction.Services;
+﻿using Accounts.Domain.DTOs.Wallet;
+using Settlement.Domain.Abstraction.Services;
 using Settlement.Domain.DTOs.Settlement;
 
 namespace Settlement.Domain.Services
@@ -11,21 +12,20 @@ namespace Settlement.Domain.Services
         {
             this.httpClientService = httpClientService;
         }
-        public async Task<SettlementResponseDto> CheckAccount(string userId, decimal amount)
+
+        public async Task<SettlementResponseDto> ExecuteDeal(WalletResponseDto model, decimal price, int amount)
         {
             SettlementResponseDto response = new SettlementResponseDto();
-            
-            var userAccountBalance = await httpClientService.GetUserAccountBalance(userId);
 
-            var initialBalance = userAccountBalance.InitialBalance;
-            var currentBalance = userAccountBalance.CurrentBalance;
+            var userAccountBalance = await httpClientService.GetAccountBalance(model.Id);
 
-            if(currentBalance > amount)
+            if (userAccountBalance.CurrentBalance >= price * amount)
             {
-                var commision = amount * 0.0005M; 
-                var newBalance = currentBalance - amount - commision;
+                decimal commission = (price * amount) * 0.0005M;
 
-                if(newBalance <= 0.85M * initialBalance)
+                userAccountBalance.CurrentBalance -= (price * amount) + commission;
+
+                if (userAccountBalance.CurrentBalance < 0.85M * 1000M)
                 {
                     response.Success = false;
                     response.Message = "Loss of 15% on initial capital.";
@@ -35,19 +35,17 @@ namespace Settlement.Domain.Services
                     response.Success = true;
                     response.Message = "Your account is in good standing.";
                 }
-
-                response.InitialBalance = initialBalance;
-                response.CurrentBalance = newBalance;
-
             }
             else
             {
                 response.Success = false;
-                response.Message = "Insufficient funds.";
-
-                response.InitialBalance = initialBalance;
-                response.CurrentBalance = currentBalance;
+                response.Message = "Error while processing the deal.";
             }
+
+            response.InitialBalance = userAccountBalance.InitialBalance;
+            response.CurrentBalance = userAccountBalance.CurrentBalance;
+
+            response.TotalBalance = userAccountBalance.CurrentBalance;
 
             return response;
         }

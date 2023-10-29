@@ -1,14 +1,10 @@
-﻿using Settlement.Domain.DTOs.Settlement;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Accounts.Domain.DTOs.Wallet;
+using Settlement.Domain.DTOs.Settlement;
 
 namespace Settlement.Domain.Abstraction.Services
 {
     public interface ISettlementService
     {
-        Task<SettlementResponseDto> CheckAccount(string userId, decimal amount);
+        Task<SettlementResponseDto> ExecuteDeal(WalletResponseDto model, decimal price, int amount);
     }
 }

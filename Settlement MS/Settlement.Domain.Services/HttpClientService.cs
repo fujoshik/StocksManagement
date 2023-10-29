@@ -1,39 +1,32 @@
 ﻿using Settlement.Domain.Abstraction.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net.Http;
-using Settlement.Domain.DTOs.Settlement;
-using Settlement.Domain.DTOs.Account;
+using Accounts.Domain.DTOs.Wallet;
+using Newtonsoft.Json;
 
 namespace Settlement.Domain.Services
 {
     public class HttpClientService : IHttpClientService
     {
         private readonly HttpClient httpClient;
+        private readonly IWalletRoutes walletRoutes;
 
-        public HttpClientService(HttpClient httpClient)
+        public HttpClientService(HttpClient httpClient, IWalletRoutes walletRoutes)
         {
             this.httpClient = httpClient;
+            this.walletRoutes = walletRoutes;
         }
 
-        public Task<UserAccountInfoDto> GetUserAccountBalance(string userId)
+        public async Task<WalletResponseDto> GetAccountBalance(Guid id)
         {
-            UserAccountInfoDto info = new UserAccountInfoDto();
-
-            if(userId == "example")
+            HttpResponseMessage response = await httpClient.GetAsync(walletRoutes.Routes["GET"].Replace("{id}", id.ToString()));
+            if (response.IsSuccessStatusCode)
             {
-                info.InitialBalance = 1000M;
-                info.CurrentBalance = 1000M;
-                return Task.FromResult(info);
+                string data = await response.Content.ReadAsStringAsync();
+                WalletResponseDto wallet = JsonConvert.DeserializeObject<WalletResponseDto>(data);
+                return await Task.FromResult(wallet);
             }
             else
             {
-                info.InitialBalance = 0M;
-                info.CurrentBalance = 0M;
-                return Task.FromResult(info);
+                throw new HttpRequestException($"Error: {response.StatusCode} - {response.ReasonPhrase}");
             }
         }
     }

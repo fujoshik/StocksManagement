@@ -12,5 +12,6 @@ namespace Settlement.Domain.DTOs.Settlement
         public string? Message { get; set; }
         public decimal InitialBalance { get; set; }
         public decimal CurrentBalance { get; set; }
+        public decimal TotalBalance { get; set; }
     }
 }
