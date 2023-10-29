@@ -1,16 +1,16 @@
-﻿using Accounts.Infrastructure.Entities;
+﻿using Accounts.Domain.DTOs;
 using Autofac;
 
 namespace Accounts.API.AutofacModules
 {
-    public class RepositoriesModule : Module
+    public class ProvidersModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
-            var assembly = typeof(BaseEntity).Assembly;
+            var assembly = typeof(BaseResponseDto).Assembly;
 
             builder.RegisterAssemblyTypes(assembly)
-                    .Where(t => t.Name.EndsWith("Repository") || t.Name.EndsWith("Work"))
+                    .Where(t => t.Name.EndsWith("Provider"))
                     .AsImplementedInterfaces()
                     .InstancePerLifetimeScope();
         }

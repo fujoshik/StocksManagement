@@ -32,7 +32,7 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"SELECT * FROM {TableName} WHERE Email = '{email}'", connection);
+                SqlCommand cmd = new SqlCommand($"USE StocksDB; SELECT * FROM {TableName} WHERE Email = '{email}'", connection);
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     dataTable.Load(reader);

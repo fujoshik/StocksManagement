@@ -2,7 +2,6 @@ using Accounts.API.AutofacModules;
 using Accounts.API.Extensions;
 using Autofac.Extensions.DependencyInjection;
 using Autofac;
-using Accounts.Domain.Settings;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +12,7 @@ builder.Host
     {
         autofacBuilder.RegisterModule<ServicesModule>();
         autofacBuilder.RegisterModule<RepositoriesModule>();
+        autofacBuilder.RegisterModule<ProvidersModule>();
     });
 
 builder.Services.AddControllers();
@@ -21,7 +21,8 @@ builder.AddJwtAuthentication();
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddEndpointsApiExplorer()
+                .AddHttpContextAccessor();
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -53,6 +54,8 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddStocksAutomapper();
 
 var app = builder.Build();
+
+app.ConfigureCustomExceptionMiddleware();
 
 if (app.Environment.IsDevelopment())
 {

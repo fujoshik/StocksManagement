@@ -10,15 +10,12 @@ namespace Accounts.Domain.Services
     public class UserService : IUserService
     {
         private readonly IMapper _mapper;
-        private readonly IUserRepository _userRepository;
-        private readonly IAccountRepository _accountRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(IUserRepository userRepository,
-                           IAccountRepository accountRepository,
+        public UserService(IUnitOfWork unitOfWork,
                            IMapper mapper)
         {
-            _userRepository = userRepository;
-            _accountRepository = accountRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
@@ -27,12 +24,12 @@ namespace Accounts.Domain.Services
             var user = _mapper.Map<UserRequestDto>(registerDto);
             user.AccountId = accountId;
 
-            return await _userRepository.InsertAsync<UserRequestDto, UserResponseDto>(user);
+            return await _unitOfWork.UserRepository.InsertAsync<UserRequestDto, UserResponseDto>(user);
         }
 
         public async Task<UserResponseDto> UpdateAsync(Guid id, UserWithoutAccountIdDto user)
         {
-            return await _userRepository.UpdateAsync<UserWithoutAccountIdDto, UserResponseDto>(id, user);
+            return await _unitOfWork.UserRepository.UpdateAsync<UserWithoutAccountIdDto, UserResponseDto>(id, user);
         }
 
         public async Task<UserResponseDto> GetByIdAsync(Guid id)
@@ -42,12 +39,12 @@ namespace Accounts.Domain.Services
                 throw new ArgumentNullException(nameof(id));
             }
 
-            return await _userRepository.GetByIdAsync<UserResponseDto>(id);
+            return await _unitOfWork.UserRepository.GetByIdAsync<UserResponseDto>(id);
         }
 
         public async Task<PaginatedResult<UserResponseDto>> GetPageAsync(PagingInfo pagingInfo)
         {
-            return await _userRepository.GetPageAsync<UserResponseDto>(pagingInfo.PageNumber, pagingInfo.PageSize);
+            return await _unitOfWork.UserRepository.GetPageAsync<UserResponseDto>(pagingInfo.PageNumber, pagingInfo.PageSize);
         }
 
         public async Task DeleteAsync(Guid id)
@@ -57,11 +54,11 @@ namespace Accounts.Domain.Services
                 throw new ArgumentNullException(nameof(id));
             }
 
-            var user = await _userRepository.GetByIdAsync<UserResponseDto>(id);
+            var user = await _unitOfWork.UserRepository.GetByIdAsync<UserResponseDto>(id);
 
-            await _userRepository.DeleteAsync(id);
+            await _unitOfWork.UserRepository.DeleteAsync(id);
 
-            await _accountRepository.DeleteAsync(user.AccountId);
+            await _unitOfWork.AccountRepository.DeleteAsync(user.AccountId);
         }
     }
 }

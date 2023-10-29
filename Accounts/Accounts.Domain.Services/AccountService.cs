@@ -11,14 +11,14 @@ namespace Accounts.Domain.Services
         private readonly IMapper _mapper;
         private readonly IPasswordService _passwordService;
         private readonly IWalletService _walletService;
-        private readonly IAccountRepository _accountRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AccountService(IAccountRepository accountRepository,
+        public AccountService(IUnitOfWork unitOfWork,
                               IPasswordService passwordService,
                               IWalletService walletService,
                               IMapper mapper)
         {
-            _accountRepository = accountRepository;
+            _unitOfWork = unitOfWork;
             _passwordService = passwordService;
             _walletService = walletService;
             _mapper = mapper;
@@ -35,7 +35,7 @@ namespace Accounts.Domain.Services
             account.PasswordSalt = Convert.ToBase64String(salt);
             account.WalletId = wallet.Id;
 
-            return await _accountRepository.InsertAsync<AccountRequestDto, AccountResponseDto>(account);
+            return await _unitOfWork.AccountRepository.InsertAsync<AccountRequestDto, AccountResponseDto>(account);
         }
 
         public async Task<AccountResponseDto> GetByIdAsync(Guid id)
@@ -45,7 +45,7 @@ namespace Accounts.Domain.Services
                 throw new ArgumentNullException(nameof(id));
             }
 
-            return await _accountRepository.GetByIdAsync<AccountResponseDto>(id);
+            return await _unitOfWork.AccountRepository.GetByIdAsync<AccountResponseDto>(id);
         }
 
         public async Task DeleteAsync(Guid id)
@@ -55,7 +55,7 @@ namespace Accounts.Domain.Services
                 throw new ArgumentNullException(nameof(id));
             }
 
-            await _accountRepository.DeleteAsync(id);
+            await _unitOfWork.AccountRepository.DeleteAsync(id);
         }
     }
 }
