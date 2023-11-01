@@ -1,9 +1,17 @@
+using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
+using Analyzer.API.Analyzer.Domain.Abstracions.Services;
+using Analyzer.API.Analyzer.Domain.DTOs;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+builder.Services.AddScoped<IService, ApiService>();
+builder.Services.AddScoped<ICalculationService, CalculationService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
