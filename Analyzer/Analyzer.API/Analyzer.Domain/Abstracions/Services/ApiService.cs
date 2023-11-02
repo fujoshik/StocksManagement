@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
+using Accounts.Domain.DTOs.Account;
+using Accounts.Domain.DTOs.Wallet;
 
 namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 {
@@ -18,75 +20,42 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
         public ApiService(IHttpClientService httpClientAccaounts)
         {
             this.httpClientAccaounts = httpClientAccaounts;
-           
         }
 
-
-        public async Task<UserData> GetInfoFromAccount(int id)
+        public async Task<WalletResponseDto> GetAccountInfoById(Guid id)
         {
             using (var httpClient = httpClientAccaounts.GetAccountClient())
             {
                 string getUrl = $"/api/accounts/{id}";
                 HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
-
                 if (response.IsSuccessStatusCode)
                 {
                     string data = await response.Content.ReadAsStringAsync();
-                    JObject jsonData = JObject.Parse(data);
-
-                    UserData userData = new UserData();
-
-
-                    if (jsonData.TryGetValue("Amount", out var amountToken))
-                    {
-                        userData.Amount = decimal.Parse(amountToken.ToString());
-                    }
-
-                    if (jsonData.TryGetValue("Amount", out var currentBalanceToken))
-                    {
-                        userData.CurrentBalance = decimal.Parse(currentBalanceToken.ToString());
-                    }
-
-                    return userData;
+                    WalletResponseDto accountData = JsonConvert.DeserializeObject<WalletResponseDto>(data);
+                    return accountData;
                 }
 
                 return null;
             }
         }
 
-        //public async Task<string> GetUserById(int id)
+
+        //public async Task< UserData> GetInfoFromSettlement(string id)
         //{
-        //    string getUrl = $"/api/accounts/{id}";
-
-        //    HttpResponseMessage response = await httpClientAccaounts.GetAsync(getUrl);
-
-        //    if (response.IsSuccessStatusCode)
+        //    using (var httpClient = httpClientSettlement.GetAccountClient())
         //    {
-        //        string data = await response.Content.ReadAsStringAsync();
-        //        return data;
+        //        string getUrl = $"/api/accounts/{id}";
+        //        HttpResponseMessage response = await httpClient.GetAsync(getUrl);
+
+        //        if (response.IsSuccessStatusCode)
+        //        {
+
+        //        }
+
+        //        return null;
         //    }
-
-        //    return null;
         //}
-
-
-
-        public async Task<UserData> GetInfoFromSettlement(string id)
-        {
-            using (var httpClient = httpClientSettlement.GetAccountClient())
-            {
-                string getUrl = $"/api/accounts/{id}";
-                HttpResponseMessage response = await httpClient.GetAsync(getUrl);
-
-                if (response.IsSuccessStatusCode)
-                {
-
-                }
-
-                return null;
-            }
-        }
 
     }
 }

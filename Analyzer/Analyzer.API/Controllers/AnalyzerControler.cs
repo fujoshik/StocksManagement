@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
+using Accounts.Domain.DTOs.Wallet;
 
 namespace Analyzer.API.Controllers
 {
@@ -15,34 +16,20 @@ namespace Analyzer.API.Controllers
             this.iservice = iservice;
         }
 
+
         [HttpGet("check-accounts")]
-        public async Task<IActionResult> GetApiData(int id)
+        public async Task<IActionResult> GetAccountInfo(Guid id)
         {
-            UserData data = await iservice.GetInfoFromAccount(id);
-            if (data != null)
+            WalletResponseDto accountData = await iservice.GetAccountInfoById(id);
+
+            if (accountData != null)
             {
-                return Ok(data);
+                return Ok(accountData);
             }
+
             return StatusCode(500, "Woopsie Daisy! Looks like something went completely wrong. You can try again later. ;)");
         }
 
-
-        //[HttpGet("get-user-by-id")]
-        //public async Task<IActionResult> GetUserById(int id)
-        //{
-        //    if (id <= 0)
-        //    {
-        //        return BadRequest("Invalid id.");
-        //    }
-
-        //    string data = await iservice.GetUserById(id);
-
-        //    if (data != null)
-        //    {
-        //        return Ok(data);
-        //    }
-
-        //    return StatusCode(500, "Woopsie Dasy!   Looks like something went completely wrogg. You can try again later. ;)");
-        //}
+        
     }
 }
