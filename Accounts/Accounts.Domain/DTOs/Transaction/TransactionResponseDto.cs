@@ -1,8 +1,8 @@
 ﻿using Accounts.Domain.Enums;
 
-namespace Accounts.Infrastructure.Entities
+namespace Accounts.Domain.DTOs.Transaction
 {
-    public class Transaction : BaseEntity
+    public class TransactionResponseDto : BaseResponseDto
     {
         public Guid AccountId { get; set; }
         public string StockTicker { get; set; }

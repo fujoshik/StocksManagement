@@ -9,6 +9,7 @@ namespace Accounts.Infrastructure.Repositories
         private IAccountRepository _accountRepository;
         private IUserRepository _userRepository;
         private IWalletRepository _walletRepository;
+        private ITransactionRepository _transactionRepository;
 
         public UnitOfWork(IConfiguration configuration)
         {
@@ -19,7 +20,6 @@ namespace Accounts.Infrastructure.Repositories
         {
             get
             {
-
                 if (_accountRepository == null)
                 {
                     _accountRepository = new AccountRepository(_configuration);
@@ -32,7 +32,6 @@ namespace Accounts.Infrastructure.Repositories
         {
             get
             {
-
                 if (_userRepository == null)
                 {
                     _userRepository = new UserRepository(_configuration);
@@ -45,12 +44,23 @@ namespace Accounts.Infrastructure.Repositories
         {
             get
             {
-
                 if (_walletRepository == null)
                 {
                     _walletRepository = new WalletRepository(_configuration);
                 }
                 return _walletRepository;
+            }
+        }
+
+        public ITransactionRepository TransactionRepository
+        {
+            get
+            {
+                if (_transactionRepository == null)
+                {
+                    _transactionRepository = new TransactionRepository(_configuration);
+                }
+                return _transactionRepository;
             }
         }
     }

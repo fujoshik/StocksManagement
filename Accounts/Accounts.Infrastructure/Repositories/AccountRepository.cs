@@ -20,7 +20,8 @@ namespace Accounts.Infrastructure.Repositories
             var result = new AccountResponseDto()
             {
                 Id = Guid.Parse(dataRow["Id"].ToString()),
-                Email = dataRow["Email"].ToString()
+                Email = dataRow["Email"].ToString(),
+                WalletId = Guid.Parse(dataRow["WalletId"].ToString())
             };
 
             return (TOutput)Convert.ChangeType(result, typeof(TOutput));
