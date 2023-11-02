@@ -1,7 +1,8 @@
-﻿using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
-using Analyzer.API.Analyzer.Domain.Abstracions.Services;
-using Microsoft.AspNetCore.Http;
+﻿using Accounts.Domain.DTOs.Wallet;
+using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;  
 
 namespace Analyzer.API.Controllers
 {
@@ -19,16 +20,16 @@ namespace Analyzer.API.Controllers
         }
 
         [HttpGet("calculate-current-yield")]
-        public IActionResult CalculateCurrentYield(decimal amount, decimal currentBalance)
+        public async Task<IActionResult> CalculateCurrentYield(Guid id, decimal initialBalance, decimal currentBalance)
         {
             try
             {
-                if (currentBalance <= 0)
+                if (!calculationService.IsValidMarketPrice(currentBalance))
                 {
                     return BadRequest("Invalid current market price.");
                 }
 
-                decimal currentYield = calculationService.CalculateCurrentYield(amount, currentBalance);
+                decimal currentYield = await calculationService.CalculateCurrentYield(id, initialBalance, currentBalance);
                 return Ok(new { CurrentYield = currentYield });
             }
             catch (ArgumentException ex)

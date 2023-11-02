@@ -37,10 +37,6 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 
                     UserData userData = new UserData();
 
-                    if (jsonData.TryGetValue("AccountGuid", out var accountGuidToken))
-                    {
-                        userData.AccountGuid = Guid.Parse(accountGuidToken.ToString());
-                    }
 
                     if (jsonData.TryGetValue("Amount", out var amountToken))
                     {

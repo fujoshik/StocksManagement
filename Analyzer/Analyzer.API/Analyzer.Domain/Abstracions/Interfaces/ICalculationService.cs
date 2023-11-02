@@ -1,11 +1,12 @@
-﻿using Analyzer.API.Analyzer.Domain.DTOs;
+﻿using Accounts.Domain.DTOs.Wallet;
+using Analyzer.API.Analyzer.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Analyzer.API.Analyzer.Domain.Abstracions.Interfaces
 {
     public interface ICalculationService
     {
-        public decimal CalculateCurrentYield(decimal amount, decimal currentBalance);
+        Task<decimal> CalculateCurrentYield(Guid id, decimal initialBalance, decimal currentBalance);
         bool IsValidMarketPrice(decimal currentBalance);
     }
 }
