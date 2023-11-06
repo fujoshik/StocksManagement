@@ -6,7 +6,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Interfaces
 {
     public interface ICalculationService
     {
-        Task<decimal> CalculateCurrentYield(Guid id, decimal initialBalance, decimal currentBalance);
+        public decimal CalculateCurrentYield(WalletResponseDto walletResponseDto);
         bool IsValidMarketPrice(decimal currentBalance);
     }
 }

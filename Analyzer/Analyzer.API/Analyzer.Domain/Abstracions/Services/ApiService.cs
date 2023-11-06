@@ -26,7 +26,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
         {
             using (var httpClient = httpClientAccaounts.GetAccountClient())
             {
-                string getUrl = $"/api/accounts/{id}";
+                string getUrl = $"/accounts-api/wallets/{id}";
                 HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
                 if (response.IsSuccessStatusCode)

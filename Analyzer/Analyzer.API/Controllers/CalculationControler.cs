@@ -13,23 +13,20 @@ namespace Analyzer.API.Controllers
         private readonly ICalculationService calculationService;
         private readonly IHttpClientService httpClientAccaounts;
 
-        public CalculationControler(ICalculationService calculationService)
+
+        public CalculationControler(ICalculationService calculationService, IHttpClientService httpClientAccaounts)
         {
             this.calculationService = calculationService;
             this.httpClientAccaounts = httpClientAccaounts;
         }
 
         [HttpGet("calculate-current-yield")]
-        public async Task<IActionResult> CalculateCurrentYield(Guid id, decimal initialBalance, decimal currentBalance)
+        public IActionResult CalculateCurrentYield([FromBody] WalletResponseDto walletResponseDto)
         {
             try
             {
-                if (!calculationService.IsValidMarketPrice(currentBalance))
-                {
-                    return BadRequest("Invalid current market price.");
-                }
+                decimal currentYield = calculationService.CalculateCurrentYield(walletResponseDto);
 
-                decimal currentYield = await calculationService.CalculateCurrentYield(id, initialBalance, currentBalance);
                 return Ok(new { CurrentYield = currentYield });
             }
             catch (ArgumentException ex)

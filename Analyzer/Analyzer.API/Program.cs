@@ -11,6 +11,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<IService, ApiService>();
 builder.Services.AddScoped<ICalculationService, CalculationService>();
+builder.Services.AddScoped<IHttpClientService, HttpClientService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
