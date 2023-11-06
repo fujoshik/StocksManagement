@@ -13,11 +13,11 @@ namespace Settlement.Domain.Services
             this.httpClientService = httpClientService;
         }
 
-        public async Task<SettlementResponseDto> ExecuteDeal(WalletResponseDto model, decimal price, int amount)
+        public async Task<SettlementResponseDto> ExecuteDeal(Guid walletId, decimal price, int amount)
         {
             SettlementResponseDto response = new SettlementResponseDto();
 
-            var userAccountBalance = await httpClientService.GetAccountBalance(model.Id);
+            var userAccountBalance = await httpClientService.GetWalletBalance(walletId);
 
             if (userAccountBalance.CurrentBalance >= price * amount)
             {
@@ -25,7 +25,7 @@ namespace Settlement.Domain.Services
 
                 userAccountBalance.CurrentBalance -= (price * amount) + commission;
 
-                if (userAccountBalance.CurrentBalance < 0.85M * 1000M)
+                if (userAccountBalance.CurrentBalance < 0.85M * userAccountBalance.InitialBalance)
                 {
                     response.Success = false;
                     response.Message = "Loss of 15% on initial capital.";
