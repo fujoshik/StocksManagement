@@ -4,8 +4,9 @@ using Settlement.Domain.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<ISettlementService, SettlementService>();
-builder.Services.AddScoped<IHttpClientService, HttpClientService>();
+builder.Services.AddScoped<IHttpClientService, ConnectionService>();
 builder.Services.AddScoped<IWalletRoutes, WalletRoutes>();
+builder.Services.AddScoped<IStockRoutes, StockRoutes>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

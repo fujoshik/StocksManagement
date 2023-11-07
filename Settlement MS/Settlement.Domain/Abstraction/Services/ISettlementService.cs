@@ -5,6 +5,6 @@ namespace Settlement.Domain.Abstraction.Services
 {
     public interface ISettlementService
     {
-        Task<SettlementResponseDto> ExecuteDeal(WalletResponseDto model, decimal price, int amount);
+        Task<SettlementResponseDto> ExecuteDeal(Guid walletId, decimal price, int amount);
     }
 }

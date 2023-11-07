@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Settlement.Domain.Services
+namespace Analyze.Domain.Service
 {
-    public class Program
+    internal class ApiService
     {
-        static void Main(string[] args)
-        {
-        }
     }
 }

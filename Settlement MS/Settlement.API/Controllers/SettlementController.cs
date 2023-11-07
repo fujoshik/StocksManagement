@@ -19,12 +19,17 @@ namespace Settlement.API.Controllers
             this.httpClientService = httpClientService;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetAccountBalance(Guid id)
+        [HttpGet("{walletId}")]
+        public async Task<IActionResult> GetWalletBalance(Guid walletId)
         {
             try
             {
-                var response = await httpClientService.GetAccountBalance(id);
+                /*var apiName = HttpContext.Request.Headers["X-Api-Name"].FirstOrDefault();
+                if (apiName != "Accounts.API")
+                {
+                    return BadRequest("Invalid API access.");
+                }*/
+                var response = await httpClientService.GetWalletBalance(walletId);
                 return Ok(response);
             }
             catch (Exception e)
@@ -33,12 +38,33 @@ namespace Settlement.API.Controllers
             }
         }
 
-        [HttpPost("{executeDeal}")]
-        public async Task<IActionResult> ExecuteDeal(WalletResponseDto model, decimal price, int amount)
+        /* testing...
+        [HttpGet("{stockId}")]
+        public async Task<IActionResult> GetStockPrice(string stockId)
         {
             try
             {
-                var response = await settlementService.ExecuteDeal(model, price, amount);
+                var apiName = HttpContext.Request.Headers["X-Api-Name"].FirstOrDefault();
+                if(apiName != "StockAPI.API")
+                {
+                   return BadRequest("Invalid API access.");
+                }
+                var response = await httpClientService.GetStockPrice(stockId);
+                return Ok(response);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        */
+
+        [HttpPost("{walletId}/{stockId}/{amount}")]
+        public async Task<IActionResult> ExecuteDeal(Guid walletId, decimal price, int amount)
+        {
+            try
+            {
+                var response = await settlementService.ExecuteDeal(walletId, price, amount);
                 return Ok(response);
             }
             catch(Exception e)
