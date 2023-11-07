@@ -1,30 +1,30 @@
-﻿using Accounts.Domain.Abstraction.Factories;
+﻿using Accounts.Domain.Abstraction.Clients;
+using Accounts.Domain.Abstraction.Factories;
+using Accounts.Domain.Abstraction.Repositories;
+using Accounts.Domain.Clients;
 using Accounts.Domain.Settings;
 
 namespace Accounts.Domain.Factories
 {
     public class HttpClientFactory : IHttpClientFactory
     {
-        private readonly string _stockApiUrl;
-        private readonly string _settlementApiUrl;
-        private HttpClient _httpClient;
+        private readonly ISettlementClient _settlementClient;
+        private readonly IStockApiClient _stockApiClient;
 
-        public HttpClientFactory(HostsSettings hosts)
+        public HttpClientFactory(IStockApiClient stockApiClient,
+                                 ISettlementClient settlementClient)
         {
-            _stockApiUrl = hosts.StockApi;
-            _settlementApiUrl = hosts.Settlement;
-            _httpClient = new HttpClient();
+            _settlementClient = settlementClient;
+            _stockApiClient = stockApiClient;
         }
-        public HttpClient GetStockApiClient()
-        { 
-            _httpClient.BaseAddress = new Uri(_stockApiUrl);
-            return _httpClient;
+        public IStockApiClient StockApiClient()
+        {
+            return _stockApiClient;
         }
 
-        public HttpClient GetSettlementClient()
+        public ISettlementClient SettlementClient()
         {
-            _httpClient.BaseAddress = new Uri(_settlementApiUrl);
-            return _httpClient;
+            return _settlementClient;
         }
     }
 }

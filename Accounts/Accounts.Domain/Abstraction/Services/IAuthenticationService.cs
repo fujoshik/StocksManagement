@@ -1,10 +1,10 @@
-﻿using Accounts.Domain.DTOs.Account;
+﻿using Accounts.Domain.DTOs.Authentication;
 
 namespace Accounts.Domain.Abstraction.Services
 {
     public interface IAuthenticationService
     {
-        void Register(RegisterDto accountDto);
+        void Register(RegisterDto registerDto);
         Task<string> LoginAsync(LoginDto accountDto);
     }
 }

@@ -14,6 +14,8 @@ builder.Host
         autofacBuilder.RegisterModule<ServicesModule>();
         autofacBuilder.RegisterModule<RepositoriesModule>();
         autofacBuilder.RegisterModule<ProvidersModule>();
+        autofacBuilder.RegisterModule<FactoriesModule>();
+        autofacBuilder.RegisterModule<ClientsModule>();
     });
 
 builder.Services.AddControllers();

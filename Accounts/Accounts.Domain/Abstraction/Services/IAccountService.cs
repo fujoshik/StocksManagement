@@ -1,4 +1,5 @@
 ﻿using Accounts.Domain.DTOs.Account;
+using Accounts.Domain.DTOs.Authentication;
 
 namespace Accounts.Domain.Abstraction.Services
 {

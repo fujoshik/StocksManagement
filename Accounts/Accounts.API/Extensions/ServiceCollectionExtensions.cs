@@ -9,6 +9,7 @@ namespace Accounts.API.Extensions
             {
                 mc.AddProfile(new AccountProfile());
                 mc.AddProfile(new UserProfile());
+                mc.AddProfile(new WalletProfile());
             });
     }
 }

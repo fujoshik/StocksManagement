@@ -1,4 +1,4 @@
-﻿using Accounts.Domain.DTOs.Account;
+﻿using Accounts.Domain.DTOs.Authentication;
 using Accounts.Domain.DTOs.User;
 using Accounts.Domain.Pagination;
 
