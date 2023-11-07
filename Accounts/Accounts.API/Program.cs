@@ -1,15 +1,62 @@
+using Accounts.API.AutofacModules;
+using Accounts.API.Extensions;
+using Autofac.Extensions.DependencyInjection;
+using Autofac;
+using Microsoft.OpenApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Host
+    .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+    .ConfigureContainer<ContainerBuilder>(autofacBuilder =>
+    {
+        autofacBuilder.RegisterModule<ServicesModule>();
+        autofacBuilder.RegisterModule<RepositoriesModule>();
+        autofacBuilder.RegisterModule<ProvidersModule>();
+    });
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.AddJwtAuthentication();
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddEndpointsApiExplorer()
+                .AddHttpContextAccessor();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "StockManagement API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Example: \"Athorization: Bearer {token}\"",
+        Type = SecuritySchemeType.ApiKey,
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Name = "Authorization"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+builder.Services.AddStocksAutomapper();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.ConfigureCustomExceptionMiddleware();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
