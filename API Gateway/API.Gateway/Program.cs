@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -23,3 +25,19 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+    var loggerFactory = LoggerFactory.Create(builder =>
+    {
+        builder
+                .AddConsole();
+    });
+
+var logger = loggerFactory.CreateLogger<Program>();
+
+    logger.LogInformation("...");
+    logger.LogWarning("Warning");
+    logger.LogError("Error");
+
+    
+    var user = "Domain";
+    logger.LogInformation("Consumer {User} logged in the system.", user);
