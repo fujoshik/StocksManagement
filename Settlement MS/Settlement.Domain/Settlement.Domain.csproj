@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Accounts\Accounts.Domain\Accounts.Domain.csproj" />
+    <ProjectReference Include="..\..\Stock API\StockAPI.Infrastructure\StockAPI.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

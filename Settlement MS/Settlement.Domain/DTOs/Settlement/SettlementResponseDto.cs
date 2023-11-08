@@ -10,8 +10,7 @@ namespace Settlement.Domain.DTOs.Settlement
     {
         public bool Success { get; set; }
         public string? Message { get; set; }
-        public decimal InitialBalance { get; set; }
-        public decimal CurrentBalance { get; set; }
+        public decimal StockPrice { get; set; }
         public decimal TotalBalance { get; set; }
     }
 }

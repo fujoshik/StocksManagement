@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Accounts.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,11 @@ using System.Threading.Tasks;
 
 namespace Settlement.Domain.DTOs.Transaction
 {
-    internal class TransactionRequestDto
+    public class TransactionRequestDto
     {
+        public Guid WalletId { get; set; }
+        public string Date { get; set; }
+        public string StockTicker { get; set; }
+        public int Quantity { get; set; }
     }
 }

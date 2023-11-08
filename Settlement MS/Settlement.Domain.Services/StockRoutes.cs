@@ -15,7 +15,7 @@ namespace Settlement.Domain.Services
         {
             Routes = new Dictionary<string, string>
             {
-                { "GET", "" }
+                { "GET", "https://localhost:7195/api/StockAPI/get-stock-by-date-and-ticker?date={date}&stockTicker={stockTicker}" }
             };
         }
     }
