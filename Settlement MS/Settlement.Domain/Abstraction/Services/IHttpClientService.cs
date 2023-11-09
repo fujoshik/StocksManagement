@@ -6,6 +6,6 @@ namespace Settlement.Domain.Abstraction.Services
     public interface IHttpClientService
     {
         Task<WalletResponseDto> GetWalletBalance(Guid walletId);
-        Task<Stock> GetStockByDateAndTicker(string date, string stockTicker)
+        Task<Stock> GetStockByDateAndTicker(string date, string stockTicker);
     }
 }
