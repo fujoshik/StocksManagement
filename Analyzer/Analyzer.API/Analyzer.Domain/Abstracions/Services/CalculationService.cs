@@ -1,28 +1,125 @@
-﻿using Accounts.Domain.DTOs.Wallet;
-using Accounts.Domain.Enums;
-using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
+﻿using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
-using Microsoft.AspNetCore.Mvc;
+using Analyzer.API.Analyzer.Domain;
+using Accounts.Domain.DTOs.Wallet;
+using System.Net;
+using YourNamespace;
 
-namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
+namespace Analyzer.API.Analyzer.Domain.Services
 {
     public class CalculationService : ICalculationService
     {
-        public async Task<decimal> CalculateCurrentYield(Guid id, decimal initialBalance, decimal currentBalance)
+        private readonly IHttpClientService httpClientAccounts;
+        private readonly ClosePriceOpenPrice closePriceOpenPrice;
+        private readonly PercentageChangeCalculator percentageChangeCalculator;
+
+        public CalculationService(IHttpClientService httpClientAccounts, ClosePriceOpenPrice closePriceOpenPrice)
         {
-            if (currentBalance <= 0)
+            this.httpClientAccounts = httpClientAccounts;
+            this.percentageChangeCalculator = percentageChangeCalculator;
+        }
+
+        public async Task<decimal> CalculateCurrentYieldForUser(Guid userId)
+        {
+            try
             {
-                throw new ArgumentException("Invalid current market price.");
+                var userData = await httpClientAccounts.GetUserDataById("YOUR_EXTERNAL_API_USER_ENDPOINT", userId);
+
+                if (userData == null)
+                {
+                    throw new UserDataNotFoundException();
+                }
+
+                decimal userInitialBalance = userData.InitialBalance;
+                decimal userCurrentBalance = userData.CurrentBalance;
+
+                if (!IsValidMarketPrice(userCurrentBalance))
+                {
+                    throw new ArgumentException("Invalid current market price for the user.");
+                }
+
+                decimal userCurrentYield = (userInitialBalance / userCurrentBalance) * 100;
+                return userCurrentYield;
             }
-
-            decimal currentYield = (initialBalance / currentBalance) * 100;
-            return currentYield;
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new UserDataNotFoundException();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
-
-        public bool IsValidMarketPrice(decimal currentBalance)
+        public bool IsValidMarketPrice(decimal marketPrice)
         {
-            return currentBalance > 0;
+            return marketPrice > 0;
         }
+
+        public async Task<decimal> CalculatePercentageChange(Guid userId, string stockTicker)
+        {
+            try
+            {
+                var userData = await httpClientAccounts.GetUserDataById("YOUR_EXTERNAL_API_USER_ENDPOINT", userId);
+
+                if (userData == null)
+                {
+                    throw new UserDataNotFoundException();
+                }
+
+                decimal highestPrice = await percentageChangeCalculator.GetStockHighestPrice(userId, stockTicker);
+                decimal lowestPrice = await percentageChangeCalculator.GetStockLowestPrice(userId, stockTicker);
+
+                decimal percentageChange = ((lowestPrice - highestPrice) / highestPrice) * 100;
+
+                return percentageChange;
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new UserDataNotFoundException();
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Error calculating percentage change for stock {stockTicker}.", ex);
+            }
+        }
+
+        public decimal CalculatePortfolioRisk(List<CalculationDTOs> stocks)
+        {
+            return 10.5m;
+        }
+
+        public async Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks)
+        {
+            try
+            {
+                if (stocks == null || !stocks.Any())
+                {
+                    throw new ArgumentException("Stocks list is null or empty.");
+                }
+
+                decimal totalDailyChanges = 0;
+
+                foreach (var stock in stocks)
+                {
+                    decimal openingPrice = await closePriceOpenPrice.GetStockOpeningPrice(stock.Ticker);
+                    decimal closingPrice = await closePriceOpenPrice.GetStockClosingPrice(stock.Ticker);
+
+                    decimal dailyChange = closingPrice - openingPrice;
+
+                    totalDailyChanges += dailyChange;
+                }
+
+                decimal averageDailyChange = totalDailyChanges / stocks.Count;
+
+                return averageDailyChange;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Error calculating daily yield changes.", ex);
+            }
+        }
+
+
 
     }
 }

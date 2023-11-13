@@ -1,10 +1,11 @@
-﻿namespace Analyzer.API.Analyzer.Domain.Abstracions.Interfaces
+﻿using Accounts.Domain.DTOs.Wallet;
+
+namespace Analyzer.API.Analyzer.Domain.Abstracions.Interfaces
 {
     public interface IHttpClientService
     {
-       
-        public HttpClient GetAccountClient();
-        public HttpClient GetSettlementClient();
-
+        Task<WalletResponseDto> GetUserDataById(string endpoint, Guid userId);
+        HttpClient GetAccountClient();
+        HttpClient GetStockAPI();
     }
 }
