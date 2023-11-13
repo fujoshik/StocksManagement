@@ -1,12 +1,14 @@
-﻿using Accounts.Domain.DTOs.Wallet;
-using Analyzer.API.Analyzer.Domain.DTOs;
-using Microsoft.AspNetCore.Mvc;
+﻿using Analyzer.API.Analyzer.Domain.DTOs;
+using Analyzer.API.Analyzer.Domain;
 
 namespace Analyzer.API.Analyzer.Domain.Abstracions.Interfaces
 {
     public interface ICalculationService
     {
-        public decimal CalculateCurrentYield(WalletResponseDto walletResponseDto);
+        Task<decimal> CalculateCurrentYieldForUser(Guid userId);
+        public Task<decimal> CalculatePercentageChange(Guid userId, string stockTicker);
+        decimal CalculatePortfolioRisk(List<CalculationDTOs> stocks);
+        public Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks);
         bool IsValidMarketPrice(decimal currentBalance);
     }
 }
