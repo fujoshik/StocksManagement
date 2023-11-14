@@ -1,6 +1,4 @@
-﻿using Accounts.Domain.Enums;
-
-namespace Accounts.Domain.DTOs.Wallet
+﻿namespace Accounts.Domain.DTOs.Wallet
 {
     public class WalletRequestDto
     {

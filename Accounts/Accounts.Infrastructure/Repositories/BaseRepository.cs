@@ -201,7 +201,7 @@ namespace Accounts.Infrastructure.Repositories
             {
                 connection.Open();
                 SqlCommand cmd = new SqlCommand($"DECLARE @MyTableVar table([testID] [uniqueidentifier]); " +
-                    $"USE StocksDB; UPDATE {TableName} SET {valuesToProps} " +
+                    $"USE StocksDB; UPDATE {TableName} SET {valuesToProps} WHERE Id = '{id}'" +
                     $"OUTPUT INSERTED.Id INTO @MyTableVar " +
                     $"SELECT * FROM {TableName} WHERE Id = CAST((SELECT TOP 1 testID from @MyTableVar) AS nvarchar(250))", connection);
                 using (var reader = await cmd.ExecuteReaderAsync())

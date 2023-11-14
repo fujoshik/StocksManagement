@@ -23,6 +23,11 @@ namespace Accounts.Domain.Services
 
         public async Task<WalletResponseDto> CreateAsync(WalletRequestDto wallet)
         {
+            if (wallet.InitialBalance == 0)
+            {
+                wallet.CurrentBalance = 10000;
+            }
+            
             return await _unitOfWork.WalletRepository.InsertAsync<WalletRequestDto, WalletResponseDto>(wallet);
         }
 

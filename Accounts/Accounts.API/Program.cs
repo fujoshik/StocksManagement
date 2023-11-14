@@ -3,6 +3,7 @@ using Accounts.API.Extensions;
 using Autofac.Extensions.DependencyInjection;
 using Autofac;
 using Microsoft.OpenApi.Models;
+using Accounts.Domain.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,8 @@ builder.Host
         autofacBuilder.RegisterModule<ServicesModule>();
         autofacBuilder.RegisterModule<RepositoriesModule>();
         autofacBuilder.RegisterModule<ProvidersModule>();
+        autofacBuilder.RegisterModule<FactoriesModule>();
+        autofacBuilder.RegisterModule<ClientsModule>();
     });
 
 builder.Services.AddControllers();
@@ -21,8 +24,11 @@ builder.AddJwtAuthentication();
 
 builder.Services.AddAuthorization();
 
+//builder.Services.AddQuartzConfiguration();
+
 builder.Services.AddEndpointsApiExplorer()
-                .AddHttpContextAccessor();
+                .AddHttpContextAccessor()
+                .Configure<HostsSettings>(builder.Configuration.GetSection("HostsSettings"));
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -54,6 +60,8 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddStocksAutomapper();
 
 var app = builder.Build();
+
+app.ConfigureSafelistMiddleware(builder.Configuration["AdminSafeList"]);
 
 app.ConfigureCustomExceptionMiddleware();
 
