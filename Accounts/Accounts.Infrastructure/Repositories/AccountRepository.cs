@@ -1,5 +1,6 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
 using Accounts.Domain.DTOs.Account;
+using Accounts.Domain.Enums;
 using Accounts.Infrastructure.Entities;
 using Microsoft.Extensions.Configuration;
 using System.Data;
@@ -21,7 +22,8 @@ namespace Accounts.Infrastructure.Repositories
             {
                 Id = Guid.Parse(dataRow["Id"].ToString()),
                 Email = dataRow["Email"].ToString(),
-                WalletId = Guid.Parse(dataRow["WalletId"].ToString())
+                WalletId = Guid.Parse(dataRow["WalletId"].ToString()),
+                Role = (Role)int.Parse(dataRow["Role"].ToString())
             };
 
             return (TOutput)Convert.ChangeType(result, typeof(TOutput));

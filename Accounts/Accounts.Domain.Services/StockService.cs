@@ -3,6 +3,7 @@ using Accounts.Domain.Abstraction.Providers;
 using Accounts.Domain.Abstraction.Services;
 using Accounts.Domain.DTOs.Transaction;
 using Accounts.Domain.Enums;
+using IHttpClientFactory = Accounts.Domain.Abstraction.Factories.IHttpClientFactory;
 
 namespace Accounts.Domain.Services
 {
@@ -24,19 +25,21 @@ namespace Accounts.Domain.Services
             _httpClientFactory = httpClientFactory;
         }
 
-        //public async Task<decimal> BuyStock(string ticker, int quantity)
+        //public async Task BuyStock(string ticker, int quantity)
         //{
         //    var currentAccount = await _accountService.GetByIdAsync(_userDetailsProvider.GetAccountId());
 
-        //    decimal result = _httpClientFactory.GetSettlementClient().BuyStock(ticker, quantity, currentAccount.WalletId);
+        //    var result = _httpClientFactory
+        //        .GetSettlementClient()
+        //        .BuyStock(ticker, quantity, currentAccount.WalletId, currentAccount.Role);
 
         //    var transactionRequest = new TransactionRequestDto()
         //    {
         //        AccountId = currentAccount.Id,
-        //        Price = ,
+        //        Price = result.Price,
         //        Quantity = quantity,
         //        StockTicker = ticker,
-        //        TransactionType = TransactionType.Bought
+        //        TransactionType = TransactionType.Bought,
         //    };
 
         //    await _transactionService.CreateAsync(transactionRequest);

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Accounts.API.Controllers
 {
@@ -7,6 +6,7 @@ namespace Accounts.API.Controllers
     [Route("accounts-api/stocks")]   
     public class StockController : ControllerBase
     {
+
         //public Task<IActionResult> BuyStock(string ticker, int quantity)
         //{
 

@@ -1,5 +1,7 @@
 ﻿using Accounts.Domain.Abstraction.Clients;
 using Accounts.Domain.Settings;
+using Newtonsoft.Json;
+using StockAPI.Infrastructure.Models;
 
 namespace Accounts.Domain.Clients
 {
@@ -11,15 +13,29 @@ namespace Accounts.Domain.Clients
         public StockApiClient(HostsSettings hosts)
         {
             _stockApiUrl = hosts.StockApi;
+            _httpClient = new HttpClient()
+            {
+                BaseAddress = new Uri(_stockApiUrl)
+            };
         }
 
         public HttpClient GetStockApiClient()
         {
-            _httpClient = new HttpClient
-            {
-                BaseAddress = new Uri(_stockApiUrl)
-            };
             return _httpClient;
+        }
+
+        public async Task<Stock> GetStockByDateAndTicker(string date, string stockTicker)
+        {
+            var response = await _httpClient.GetAsync(_stockApiUrl + "get-stocks-by-date");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException("Unsuccessful request");
+            }
+
+            var result = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<Stock>(result);
         }
     }
 }

@@ -24,6 +24,8 @@ builder.AddJwtAuthentication();
 
 builder.Services.AddAuthorization();
 
+//builder.Services.AddQuartzConfiguration();
+
 builder.Services.AddEndpointsApiExplorer()
                 .AddHttpContextAccessor()
                 .Configure<HostsSettings>(builder.Configuration.GetSection("HostsSettings"));

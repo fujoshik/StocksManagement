@@ -9,7 +9,7 @@ namespace Accounts.API.Controllers
 {
     [ApiController]
     [Route("accounts-api/users")]
-    [AuthorizeRoles(Role.Admin)]
+    [AuthorizeRoles(Role.Inactive, Role.Regular, Role.Special, Role.VIP)]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
