@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
 
+
 namespace Analyzer.API.Analyzer.Domain
 {
     public class PercentageChangeCalculator
@@ -15,12 +16,12 @@ namespace Analyzer.API.Analyzer.Domain
             this.httpClientService = httpClientService;
         }
 
-        public async Task<decimal> CalculatePercentageChange(Guid userId, string stockTicker)
+        public async Task<decimal> CalculatePercentageChange(Guid userId, string stockTicker, string Date)
         {
             try
             {
-                decimal highestPrice = await GetStockHighestPrice(userId, stockTicker);
-                decimal lowestPrice = await GetStockLowestPrice(userId, stockTicker);
+                decimal highestPrice = await GetStockHighestPrice(userId, stockTicker, Date);
+                decimal lowestPrice = await GetStockLowestPrice(userId, stockTicker, Date);
 
                 decimal percentageChange = ((lowestPrice - highestPrice) / highestPrice) * 100;
 
@@ -32,7 +33,7 @@ namespace Analyzer.API.Analyzer.Domain
             }
         }
 
-        public async Task<decimal> GetStockHighestPrice(Guid userId, string stockTicker)
+        public async Task<decimal> GetStockHighestPrice(Guid userId, string stockTicker, string Date)
         {
             try
             {
@@ -48,7 +49,7 @@ namespace Analyzer.API.Analyzer.Domain
             }
         }
 
-        public async Task<decimal> GetStockLowestPrice(Guid userId, string stockTicker)
+        public async Task<decimal> GetStockLowestPrice(Guid userId, string stockTicker, string Date)
         {
             try
             {

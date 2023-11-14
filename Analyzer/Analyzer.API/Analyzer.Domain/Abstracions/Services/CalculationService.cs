@@ -23,7 +23,7 @@ namespace Analyzer.API.Analyzer.Domain.Services
         {
             try
             {
-                var userData = await httpClientAccounts.GetUserDataById("YOUR_EXTERNAL_API_USER_ENDPOINT", userId);
+                var userData = await httpClientAccounts.GetUserDataById("/accounts-api/wallets/{id}", userId);
 
                 if (userData == null)
                 {
@@ -55,19 +55,19 @@ namespace Analyzer.API.Analyzer.Domain.Services
             return marketPrice > 0;
         }
 
-        public async Task<decimal> CalculatePercentageChange(Guid userId, string stockTicker)
+        public async Task<decimal> CalculatePercentageChange(Guid userId, string stockTicker, string Data)
         {
             try
             {
-                var userData = await httpClientAccounts.GetUserDataById("YOUR_EXTERNAL_API_USER_ENDPOINT", userId);
+                var stockData = await httpClientAccounts.GetStockData("/api/StockAPI/get-stock-by-date-and-ticker?date={Data}&stockTicker={stockTicker}", stockTicker, Data);
 
-                if (userData == null)
+                if (stockData == null)
                 {
                     throw new UserDataNotFoundException();
                 }
 
-                decimal highestPrice = await percentageChangeCalculator.GetStockHighestPrice(userId, stockTicker);
-                decimal lowestPrice = await percentageChangeCalculator.GetStockLowestPrice(userId, stockTicker);
+                decimal highestPrice = await percentageChangeCalculator.GetStockHighestPrice(userId, stockTicker, Data);
+                decimal lowestPrice = await percentageChangeCalculator.GetStockLowestPrice(userId, stockTicker, Data);
 
                 decimal percentageChange = ((lowestPrice - highestPrice) / highestPrice) * 100;
 
