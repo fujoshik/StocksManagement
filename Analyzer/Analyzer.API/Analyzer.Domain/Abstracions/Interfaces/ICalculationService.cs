@@ -6,7 +6,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Interfaces
     public interface ICalculationService
     {
         Task<decimal> CalculateCurrentYieldForUser(Guid userId);
-        public Task<decimal> CalculatePercentageChange(Guid userId, string stockTicker);
+        public Task<decimal> CalculatePercentageChange(Guid userId, string stockTicker, string Data);
         decimal CalculatePortfolioRisk(List<CalculationDTOs> stocks);
         public Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks);
         bool IsValidMarketPrice(decimal currentBalance);

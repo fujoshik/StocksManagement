@@ -39,11 +39,11 @@ namespace Analyzer.API.Controllers
         }
 
         [HttpGet("calculate-percentage-change")]
-        public async Task<IActionResult> CalculatePercentageChange(Guid userId, string stockTicker)
+        public async Task<IActionResult> CalculatePercentageChange(Guid userId, string stockTicker, string Data)
         {
             try
             {
-                decimal percentageChange = await percentageChangeCalculator.CalculatePercentageChange(userId, stockTicker);
+                decimal percentageChange = await percentageChangeCalculator.CalculatePercentageChange(userId, stockTicker, Data);
                 return Ok(new { PercentageChange = percentageChange });
             }
             catch (Exception ex)

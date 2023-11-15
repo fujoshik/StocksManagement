@@ -1,7 +1,6 @@
 using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.Abstracions.Services;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.Extensions.DependencyInjection;
 using Analyzer.API;
 using Analyzer.API.Analyzer.Domain.Services;
@@ -17,19 +16,17 @@ var configuration = new ConfigurationBuilder()
 // Add services to the container.
 builder.Services.AddControllers();  // Add this line to add controllers' services
 
-// Load CORS configuration from appsettings.json
-var corsConfig = configuration.GetSection("CORSConfig").Get<CORSConfig>();
-
-// Enable CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigins", builder =>
-    {
-        builder.WithOrigins(corsConfig.AllowedOrigins)
-               .AllowAnyHeader()
-               .AllowAnyMethod();
-    });
-});
+// Remove CORS configuration
+// var corsConfig = configuration.GetSection("CORSConfig").Get<CORSConfig>();
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy("AllowSpecificOrigins", builder =>
+//     {
+//         builder.WithOrigins(corsConfig.AllowedOrigins)
+//                .AllowAnyHeader()
+//                .AllowAnyMethod();
+//     });
+// });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -52,8 +49,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Use CORS policy
-app.UseCors("AllowSpecificOrigins");
+// Remove CORS middleware
+// app.UseCors("AllowSpecificOrigins");
 
 app.UseAuthorization();
 
