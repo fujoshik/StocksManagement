@@ -1,13 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
-using Analyzer.API.Analyzer.Domain.DTOs;
-using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.DTOs.Wallet;
 using StockAPI.Infrastructure.Models;
 
@@ -15,17 +11,23 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 {
     public class ApiService : IService
     {
-        private readonly IHttpClientService httpClientAccaounts;
-        // private readonly IHttpClientService httpClientSettlement;
+        private readonly IHttpClientService httpClientService;
+        private readonly IDailyYieldChanges dailyYieldChangesService;
+        private readonly IPercentageChange percentageChangeService;
 
-        public ApiService(IHttpClientService httpClientAccaounts)
+        public ApiService(
+            IHttpClientService httpClientService,
+            IDailyYieldChanges dailyYieldChangesService,
+            IPercentageChange percentageChangeService)
         {
-            this.httpClientAccaounts = httpClientAccaounts;
+            this.httpClientService = httpClientService;
+            this.dailyYieldChangesService = dailyYieldChangesService;
+            this.percentageChangeService = percentageChangeService;
         }
 
         public async Task<WalletResponseDto> GetAccountInfoById(Guid id)
         {
-            using (var httpClient = httpClientAccaounts.GetAccountClient())
+            using (var httpClient = httpClientService.GetAccountClient())
             {
                 string getUrl = $"/accounts-api/wallets/{id}";
                 HttpResponseMessage response = await httpClient.GetAsync(getUrl);
@@ -38,17 +40,16 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
                 }
                 else
                 {
-                    // Handle the error or throw an exception
                     throw new HttpRequestException($"Error fetching user data. Status code: {response.StatusCode}");
                 }
             }
         }
 
-        public async Task<Stock> GetStockData(string stockTicker, string Data)
+        public async Task<Stock> GetStockDataInternal(string stockTicker, string date)
         {
-            using (var httpClient = httpClientAccaounts.GetStockAPI())
+            using (var httpClient = httpClientService.GetStockAPI())
             {
-                string getUrl = $"/api/StockAPI/get-stock-by-date-and-ticker?date={Data}&stockTicker={stockTicker}";
+                string getUrl = $"/api/StockAPI/get-stock-by-date-and-ticker?date={date}&stockTicker={stockTicker}";
                 HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
                 if (response.IsSuccessStatusCode)
@@ -59,28 +60,9 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
                 }
                 else
                 {
-                    // Handle the error or throw an exception
                     throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
                 }
             }
         }
-
-
-        //public async Task< UserData> GetInfoFromSettlement(string id)
-        //{
-        //    using (var httpClient = httpClientSettlement.GetAccountClient())
-        //    {
-        //        string getUrl = $"/api/accounts/{id}";
-        //        HttpResponseMessage response = await httpClient.GetAsync(getUrl);
-
-        //        if (response.IsSuccessStatusCode)
-        //        {
-
-        //        }
-
-        //        return null;
-        //    }
-        //}
-
     }
 }

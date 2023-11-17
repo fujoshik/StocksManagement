@@ -1,10 +1,14 @@
-using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
-using Analyzer.API.Analyzer.Domain.Abstracions.Services;
+using System;
+using System.Net.Http;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Analyzer.API;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
+using Analyzer.API.Analyzer.Domain.Abstracions.Services;
 using Analyzer.API.Analyzer.Domain.Services;
-using Analyzer.API.Analyzer.Domain;
 using Analyzer.API.Analyzer.Domain.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,26 +18,30 @@ var configuration = new ConfigurationBuilder()
     .Build();
 
 // Add services to the container.
-builder.Services.AddControllers();  // Add this line to add controllers' services
+builder.Services.AddControllers();
+builder.Services.AddHttpClient("StockAPI"); // Add a name for the HttpClient registration
 
-// Remove CORS configuration
-// var corsConfig = configuration.GetSection("CORSConfig").Get<CORSConfig>();
+// Add CORS configuration if needed
 // builder.Services.AddCors(options =>
 // {
 //     options.AddPolicy("AllowSpecificOrigins", builder =>
 //     {
-//         builder.WithOrigins(corsConfig.AllowedOrigins)
+//         builder.WithOrigins("https://example.com")
 //                .AllowAnyHeader()
 //                .AllowAnyMethod();
 //     });
 // });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API Name", Version = "v1" });
+});
 
-builder.Services.AddScoped<ClosePriceOpenPrice>();
-builder.Services.AddScoped<PercentageChangeCalculator>();
+// Register your services
+builder.Services.AddScoped<IPercentageChange, PercentageChangeService>();
+builder.Services.AddScoped<IDailyYieldChanges, DailyYieldChangesService>();
 builder.Services.AddScoped<IService, ApiService>();
 builder.Services.AddScoped<ICalculationService, CalculationService>();
 builder.Services.AddScoped<IHttpClientService, HttpClientService>();
@@ -44,12 +52,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API Name v1"));
 }
 
 app.UseHttpsRedirection();
 
-// Remove CORS middleware
+// Enable CORS if needed
 // app.UseCors("AllowSpecificOrigins");
 
 app.UseAuthorization();

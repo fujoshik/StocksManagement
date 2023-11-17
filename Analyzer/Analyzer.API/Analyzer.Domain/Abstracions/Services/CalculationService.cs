@@ -1,29 +1,34 @@
 ﻿using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
-using Analyzer.API.Analyzer.Domain;
-using Accounts.Domain.DTOs.Wallet;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
-using YourNamespace;
+using System.Threading.Tasks;
 
 namespace Analyzer.API.Analyzer.Domain.Services
 {
     public class CalculationService : ICalculationService
     {
-        private readonly IHttpClientService httpClientAccounts;
-        private readonly ClosePriceOpenPrice closePriceOpenPrice;
-        private readonly PercentageChangeCalculator percentageChangeCalculator;
+        private readonly IHttpClientService httpClientService;
+        private readonly IDailyYieldChanges dailyYieldChangesService;
+        private readonly IPercentageChange percentageChangeService;
 
-        public CalculationService(IHttpClientService httpClientAccounts, ClosePriceOpenPrice closePriceOpenPrice)
+        public CalculationService(
+            IHttpClientService httpClientService,
+            IDailyYieldChanges dailyYieldChangesService,
+            IPercentageChange percentageChangeService)
         {
-            this.httpClientAccounts = httpClientAccounts;
-            this.percentageChangeCalculator = percentageChangeCalculator;
+            this.httpClientService = httpClientService;
+            this.dailyYieldChangesService = dailyYieldChangesService;
+            this.percentageChangeService = percentageChangeService;
         }
 
         public async Task<decimal> CalculateCurrentYieldForUser(Guid userId)
         {
             try
             {
-                var userData = await httpClientAccounts.GetUserDataById("/accounts-api/wallets/{id}", userId);
+                var userData = await httpClientService.GetAccountInfoById(userId);
 
                 if (userData == null)
                 {
@@ -47,79 +52,29 @@ namespace Analyzer.API.Analyzer.Domain.Services
             }
             catch (Exception ex)
             {
-                throw;
+                throw new ApplicationException($"Error calculating current yield for user {userId}.", ex);
             }
         }
+
         public bool IsValidMarketPrice(decimal marketPrice)
         {
             return marketPrice > 0;
         }
 
-        public async Task<decimal> CalculatePercentageChange(Guid userId, string stockTicker, string Data)
+        public async Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks)
         {
-            try
-            {
-                var stockData = await httpClientAccounts.GetStockData("/api/StockAPI/get-stock-by-date-and-ticker?date={Data}&stockTicker={stockTicker}", stockTicker, Data);
+            return await dailyYieldChangesService.CalculateDailyYieldChanges(stocks);
+        }
 
-                if (stockData == null)
-                {
-                    throw new UserDataNotFoundException();
-                }
-
-                decimal highestPrice = await percentageChangeCalculator.GetStockHighestPrice(userId, stockTicker, Data);
-                decimal lowestPrice = await percentageChangeCalculator.GetStockLowestPrice(userId, stockTicker, Data);
-
-                decimal percentageChange = ((lowestPrice - highestPrice) / highestPrice) * 100;
-
-                return percentageChange;
-            }
-            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
-            {
-                throw new UserDataNotFoundException();
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException($"Error calculating percentage change for stock {stockTicker}.", ex);
-            }
+        public async Task<decimal> FetchPercentageChange(string stockTicker, string data)
+        {
+            return await percentageChangeService.FetchPercentageChange(stockTicker, data);
         }
 
         public decimal CalculatePortfolioRisk(List<CalculationDTOs> stocks)
         {
+            // Implement your logic for calculating portfolio risk here
             return 10.5m;
         }
-
-        public async Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks)
-        {
-            try
-            {
-                if (stocks == null || !stocks.Any())
-                {
-                    throw new ArgumentException("Stocks list is null or empty.");
-                }
-
-                decimal totalDailyChanges = 0;
-
-                foreach (var stock in stocks)
-                {
-                    decimal openingPrice = await closePriceOpenPrice.GetStockOpeningPrice(stock.Ticker);
-                    decimal closingPrice = await closePriceOpenPrice.GetStockClosingPrice(stock.Ticker);
-
-                    decimal dailyChange = closingPrice - openingPrice;
-
-                    totalDailyChanges += dailyChange;
-                }
-
-                decimal averageDailyChange = totalDailyChanges / stocks.Count;
-
-                return averageDailyChange;
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException("Error calculating daily yield changes.", ex);
-            }
-        }
-
-
-
     }
 }

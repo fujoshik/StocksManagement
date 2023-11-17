@@ -1,9 +1,11 @@
-﻿using System;
+﻿// HttpClientService.cs
+
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Net.Http.Json;
-using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
 using Accounts.Domain.DTOs.Wallet;
+using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
+using Newtonsoft.Json;
 using StockAPI.Infrastructure.Models;
 
 namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
@@ -16,41 +18,48 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
         public HttpClientService()
         {
             accountClient = new HttpClient();
-            accountClient.BaseAddress = new Uri("https://localhost:7073/accounts-api/wallets/{id}");
+            accountClient.BaseAddress = new Uri("https://localhost:7073");
 
             stockApi = new HttpClient();
-            stockApi.BaseAddress = new Uri("https://localhost:7195/api/StockAPI/get-stock-by-date-and-ticker?date={date}&stockTicker={stockTicker}");
+            stockApi.BaseAddress = new Uri("https://localhost:7195");
         }
 
-        public async Task<WalletResponseDto> GetUserDataById(string endpoint, Guid userId)
+        public async Task<WalletResponseDto> GetAccountInfoById(Guid id)
         {
-            // Adjust the endpoint based on your API structure
-            var response = await accountClient.GetAsync($"{endpoint}/{userId}");
+            using (var httpClient = GetAccountClient())
+            {
+                string getUrl = $"/accounts-api/wallets/{id}";
+                HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<WalletResponseDto>();
-            }
-            else
-            {
-                // Handle the error or throw an exception
-                throw new HttpRequestException($"Error fetching user data. Status code: {response.StatusCode}");
+                if (response.IsSuccessStatusCode)
+                {
+                    string data = await response.Content.ReadAsStringAsync();
+                    WalletResponseDto accountData = JsonConvert.DeserializeObject<WalletResponseDto>(data);
+                    return accountData;
+                }
+                else
+                {
+                    throw new HttpRequestException($"Error fetching user data. Status code: {response.StatusCode}");
+                }
             }
         }
 
-        public async Task<Stock> GetStockData(string endpoint, string stockTicker, string Data)
+        public async Task<Stock> GetStockData(string stockTicker, string data)
         {
-            // Adjust the endpoint based on your API structure
-            var response = await stockApi.GetAsync($"{endpoint}/{stockTicker}/{Data}");
+            using (var httpClient = GetStockAPI())
+            {
+                string getUrl = $"/api/StockAPI/get-stock-by-date-and-ticker?date={data}&stockTicker={stockTicker}";
+                HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<Stock>();
-            }
-            else
-            {
-                // Handle the error or throw an exception
-                throw new HttpRequestException($"Error fetching user data. Status code: {response.StatusCode}");
+                if (response.IsSuccessStatusCode)
+                {
+                    string stockData = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<Stock>(stockData);
+                }
+                else
+                {
+                    throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
+                }
             }
         }
 
