@@ -6,10 +6,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
+using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.Abstracions.Services;
 using Analyzer.API.Analyzer.Domain.Services;
 using Analyzer.API.Analyzer.Domain.DTOs;
+using Analyze.Domain.Service;
+using StockAPI.Infrastructure;
+
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = new ConfigurationBuilder()
@@ -40,7 +43,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Register your services
-builder.Services.AddScoped<IPercentageChange, PercentageChangeService>();
+builder.Services.AddScoped<IPercentageChange,PercentageChangeService >();
 builder.Services.AddScoped<IDailyYieldChanges, DailyYieldChangesService>();
 builder.Services.AddScoped<IService, ApiService>();
 builder.Services.AddScoped<ICalculationService, CalculationService>();

@@ -1,4 +1,4 @@
-﻿namespace Analyzer.API.Analyzer.Domain.Abstracions.Interfaces
+﻿namespace Analyzer.Domain.Abstracions.Interfaces
 {
     public interface IPercentageChange
     {

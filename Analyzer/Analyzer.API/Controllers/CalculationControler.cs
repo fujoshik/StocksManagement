@@ -1,6 +1,6 @@
 ﻿using Accounts.Domain.DTOs.Wallet;
 using Analyzer.API.Analyzer.Domain;
-using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
+using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
 using Analyzer.API.Analyzer.Domain.Services;
 using Microsoft.AspNetCore.Mvc;

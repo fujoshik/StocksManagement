@@ -1,9 +1,10 @@
-﻿using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
+﻿using Analyzer.Domain.Abstracions.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+
 
 namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 {
@@ -40,5 +41,6 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
                 throw new ApplicationException($"Error calculating percentage change for stock {stockTicker}.", ex);
             }
         }
+
     }
 }

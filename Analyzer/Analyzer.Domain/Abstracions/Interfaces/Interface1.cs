@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Analyze.Domain.Service
+namespace Analyzer.Domain.Abstracions.Interfaces
 {
-    internal class ApiService
+    internal interface Interface1
     {
     }
 }

@@ -1,9 +1,8 @@
-﻿using Accounts.Domain.DTOs.Wallet;
-using Analyzer.API.Analyzer.Domain.DTOs;
-using Microsoft.AspNetCore.Mvc;
+﻿
+using Accounts.Domain.DTOs.Wallet;
 using StockAPI.Infrastructure.Models;
 
-namespace Analyzer.API.Analyzer.Domain.Abstracions.Interfaces
+namespace Analyzer.Domain.Abstracions.Interfaces
 {
     public interface IService
     {

@@ -1,7 +1,11 @@
 ﻿using Analyzer.API.Analyzer.Domain.DTOs;
-using Analyzer.API.Analyzer.Domain;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Analyzer.API.Analyzer.Domain.Abstracions.Interfaces
+namespace Analyzer.Domain.Abstracions.Interfaces
 {
     public interface ICalculationService
     {

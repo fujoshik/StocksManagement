@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
-using Analyzer.API.Analyzer.Domain.DTOs;
+﻿using Microsoft.AspNetCore.Mvc;
 using Accounts.Domain.DTOs.Wallet;
 using StockAPI.Infrastructure.Models;
+using Accounts.Domain.Abstraction.Services;
+using Analyzer.Domain.Abstracions.Interfaces;
 
 namespace Analyzer.API.Controllers
 {

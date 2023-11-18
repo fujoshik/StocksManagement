@@ -1,4 +1,4 @@
-﻿using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
+﻿using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
 using Newtonsoft.Json;
 using System;
