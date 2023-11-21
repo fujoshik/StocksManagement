@@ -5,73 +5,82 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
+using Analyzer.API.Analyzer.Domain.DTOs;
+using Accounts.Domain.DTOs.Account;
+using Accounts.Domain.DTOs.Wallet;
+using StockAPI.Infrastructure.Models;
 
-
-
-namespace grupa
+namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 {
     public class ApiService : IService
     {
-        private readonly HttpClient httpClient;
+        private readonly IHttpClientService httpClientAccaounts;
+        // private readonly IHttpClientService httpClientSettlement;
 
-        public ApiService()
+        public ApiService(IHttpClientService httpClientAccaounts)
         {
-            httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri("http://localhost:5234");
+            this.httpClientAccaounts = httpClientAccaounts;
         }
 
-
-        public async Task<UserData> GetInfoFromAccount(int id)
+        public async Task<WalletResponseDto> GetAccountInfoById(Guid id)
         {
-            string getUrl = $"/api/accounts/{id}";
-
-            HttpResponseMessage response = await httpClient.GetAsync(getUrl);
-
-            if (response.IsSuccessStatusCode)
+            using (var httpClient = httpClientAccaounts.GetAccountClient())
             {
-                string data = await response.Content.ReadAsStringAsync();
-                JObject jsonData = JObject.Parse(data);
+                string getUrl = $"/accounts-api/wallets/{id}";
+                HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
-                UserData userData = new UserData();
-
-                if (jsonData.TryGetValue("AccountGuid", out var accountGuidToken))
+                if (response.IsSuccessStatusCode)
                 {
-                    userData.AccountGuid = Guid.Parse(accountGuidToken.ToString());
+                    string data = await response.Content.ReadAsStringAsync();
+                    WalletResponseDto accountData = JsonConvert.DeserializeObject<WalletResponseDto>(data);
+                    return accountData;
                 }
-
-                if (jsonData.TryGetValue("Amount", out var amountToken))
+                else
                 {
-                    userData.Amount = decimal.Parse(amountToken.ToString());
+                    // Handle the error or throw an exception
+                    throw new HttpRequestException($"Error fetching user data. Status code: {response.StatusCode}");
                 }
-
-                return userData;
             }
-
-            return null;
         }
 
-        public async Task<string> GetUserById(int id)
+        public async Task<Stock> GetStockData(string stockTicker, string Data)
         {
-            string getUrl = $"/api/accounts/{id}";
-
-            HttpResponseMessage response = await httpClient.GetAsync(getUrl);
-
-            if (response.IsSuccessStatusCode)
+            using (var httpClient = httpClientAccaounts.GetStockAPI())
             {
-                string data = await response.Content.ReadAsStringAsync();
-                return data;
+                string getUrl = $"/api/StockAPI/get-stock-by-date-and-ticker?date={Data}&stockTicker={stockTicker}";
+                HttpResponseMessage response = await httpClient.GetAsync(getUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string data = await response.Content.ReadAsStringAsync();
+                    Stock stockData = JsonConvert.DeserializeObject<Stock>(data);
+                    return stockData;
+                }
+                else
+                {
+                    // Handle the error or throw an exception
+                    throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
+                }
             }
-
-            return null;
         }
 
 
+        //public async Task< UserData> GetInfoFromSettlement(string id)
+        //{
+        //    using (var httpClient = httpClientSettlement.GetAccountClient())
+        //    {
+        //        string getUrl = $"/api/accounts/{id}";
+        //        HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
-        public async Task<bool> UserProfileProfit(string UserId)
-        {
+        //        if (response.IsSuccessStatusCode)
+        //        {
 
-            return true;
-        }
+        //        }
+
+        //        return null;
+        //    }
+        //}
 
     }
 }

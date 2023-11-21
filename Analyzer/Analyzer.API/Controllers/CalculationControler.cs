@@ -1,35 +1,35 @@
-﻿using Accounts.Domain.DTOs.Wallet;
+﻿
+using Accounts.Domain.DTOs.Wallet;
+using Analyzer.API.Analyzer.Domain;
 using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
+using Analyzer.API.Analyzer.Domain.DTOs;
+using Analyzer.API.Analyzer.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Threading.Tasks;  
 
 namespace Analyzer.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CalculationControler : ControllerBase
+    public class CalculationController : ControllerBase
     {
         private readonly ICalculationService calculationService;
-        private readonly IHttpClientService httpClientAccaounts;
+        private readonly IHttpClientService httpClientAccounts;
+        private readonly PercentageChangeCalculator percentageChangeCalculator;
 
-        public CalculationControler(ICalculationService calculationService)
+        public CalculationController(ICalculationService calculationService, IHttpClientService httpClientAccounts, PercentageChangeCalculator percentageChangeCalculator)
         {
             this.calculationService = calculationService;
-            this.httpClientAccaounts = httpClientAccaounts;
+            this.httpClientAccounts = httpClientAccounts;
+            this.percentageChangeCalculator = percentageChangeCalculator;
         }
 
         [HttpGet("calculate-current-yield")]
-        public async Task<IActionResult> CalculateCurrentYield(Guid id, decimal initialBalance, decimal currentBalance)
+        public async Task<IActionResult> CalculateCurrentYield([FromQuery] Guid userId)
         {
             try
             {
-                if (!calculationService.IsValidMarketPrice(currentBalance))
-                {
-                    return BadRequest("Invalid current market price.");
-                }
-
-                decimal currentYield = await calculationService.CalculateCurrentYield(id, initialBalance, currentBalance);
+                decimal currentYield = await calculationService.CalculateCurrentYieldForUser(userId);
                 return Ok(new { CurrentYield = currentYield });
             }
             catch (ArgumentException ex)
@@ -37,5 +37,43 @@ namespace Analyzer.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("calculate-percentage-change")]
+        public async Task<IActionResult> CalculatePercentageChange(Guid userId, string stockTicker, string Data)
+        {
+            try
+            {
+                decimal percentageChange = await percentageChangeCalculator.CalculatePercentageChange(userId, stockTicker, Data);
+                return Ok(new { PercentageChange = percentageChange });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error calculating percentage change: {ex.Message}");
+            }
+        }
+
+        [HttpGet("calculate-portfolio-risk")]
+        public IActionResult CalculatePortfolioRisk([FromBody] List<CalculationDTOs> stocks)
+        {
+            decimal portfolioRisk = calculationService.CalculatePortfolioRisk(stocks);
+            return Ok(new { PortfolioRisk = portfolioRisk });
+        }
+
+        [HttpGet("calculate-daily-yield-changes")]
+        public async Task<IActionResult> CalculateDailyYieldChanges([FromBody] List<CalculationDTOs> stocks)
+        {
+            try
+            {
+                decimal dailyYieldChanges = await calculationService.CalculateDailyYieldChanges(stocks);
+                return Ok(new { DailyYieldChanges = dailyYieldChanges });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error calculating daily yield changes: {ex.Message}");
+            }
+        }
+
+
+
     }
 }

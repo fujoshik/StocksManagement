@@ -1,4 +1,6 @@
-﻿namespace Accounts.Domain.DTOs.Account
+﻿using Accounts.Domain.Enums;
+
+namespace Accounts.Domain.DTOs.Authentication
 {
     public class RegisterDto
     {

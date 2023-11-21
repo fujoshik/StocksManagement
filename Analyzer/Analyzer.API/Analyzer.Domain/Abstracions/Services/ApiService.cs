@@ -9,13 +9,14 @@ using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
 using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.DTOs.Wallet;
+using StockAPI.Infrastructure.Models;
 
 namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 {
     public class ApiService : IService
     {
         private readonly IHttpClientService httpClientAccaounts;
-        private readonly IHttpClientService httpClientSettlement;
+        // private readonly IHttpClientService httpClientSettlement;
 
         public ApiService(IHttpClientService httpClientAccaounts)
         {
@@ -26,7 +27,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
         {
             using (var httpClient = httpClientAccaounts.GetAccountClient())
             {
-                string getUrl = $"/api/accounts/{id}";
+                string getUrl = $"/accounts-api/wallets/{id}";
                 HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
                 if (response.IsSuccessStatusCode)
@@ -35,8 +36,32 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
                     WalletResponseDto accountData = JsonConvert.DeserializeObject<WalletResponseDto>(data);
                     return accountData;
                 }
+                else
+                {
+                    // Handle the error or throw an exception
+                    throw new HttpRequestException($"Error fetching user data. Status code: {response.StatusCode}");
+                }
+            }
+        }
 
-                return null;
+        public async Task<Stock> GetStockData(string stockTicker, string Data)
+        {
+            using (var httpClient = httpClientAccaounts.GetStockAPI())
+            {
+                string getUrl = $"/api/StockAPI/get-stock-by-date-and-ticker?date={Data}&stockTicker={stockTicker}";
+                HttpResponseMessage response = await httpClient.GetAsync(getUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string data = await response.Content.ReadAsStringAsync();
+                    Stock stockData = JsonConvert.DeserializeObject<Stock>(data);
+                    return stockData;
+                }
+                else
+                {
+                    // Handle the error or throw an exception
+                    throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
+                }
             }
         }
 

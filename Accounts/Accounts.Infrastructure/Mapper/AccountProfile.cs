@@ -1,4 +1,5 @@
 ﻿using Accounts.Domain.DTOs.Account;
+using Accounts.Domain.DTOs.Authentication;
 using AutoMapper;
 
 namespace Accounts.Infrastructure.Mapper
@@ -7,7 +8,8 @@ namespace Accounts.Infrastructure.Mapper
     {
         public AccountProfile()
         {
-            CreateMap<RegisterDto, AccountRequestDto>();
+            CreateMap<RegisterTrialDto, AccountRequestDto>();
+            CreateMap<RegisterWithSumDto, AccountRequestDto>();
         }
     }
 }

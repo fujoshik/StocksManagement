@@ -8,5 +8,10 @@ namespace Accounts.API.Extensions
         {
             app.UseMiddleware<ExceptionMiddleware>();
         }
+
+        public static void ConfigureSafelistMiddleware(this WebApplication app, string safelist)
+        {
+            app.UseMiddleware<SafelistMiddleware>(safelist);
+        }
     }
 }

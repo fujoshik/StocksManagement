@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Settlement.Domain.Abstraction.Services;
+using Settlement.Domain.DTOs.Transaction;
 using Settlement.Domain.Services;
+using System.Transactions;
 
 namespace Settlement.API.Controllers
 {
@@ -38,18 +40,17 @@ namespace Settlement.API.Controllers
             }
         }
 
-        /* testing...
-        [HttpGet("{stockId}")]
-        public async Task<IActionResult> GetStockPrice(string stockId)
+        [HttpGet]
+        public async Task<IActionResult> GetStockByDateAndTicker(string date, string stockTicker)
         {
             try
             {
-                var apiName = HttpContext.Request.Headers["X-Api-Name"].FirstOrDefault();
+                /*var apiName = HttpContext.Request.Headers["X-Api-Name"].FirstOrDefault();
                 if(apiName != "StockAPI.API")
                 {
                    return BadRequest("Invalid API access.");
-                }
-                var response = await httpClientService.GetStockPrice(stockId);
+                }*/
+                var response = await httpClientService.GetStockByDateAndTicker(date, stockTicker);
                 return Ok(response);
             }
             catch(Exception e)
@@ -57,14 +58,13 @@ namespace Settlement.API.Controllers
                 return BadRequest(e.Message);
             }
         }
-        */
 
-        [HttpPost("{walletId}/{stockId}/{amount}")]
-        public async Task<IActionResult> ExecuteDeal(Guid walletId, decimal price, int amount)
+        [HttpPost]
+        public async Task<IActionResult> ExecuteDeal(TransactionRequestDto transactionRequest)
         {
             try
             {
-                var response = await settlementService.ExecuteDeal(walletId, price, amount);
+                var response = await settlementService.ExecuteDeal(transactionRequest);
                 return Ok(response);
             }
             catch(Exception e)

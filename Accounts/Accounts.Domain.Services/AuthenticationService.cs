@@ -1,6 +1,7 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
 using Accounts.Domain.Abstraction.Services;
 using Accounts.Domain.DTOs.Account;
+using Accounts.Domain.DTOs.Authentication;
 using Accounts.Domain.Settings;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -63,6 +64,7 @@ namespace Accounts.Domain.Services
             return new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, dto.Id.ToString()),
+                new Claim(ClaimTypes.Role, dto.Role.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, dto.Email),
                 new Claim(JwtRegisteredClaimNames.NameId, dto.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString()),

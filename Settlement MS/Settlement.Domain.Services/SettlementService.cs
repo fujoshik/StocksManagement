@@ -1,6 +1,6 @@
-﻿using Accounts.Domain.DTOs.Wallet;
-using Settlement.Domain.Abstraction.Services;
+﻿using Settlement.Domain.Abstraction.Services;
 using Settlement.Domain.DTOs.Settlement;
+using Settlement.Domain.DTOs.Transaction;
 
 namespace Settlement.Domain.Services
 {
@@ -13,37 +13,39 @@ namespace Settlement.Domain.Services
             this.httpClientService = httpClientService;
         }
 
-        public async Task<SettlementResponseDto> ExecuteDeal(Guid walletId, decimal price, int amount)
+        public async Task<SettlementResponseDto> ExecuteDeal(TransactionRequestDto transactionRequest)
         {
             SettlementResponseDto response = new SettlementResponseDto();
 
-            var userAccountBalance = await httpClientService.GetWalletBalance(walletId);
+            var userAccountBalance = await httpClientService.GetWalletBalance(transactionRequest.WalletId);
 
-            if (userAccountBalance.CurrentBalance >= price * amount)
+            var stockData = await httpClientService.GetStockByDateAndTicker(transactionRequest.Date, transactionRequest.StockTicker);
+
+            if (stockData != null && stockData.ClosestPrice.HasValue)
             {
-                decimal commission = (price * amount) * 0.0005M;
+                decimal closestPrice = stockData.ClosestPrice.Value;
+                decimal commissionPercentage = 0.0005M;
+                decimal tradeCommission = (closestPrice * transactionRequest.Quantity) * commissionPercentage;
 
-                userAccountBalance.CurrentBalance -= (price * amount) + commission;
-
-                if (userAccountBalance.CurrentBalance < 0.85M * userAccountBalance.InitialBalance)
+                if (userAccountBalance.CurrentBalance >= tradeCommission)
                 {
-                    response.Success = false;
-                    response.Message = "Loss of 15% on initial capital.";
-                }
-                else
-                {
+                    userAccountBalance.CurrentBalance -= tradeCommission;
                     response.Success = true;
                     response.Message = "Your account is in good standing.";
                 }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "Insufficient funds to complete the transaction.";
+                }
+
+                response.StockPrice = closestPrice;
             }
             else
             {
                 response.Success = false;
-                response.Message = "Error while processing the deal.";
+                response.Message = "Closest Price is null. Error while processing the deal.";
             }
-
-            response.InitialBalance = userAccountBalance.InitialBalance;
-            response.CurrentBalance = userAccountBalance.CurrentBalance;
 
             response.TotalBalance = userAccountBalance.CurrentBalance;
 

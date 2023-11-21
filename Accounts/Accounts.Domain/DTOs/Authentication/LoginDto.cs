@@ -1,4 +1,4 @@
-﻿namespace Accounts.Domain.DTOs.Account
+﻿namespace Accounts.Domain.DTOs.Authentication
 {
     public class LoginDto
     {

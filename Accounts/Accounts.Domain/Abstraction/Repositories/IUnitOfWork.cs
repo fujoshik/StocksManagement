@@ -5,5 +5,6 @@
         public IAccountRepository AccountRepository { get; }
         public IUserRepository UserRepository { get; }
         public IWalletRepository WalletRepository { get; }
+        public ITransactionRepository TransactionRepository { get; }
     }
 }

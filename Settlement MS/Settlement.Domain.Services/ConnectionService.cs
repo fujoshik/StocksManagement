@@ -1,6 +1,7 @@
 ﻿using Settlement.Domain.Abstraction.Services;
 using Accounts.Domain.DTOs.Wallet;
 using Newtonsoft.Json;
+using StockAPI.Infrastructure.Models;
 
 namespace Settlement.Domain.Services
 {
@@ -34,21 +35,26 @@ namespace Settlement.Domain.Services
             }
         }
 
-        /*public async Task<....> GetStockPrice(string stockId)
+        public async Task<Stock> GetStockByDateAndTicker(string date, string stockTicker)
         {
-            httpClient.DefaultRequestHeaders.Add("X-Api-Name", "StockAPI.API");
-            
-            HttpResponseMessage response = await httpClient.GetAsync(stockRoutes.Routes["GET"].Replace("{id}", stockId);
-            if(response.IsSuccessStatusCode)
+            //httpClient.DefaultRequestHeaders.Add("X-Api-Name", "StockAPI.API");
+
+            HttpResponseMessage response = await httpClient.GetAsync(stockRoutes.Routes["GET"]
+                .Replace("{date}", date)
+                .Replace("{stockTicker}", stockTicker));
+
+            if (response.IsSuccessStatusCode)
             {
                 string data = await response.Content.ReadAsStringAsync();
-                // ....
-                // .... 
+                Stock stock = JsonConvert.DeserializeObject<Stock>(data);
+                return await Task.FromResult(stock);
             }
             else
             {
                 throw new HttpRequestException($"Error: {response.StatusCode} - {response.ReasonPhrase}");
             }
-        }*/
+        }
+
+
     }
 }

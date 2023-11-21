@@ -1,5 +1,5 @@
 ﻿using Accounts.Domain.Abstraction.Services;
-using Accounts.Domain.DTOs.Account;
+using Accounts.Domain.DTOs.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,10 +31,19 @@ namespace Accounts.API.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("register")]
-        public IActionResult Register(RegisterDto account)
+        [HttpPost("register-trial")]
+        public IActionResult RegisterTrial(RegisterTrialDto registerTrial)
         {
-            _service.Register(account);
+            _service.Register(registerTrial);
+
+            return NoContent();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public IActionResult Register(RegisterWithSumDto registerWithSumDto)
+        {
+            _service.Register(registerWithSumDto);
 
             return NoContent();
         }

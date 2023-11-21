@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
 using Accounts.Domain.DTOs.Wallet;
+using StockAPI.Infrastructure.Models;
 
 namespace Analyzer.API.Controllers
 {
@@ -30,6 +31,18 @@ namespace Analyzer.API.Controllers
             return StatusCode(500, "Woopsie Daisy! Looks like something went completely wrong. You can try again later. ;)");
         }
 
-        
+        [HttpGet]
+        public async Task<IActionResult> GetStockData(string stockTicker, string Data)
+        {
+            Stock stock = await iservice.GetStockData(stockTicker, Data);
+
+            if (stock != null)
+            {
+                return Ok(stock);
+            }
+
+            return StatusCode(500, "Woopsie Daisy! Looks like something went completely wrong. You can try again later. ;)");
+        }
+
     }
 }
