@@ -13,22 +13,16 @@ namespace StockAPI.Domain.Services.Mappers
 {
     public class StockMapper:IStockMapper
     {
+        private readonly IMapper _mapper;
+        public StockMapper(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
         public Stock ResultToStock (Result item, string currentDate)
         {
-            return new Stock
-            {
-                StockTicker = item.T,
-                ClosestPrice = item.c,
-                HighestPrice = item.h,
-                LowestPrice = item.l,
-                TransactionCount = item.n,
-                OpenPrice = item.o,
-                IsOTC = item.otc,
-                UnixTimestamp = item.t,
-                TradingVolume = item.v,
-                VolumeWeightedAveragePrice = item.vw,
-                Date = currentDate
-            };
+            var stock = _mapper.Map<Stock>(item);
+            stock.Date = currentDate;
+            return stock;
         }
 
         public Stock DataToStock(SqliteDataReader reader)
