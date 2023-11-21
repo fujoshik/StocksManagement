@@ -11,6 +11,7 @@ namespace StockAPI.Infrastructure.Enums
         Bull, 
         Bear,
         UnsignificantBull,
-        UnsignificantBear
+        UnsignificantBear,
+        NoChange
     }
 }

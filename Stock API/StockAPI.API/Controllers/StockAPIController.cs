@@ -2,6 +2,7 @@
 using Serilog;
 using StockAPI.Domain.Abstraction.Services;
 using StockAPI.Domain.Services;
+using StockAPI.Domain.Services.Scheduling;
 using StockAPI.Infrastructure.Models;
 
 namespace StockAPI.API.Controllers
@@ -118,6 +119,23 @@ namespace StockAPI.API.Controllers
                 }
             }
             catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while processing the request.");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet]
+        [Route("invoke-event")]
+        public async Task<IActionResult> InvokeEvent()
+        {
+            DailyJob job = new DailyJob(_stockAPIService);
+            try
+            {
+                job.Execute();
+                return Ok();
+            }
+            catch(Exception ex)
             {
                 Log.Error(ex, "An error occurred while processing the request.");
                 return StatusCode(500, "Internal server error");

@@ -9,7 +9,8 @@ namespace StockAPI.Infrastructure.Models
 {
     public class StockMarketCharacteristics
     {
-        public MarketTrend MarketTrend { get; set; }
+        public string MarketTrend { get; set; }
         public decimal? PercentageDifference { get; set; }
+
     }
 }

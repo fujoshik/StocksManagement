@@ -10,6 +10,7 @@ using StockAPI.Domain.Abstraction.Mappers;
 using StockAPI.Domain.Abstraction.Services;
 using StockAPI.Domain.Services.AppSettings;
 using StockAPI.Domain.Services.Mappers;
+using StockAPI.Domain.Services.Scheduling;
 using StockAPI.Infrastructure.Enums;
 using StockAPI.Infrastructure.Models;
 using System;
@@ -67,14 +68,11 @@ namespace StockAPI.Domain.Services
                     stocks.Add(stock);
                 }
 
-                Log.Information("Successfully fetched test data.");
-
                 return stocks;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error occurred while fetching grouped daily data.");
-
+                Log.Error(ex, "an error occurred while fetching grouped daily data and adding it to the database.");
                 throw;
             }
         }
@@ -91,10 +89,11 @@ namespace StockAPI.Domain.Services
 
                 int existingRecordsCount = Convert.ToInt32(selectCommand.ExecuteScalar());
 
-                if (existingRecordsCount > 0) Log.Information("A too recent record of the stock {@StockTicker} already exists.", stock.StockTicker);
+                if (existingRecordsCount > 0) Log.Information("a too recent record of the stock {@StockTicker} already exists.", stock.StockTicker);
                 else
                 {
                     _dataBaseContext.InsertStockIntoDatabase(stock);
+                    Log.Information($"successfully added {stock.StockTicker} for {stock.Date}.");
                 }
             }
         }
@@ -115,10 +114,12 @@ namespace StockAPI.Domain.Services
                         }
                     }
                 }
+
+                Log.Information("successfully retrieved all stocks from database.");
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error occurred while retrieving all stocks from the database.");
+                Log.Error(ex, "an error occurred while retrieving all stocks from the database.");
                 throw;
             }
 
@@ -127,85 +128,117 @@ namespace StockAPI.Domain.Services
 
         public async Task<Stock> GetStockByDateAndTickerAsync(string date, string stockTicker)
         {
-            Stock stock = null;
-
-            using (var command = new SqliteCommand("SELECT * FROM Stocks WHERE Date = @Date AND StockTicker = @StockTicker", _dataBaseContext.GetConnection()))
+            try
             {
-                command.Parameters.AddWithValue("@Date", date);
-                command.Parameters.AddWithValue("@StockTicker", stockTicker);
+                Stock stock = null;
 
-                using (var reader = await command.ExecuteReaderAsync())
+                using (var command = new SqliteCommand("SELECT * FROM Stocks WHERE Date = @Date AND StockTicker = @StockTicker", _dataBaseContext.GetConnection()))
                 {
-                    if (await reader.ReadAsync())
+                    command.Parameters.AddWithValue("@Date", date);
+                    command.Parameters.AddWithValue("@StockTicker", stockTicker);
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        stock = _stockMapper.DataToStock(reader);
+                        if (await reader.ReadAsync())
+                        {
+                            stock = _stockMapper.DataToStock(reader);
+                        }
                     }
                 }
-            }
 
-            return stock;
+                Log.Information($"successfully retrieved data for the stock {stockTicker} from {date}.");
+                return stock;
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex, $"an error occured while trying to retrieve data for the stock {stockTicker} from {date}.");
+                throw;
+            }
         }
 
         public async Task<StockMarketCharacteristics> GetStockMarketCharacteristics(string date)
         {
-            DateTime inputDate = DateTime.ParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-            DateTime hundredDaysAgoDateTime = inputDate.AddDays(-10);
-            string hundredDaysAgo = hundredDaysAgoDateTime.ToString("yyyy-MM-dd");
-
-            await Console.Out.WriteLineAsync(date);
-            await Console.Out.WriteLineAsync(hundredDaysAgo);
-
-            List<Stock> hundredDaysAgoStocks = await GetStocksByDate(hundredDaysAgo);
-            List<Stock> inputDateStocks = await GetStocksByDate(date);
-
-            decimal? hundredDaysAgoClosestAverage = hundredDaysAgoStocks.Average(i => i.ClosestPrice);
-            decimal? inputDateClosestAverage = inputDateStocks.Average(i => i.ClosestPrice);
-
-            if (!hundredDaysAgoClosestAverage.HasValue || !inputDateClosestAverage.HasValue)
+            try
             {
-                Log.Information($"not enough stock data for the period from '{hundredDaysAgo}' to '{date}'");
-                throw new Exception("Not enough stock data for this period");
+                DateTime inputDate = DateTime.ParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                DateTime hundredDaysAgoDateTime = inputDate.AddDays(-10);
+                string hundredDaysAgo = hundredDaysAgoDateTime.ToString("yyyy-MM-dd");
+
+                List<Stock> hundredDaysAgoStocks = await GetStocksByDate(hundredDaysAgo);
+                List<Stock> inputDateStocks = await GetStocksByDate(date);
+
+                decimal? hundredDaysAgoClosestAverage = hundredDaysAgoStocks.Average(i => i.ClosestPrice);
+                decimal? inputDateClosestAverage = inputDateStocks.Average(i => i.ClosestPrice);
+
+                if (!hundredDaysAgoClosestAverage.HasValue || !inputDateClosestAverage.HasValue)
+                {
+                    Log.Information($"not enough stock data for the period from '{hundredDaysAgo}' to '{date}'.");
+                    throw new Exception("Not enough stock data for this period.");
+                }
+
+                decimal difference = Math.Abs(inputDateClosestAverage.Value - hundredDaysAgoClosestAverage.Value);
+                decimal largerAverage = Math.Max(inputDateClosestAverage.Value, hundredDaysAgoClosestAverage.Value);
+
+                decimal percentageDifference = largerAverage != 0 ? (difference / largerAverage) * 100 : 0;
+
+                StockMarketCharacteristics stockMarketCharacteristics = new StockMarketCharacteristics();
+
+                if (inputDateClosestAverage.Value > hundredDaysAgoClosestAverage.Value)
+                {
+                    stockMarketCharacteristics.MarketTrend = MarketTrend.Bull.ToString();
+                }
+                else if (inputDateClosestAverage.Value < hundredDaysAgoClosestAverage.Value)
+                {
+                    stockMarketCharacteristics.MarketTrend = MarketTrend.Bear.ToString();
+                }
+                else stockMarketCharacteristics.MarketTrend = MarketTrend.NoChange.ToString();
+
+                stockMarketCharacteristics.PercentageDifference = percentageDifference;
+                if (percentageDifference < 20)
+                {
+                    if (stockMarketCharacteristics.MarketTrend == MarketTrend.Bear.ToString()) stockMarketCharacteristics.MarketTrend = MarketTrend.UnsignificantBear.ToString();
+                    if (stockMarketCharacteristics.MarketTrend == MarketTrend.Bull.ToString()) stockMarketCharacteristics.MarketTrend = MarketTrend.UnsignificantBull.ToString();
+                }
+
+                Log.Information($"market characteristics were retrieved successfully for {date}.");
+                return stockMarketCharacteristics;
             }
-
-            decimal difference = Math.Abs(inputDateClosestAverage.Value - hundredDaysAgoClosestAverage.Value);
-            decimal largerAverage = Math.Max(inputDateClosestAverage.Value, hundredDaysAgoClosestAverage.Value);
-
-            decimal percentageDifference = largerAverage != 0 ? (difference / largerAverage) * 100 : 0;
-
-            StockMarketCharacteristics stockMarketCharacteristics = new StockMarketCharacteristics();
-            if (inputDateClosestAverage.Value > hundredDaysAgoClosestAverage.Value)
+            catch (Exception ex)
             {
-                stockMarketCharacteristics.MarketTrend = MarketTrend.Bull;
+                Log.Error(ex, $"an error occured while trying to retrieve market characteristics for {date}.");
+                throw;
             }
-            else if (inputDateClosestAverage.Value < hundredDaysAgoClosestAverage.Value)
-            {
-                stockMarketCharacteristics.MarketTrend = MarketTrend.Bear;
-            }
-
-            stockMarketCharacteristics.PercentageDifference = percentageDifference;
-
-            return stockMarketCharacteristics;
+            
         }
 
         public async Task<List<Stock>> GetStocksByDate(string date)
         {
-            List<Stock> stocks = new List<Stock>();
-
-            using (var command = new SqliteCommand("SELECT * FROM Stocks WHERE Date = @Date", _dataBaseContext.GetConnection()))
+            try
             {
-                command.Parameters.AddWithValue("@Date", date);
+                List<Stock> stocks = new List<Stock>();
 
-                using (var reader = await command.ExecuteReaderAsync())
+                using (var command = new SqliteCommand("SELECT * FROM Stocks WHERE Date = @Date", _dataBaseContext.GetConnection()))
                 {
-                    while (await reader.ReadAsync())
+                    command.Parameters.AddWithValue("@Date", date);
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        stocks.Add(_stockMapper.DataToStock(reader));
+                        while (await reader.ReadAsync())
+                        {
+                            stocks.Add(_stockMapper.DataToStock(reader));
+                        }
                     }
                 }
+
+                Log.Information($"stocks from {date} successfully retrieved.");
+                return stocks;
             }
-
-            return stocks;
+            
+            catch(Exception ex)
+            {
+                Log.Error($"an error occured while trying to retrieve stocks from {date}.");
+                throw;
+            }
         }
-
     }
 }
