@@ -24,6 +24,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+
 app.Run();
 
     var loggerFactory = LoggerFactory.Create(builder =>

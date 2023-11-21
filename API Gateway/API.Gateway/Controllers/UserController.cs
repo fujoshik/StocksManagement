@@ -1,18 +1,31 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Gateway.Domain.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace API.Gateway.Controllers
 {
+    [Route("api/users")]
+    [ApiController]
     public class UserController : Controller
     {
         private readonly ILogger<UserController> _logger;
         private readonly IMemoryCache _cache;
+        private readonly IUserService _userService;
 
-        public UserController(ILogger<UserController> logger, IMemoryCache cache)
+        public UserController(ILogger<UserController> logger, IMemoryCache cache, IUserService userService)
         {
             _logger = logger;
             _cache = cache;
+            _userService = userService;
+        }
+
+         [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] UserWithoutAccountIdDto user)
+        {
+            object value = await _userService.UpdateAsync(id, user);
+
+            return NoContent();
         }
 
         [HttpGet("userData")]
@@ -28,11 +41,11 @@ namespace API.Gateway.Controllers
             }
 
            
-            _logger.LogInformation("Заявка за данни на потребител: {Username}", User.Identity.Name);
+            _logger.LogInformation("Request for user data: {Username}", User.Identity.Name);
 
             return Ok(userData);
         }
-
+       
         private UserData FetchUserData(string username)
         {
             var user = new UserData
@@ -46,6 +59,7 @@ namespace API.Gateway.Controllers
 
             return user;
         }
+        
     }
 
     public class UserData
