@@ -13,5 +13,6 @@ namespace Settlement.Domain.DTOs.Transaction
         public string Date { get; set; }
         public string StockTicker { get; set; }
         public int Quantity { get; set; }
+        public Guid AccountId { get; set; }
     }
 }
