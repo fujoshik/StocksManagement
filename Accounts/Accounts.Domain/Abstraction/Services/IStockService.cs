@@ -2,5 +2,6 @@
 {
     public interface IStockService
     {
+        Task BuyStockAsync(string ticker, int quantity);
     }
 }

@@ -4,8 +4,15 @@ using Autofac.Extensions.DependencyInjection;
 using Autofac;
 using Microsoft.OpenApi.Models;
 using Accounts.Domain.Settings;
+using StockAPI.Domain.Abstraction.DataBase;
+using StockAPI.Domain.Services.AppSettings;
+using StockAPI.Domain.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var sqliteConnection = builder.Configuration.GetConnectionString("SQLiteConnection");
+
+builder.Services.AddSingleton<IDataBaseContext>(provider => new DataBaseContext(sqliteConnection));
 
 builder.Host
     .UseServiceProviderFactory(new AutofacServiceProviderFactory())
@@ -22,13 +29,12 @@ builder.Services.AddControllers();
 
 builder.AddJwtAuthentication();
 
-builder.Services.AddAuthorization();
-
-//builder.Services.AddQuartzConfiguration();
-
 builder.Services.AddEndpointsApiExplorer()
                 .AddHttpContextAccessor()
-                .Configure<HostsSettings>(builder.Configuration.GetSection("HostsSettings"));
+                .AddPolicyBasedRoleAuthorizationServices()
+                .Configure<HostsSettings>(builder.Configuration.GetSection("HostsSettings"))
+                .Configure<ApiKeys>(builder.Configuration.GetSection("ApiKeys"))
+                .Configure<EndPoints>(builder.Configuration.GetSection("EndPoints"));
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -72,7 +78,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

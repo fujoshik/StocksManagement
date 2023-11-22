@@ -13,6 +13,9 @@ namespace Accounts.Infrastructure.Mapper
             CreateMap<RegisterWithSumDto, WalletRequestDto>()
                 .ForMember(dest => dest.InitialBalance, opt => opt.MapFrom(x => x.Sum))
                 .ForMember(dest => dest.CurrentBalance, opt => opt.MapFrom(x => x.Sum));
+
+            CreateMap<WalletResponseDto, DepositDto>()
+                .ForMember(dest => dest.Sum, opt => opt.MapFrom(x => x.InitialBalance));
         }
     }
 }

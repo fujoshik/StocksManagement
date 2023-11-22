@@ -15,9 +15,9 @@ namespace Accounts.API.AutofacModules
                     .AsImplementedInterfaces()
                     .InstancePerLifetimeScope();
 
-            builder.RegisterType<AuthenticationService>()
-                    .As<IAuthenticationService>()
-                    .WithParameter("JwtSettings", "");
+            builder.RegisterType<TokenService>()
+                   .As<ITokenService>()
+                   .WithParameter("JwtSettings", "");
         }
     }
 }

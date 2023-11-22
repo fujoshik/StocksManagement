@@ -1,12 +1,6 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
 using Accounts.Domain.Abstraction.Services;
-using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.DTOs.Authentication;
-using Accounts.Domain.Settings;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace Accounts.Domain.Services
 {
@@ -16,19 +10,19 @@ namespace Accounts.Domain.Services
         private readonly IUserService _userService;
         private readonly IPasswordService _passwordService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly JwtSettings _jwtSettings;
+        private readonly ITokenService _tokenService;
 
         public AuthenticationService(IAccountService accountService,
                                      IUserService userService,
                                      IPasswordService passwordService,
                                      IUnitOfWork unitOfWork,
-                                     JwtSettings jwtSettings) 
+                                     ITokenService tokenService) 
         {
             _accountService = accountService;
             _userService = userService;
             _passwordService = passwordService;
             _unitOfWork = unitOfWork;
-            _jwtSettings = jwtSettings;
+            _tokenService = tokenService;
         }
 
         public async void Register(RegisterDto registerDto)
@@ -54,37 +48,14 @@ namespace Accounts.Domain.Services
                 return null;
             }
 
-            var token = GenerateJwtToken(user);
+            var token = _tokenService.GenerateJwtToken(user);
 
             return token;
         }
-
-        private IEnumerable<Claim> GetClaims(AccountDto dto)
+        
+        public bool ValidateToken(string token)
         {
-            return new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, dto.Id.ToString()),
-                new Claim(ClaimTypes.Role, dto.Role.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, dto.Email),
-                new Claim(JwtRegisteredClaimNames.NameId, dto.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-        }
-
-        private string GenerateJwtToken(AccountDto dto)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                issuer: _jwtSettings.Issuer,
-                audience: _jwtSettings.Audience,
-                claims: GetClaims(dto),
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
-                signingCredentials: credentials);
-
-            return tokenHandler.WriteToken(token);
+            return _tokenService.ValidateToken(token);
         }
     }
 }

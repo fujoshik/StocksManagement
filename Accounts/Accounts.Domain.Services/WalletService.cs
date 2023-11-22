@@ -1,6 +1,7 @@
 ﻿using Accounts.Domain.Abstraction.Providers;
 using Accounts.Domain.Abstraction.Repositories;
 using Accounts.Domain.Abstraction.Services;
+using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.DTOs.Wallet;
 using Accounts.Domain.Enums;
 
@@ -11,14 +12,17 @@ namespace Accounts.Domain.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserDetailsProvider _userDetailsProvider;
         private readonly ICurrencyConverterService _currencyConverterService;
+        private readonly IAssignRoleService _assignRoleService;
 
         public WalletService(IUnitOfWork unitOfWork,
                              IUserDetailsProvider userDetailsProvider,
-                             ICurrencyConverterService currencyConverterService)
+                             ICurrencyConverterService currencyConverterService,
+                             IAssignRoleService assignRoleService)
         {
             _unitOfWork = unitOfWork;
             _userDetailsProvider = userDetailsProvider;
             _currencyConverterService = currencyConverterService;
+            _assignRoleService = assignRoleService;
         }
 
         public async Task<WalletResponseDto> CreateAsync(WalletRequestDto wallet)
@@ -48,6 +52,8 @@ namespace Accounts.Domain.Services
 
             deposit.Sum = _currencyConverterService.Convert(currentCurrency, deposit.CurrencyCode, deposit.Sum);
 
+            await ChangeRoleBasedOnBalance(accountId, deposit);
+
             await _unitOfWork.WalletRepository.DepositSumAsync(_userDetailsProvider.GetAccountId(), deposit);
         }
 
@@ -66,6 +72,19 @@ namespace Accounts.Domain.Services
                 await _unitOfWork.WalletRepository
                     .ChangeCurrencyCodeAsync(accountId, (int)currency, newInitialBalance, newCurrentBalance);
             }
+        }
+
+        private async Task ChangeRoleBasedOnBalance(Guid accountId, DepositDto deposit)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync<AccountResponseDto>(accountId);
+            var wallet = await _unitOfWork.WalletRepository.GetByIdAsync<WalletResponseDto>(account.WalletId);
+            int role = _assignRoleService.AssignRole(deposit, wallet);
+
+            if (account.Role == Role.Trial && role != (int) Role.Trial)
+            {
+                await _unitOfWork.AccountRepository.DeleteDateToDeleteAsync(accountId);
+            }
+            await _unitOfWork.AccountRepository.UpdateRoleAsync(accountId, role);
         }
     }
 }

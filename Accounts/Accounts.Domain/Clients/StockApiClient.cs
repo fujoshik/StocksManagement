@@ -1,5 +1,6 @@
 ﻿using Accounts.Domain.Abstraction.Clients;
 using Accounts.Domain.Settings;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using StockAPI.Infrastructure.Models;
 
@@ -10,9 +11,9 @@ namespace Accounts.Domain.Clients
         private HttpClient _httpClient;
         private readonly string _stockApiUrl;
 
-        public StockApiClient(HostsSettings hosts)
+        public StockApiClient(IOptions<HostsSettings> hosts)
         {
-            _stockApiUrl = hosts.StockApi;
+            _stockApiUrl = hosts.Value.StockApi;
             _httpClient = new HttpClient()
             {
                 BaseAddress = new Uri(_stockApiUrl)

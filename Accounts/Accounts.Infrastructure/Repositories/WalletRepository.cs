@@ -38,8 +38,10 @@ namespace Accounts.Infrastructure.Repositories
                 using (var connection = new SqlConnection(_dbConnectionString))
                 {
                     connection.Open();
-                    SqlCommand cmd = new SqlCommand($"USE StocksDB; UPDATE {TableName} SET CurrentBalance = CurrentBalance + {deposit.Sum} " +
-                        $"WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = '{accountId}')", connection);
+                    SqlCommand cmd = new SqlCommand($@"USE StocksDB; UPDATE {TableName} SET CurrentBalance = CurrentBalance + @Sum " +
+                        $@"WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = @Id)", connection);
+                    cmd.Parameters.Add(new SqlParameter("@Id", accountId));
+                    cmd.Parameters.Add(new SqlParameter("@Sum", deposit.Sum));
                     await cmd.ExecuteNonQueryAsync();
                 }
             }
@@ -49,9 +51,11 @@ namespace Accounts.Infrastructure.Repositories
                 using (var connection = new SqlConnection(_dbConnectionString))
                 {
                     connection.Open();
-                    SqlCommand cmd = new SqlCommand($"USE StocksDB; UPDATE {TableName} SET CurrentBalance = CurrentBalance + {deposit.Sum}, " +
-                        $"InitialBalance = {deposit.Sum} " +
-                        $"WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = '{accountId}')", connection);
+                    SqlCommand cmd = new SqlCommand($@"USE StocksDB; UPDATE {TableName} SET CurrentBalance = @Sum, " +
+                        $@"InitialBalance = @Sum " +
+                        $@"WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = @Id)", connection);
+                    cmd.Parameters.Add(new SqlParameter("@Id", accountId));
+                    cmd.Parameters.Add(new SqlParameter("@Sum", deposit.Sum));
                     await cmd.ExecuteNonQueryAsync();
                 }
             }           
@@ -66,8 +70,9 @@ namespace Accounts.Infrastructure.Repositories
             {
                 connection.Open();
                 SqlCommand cmd = new SqlCommand("USE StocksDB; DECLARE @MyTableVar table([test] [int]); " +
-                    $"INSERT INTO @MyTableVar (test) VALUES((SELECT CurrencyCode FROM {TableName} WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = '{accountId}'))) " +
+                    $@"INSERT INTO @MyTableVar (test) VALUES((SELECT CurrencyCode FROM {TableName} WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = @Id))) " +
                     "SELECT * FROM @MyTableVar", connection);
+                cmd.Parameters.Add(new SqlParameter("@Id", accountId));
 
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
@@ -87,8 +92,10 @@ namespace Accounts.Infrastructure.Repositories
             {
                 connection.Open();
                 SqlCommand cmd = new SqlCommand("USE StocksDB; DECLARE @MyTableVar table([test] [decimal]); " +
-                    $"INSERT INTO @MyTableVar (test) VALUES((SELECT {balanceName} FROM {TableName} WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = '{accountId}'))) " +
+                    $@"INSERT INTO @MyTableVar (test) VALUES((SELECT @BalanceName FROM {TableName} WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = @Id))) " +
                     "SELECT * FROM @MyTableVar", connection);
+                cmd.Parameters.Add(new SqlParameter("@Id", accountId));
+                cmd.Parameters.Add(new SqlParameter("@BalanceName", balanceName));
 
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
@@ -106,8 +113,12 @@ namespace Accounts.Infrastructure.Repositories
             {
                 connection.Open();
                 SqlCommand cmd = new SqlCommand($"USE StocksDB; UPDATE {TableName} " +
-                    $"SET CurrencyCode = {newCurrency}, CurrentBalance = {newCurrentBalance}, InitialBalance = {newInitialBalance} " +
-                    $"WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = '{accountId}')", connection);
+                    $@"SET CurrencyCode = @NewCurrency, CurrentBalance = @NewCurrentBalance, InitialBalance = @NewInitialBalance " +
+                    $@"WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = @Id)", connection);
+                cmd.Parameters.Add(new SqlParameter("@Id", accountId));
+                cmd.Parameters.Add(new SqlParameter("@NewCurrency", newCurrency));
+                cmd.Parameters.Add(new SqlParameter("@NewInitialBalance", newInitialBalance));
+                cmd.Parameters.Add(new SqlParameter("@NewCurrentBalance", newCurrentBalance));
 
                 await cmd.ExecuteNonQueryAsync();
             }
