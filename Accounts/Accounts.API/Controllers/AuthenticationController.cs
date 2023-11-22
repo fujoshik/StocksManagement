@@ -31,6 +31,18 @@ namespace Accounts.API.Controllers
         }
 
         [AllowAnonymous]
+        [HttpPost("is-token-valid")]
+        public IActionResult CheckIfTokenIsValid(string token)
+        {
+            if (!_service.ValidateToken(token))
+            {
+                return Unauthorized();
+            }
+
+            return NoContent();
+        }
+
+        [AllowAnonymous]
         [HttpPost("register-trial")]
         public IActionResult RegisterTrial(RegisterTrialDto registerTrial)
         {

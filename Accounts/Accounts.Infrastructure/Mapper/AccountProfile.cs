@@ -10,6 +10,7 @@ namespace Accounts.Infrastructure.Mapper
         {
             CreateMap<RegisterTrialDto, AccountRequestDto>();
             CreateMap<RegisterWithSumDto, AccountRequestDto>();
+            CreateMap<AccountResponseDto, AccountRequestDto>();
         }
     }
 }

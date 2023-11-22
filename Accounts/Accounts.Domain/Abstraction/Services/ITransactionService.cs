@@ -4,6 +4,5 @@ namespace Accounts.Domain.Abstraction.Services
 {
     public interface ITransactionService
     {
-        Task CreateAsync(TransactionRequestDto transaction);
     }
 }

@@ -6,5 +6,6 @@ namespace Accounts.Domain.Abstraction.Services
     {
         void Register(RegisterDto registerDto);
         Task<string> LoginAsync(LoginDto accountDto);
+        bool ValidateToken(string token);
     }
 }

@@ -1,15 +1,15 @@
-﻿using Accounts.API.Attributes;
-using Accounts.Domain.Abstraction.Services;
+﻿using Accounts.Domain.Abstraction.Services;
+using Accounts.Domain.Constants;
 using Accounts.Domain.DTOs.User;
-using Accounts.Domain.Enums;
 using Accounts.Domain.Pagination;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Accounts.API.Controllers
 {
     [ApiController]
     [Route("accounts-api/users")]
-    [AuthorizeRoles(Role.Inactive, Role.Regular, Role.Special, Role.VIP)]
+    [Authorize(Policy = PolicyConstants.AllowAll)]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -38,7 +38,6 @@ namespace Accounts.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [AuthorizeRoles(Role.Inactive, Role.Regular, Role.Special, Role.VIP)]
         public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] UserWithoutAccountIdDto user)
         {
             await _userService.UpdateAsync(id, user);

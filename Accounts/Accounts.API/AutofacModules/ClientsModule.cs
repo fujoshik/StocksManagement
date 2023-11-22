@@ -10,9 +10,9 @@ namespace Accounts.API.AutofacModules
             var assembly = typeof(BaseResponseDto).Assembly;
 
             builder.RegisterAssemblyTypes(assembly)
-                    .Where(t => t.Name.EndsWith("Client"))
-                    .AsImplementedInterfaces()
-                    .InstancePerLifetimeScope();
+                   .Where(t => t.Name.Contains("SettlementClient") || t.Name.EndsWith("Client"))
+                   .AsImplementedInterfaces()
+                   .InstancePerLifetimeScope();
         }
     }
 }
