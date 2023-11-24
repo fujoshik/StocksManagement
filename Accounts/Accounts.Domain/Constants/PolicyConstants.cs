@@ -8,6 +8,8 @@
 
         public const string AllowAdminTrialRoles = "AllowAdminTrialRoles";
 
+        public const string AllowAdminActiveAndTrialRoles = "AllowAdminActiveAndTrialRoles";
+
         public const string AllowAdminInactiveRoles = "AllowAdminInactiveRoles";
 
         public const string AllowAll = "AllowAll";

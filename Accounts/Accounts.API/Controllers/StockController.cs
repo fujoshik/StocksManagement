@@ -1,13 +1,13 @@
-﻿using Accounts.API.Attributes;
-using Accounts.Domain.Abstraction.Services;
-using Accounts.Domain.Enums;
+﻿using Accounts.Domain.Abstraction.Services;
+using Accounts.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Accounts.API.Controllers
 {
     [ApiController]
     [Route("accounts-api/stocks")]
-    [AuthorizeRoles(Role.Admin, Role.Regular, Role.Special, Role.Trial, Role.VIP)]
+    [Authorize(Policy = PolicyConstants.AllowAdminActiveAndTrialRoles)]
     public class StockController : ControllerBase
     {
         private readonly IStockService _stockService;
