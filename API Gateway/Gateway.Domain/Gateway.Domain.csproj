@@ -1,17 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Microsoft.Azure.Management.Graph.RBAC.Fluent" Version="1.38.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\API.Gateway\API.Gateway.csproj" />
     <ProjectReference Include="..\Gateway.Domain.Services\Gateway.Domain.Services.csproj" />
   </ItemGroup>
 
