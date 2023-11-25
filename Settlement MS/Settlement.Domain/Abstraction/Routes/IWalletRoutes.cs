@@ -1,4 +1,4 @@
-﻿namespace Settlement.Domain.Abstraction.Services
+﻿namespace Settlement.Domain.Abstraction.Routes
 {
     public interface IWalletRoutes
     {

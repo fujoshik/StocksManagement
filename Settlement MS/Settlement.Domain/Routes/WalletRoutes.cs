@@ -1,15 +1,17 @@
-﻿using Settlement.Domain.Abstraction.Services;
+﻿using Settlement.Domain.Abstraction.Routes;
+using Settlement.Domain.Constants.ApiRoutes;
 
-namespace Settlement.Domain.Services
+namespace Settlement.Domain
 {
     public class WalletRoutes : IWalletRoutes
     {
         public Dictionary<string, string> Routes { get; set; }
+
         public WalletRoutes()
         {
             Routes = new Dictionary<string, string>
             {
-                { "GET", "https://localhost:7073/accounts-api/wallets/{id}" }
+                { "GET", ApiRoutesConstants.WalletGetRoute }
             };
         }
     }
