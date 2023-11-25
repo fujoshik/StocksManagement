@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Settlement.Domain.Constants.ApiRoutes
+﻿namespace Settlement.Domain.Constants.ApiRoutes
 {
     public class ApiRoutesConstants
     {

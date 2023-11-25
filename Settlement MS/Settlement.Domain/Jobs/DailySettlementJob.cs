@@ -17,9 +17,9 @@ namespace Settlement.Domain
             var wallets = await settlementRepository.GetAllWallets();
             var handledWallets = await settlementRepository.GetHandledWalletIds();
 
-            foreach(var wallet in wallets)
+            foreach (var wallet in wallets)
             {
-                if(handledWallets.Contains(wallet.Id))
+                if (handledWallets.Contains(wallet.Id))
                 {
                     decimal tradeCommission = wallet.CurrentBalance * CommissionPercentageConstant.commissionPercentage;
 
@@ -29,5 +29,6 @@ namespace Settlement.Domain
                 }
             }
         }
+
     }
 }

@@ -1,10 +1,6 @@
-﻿using Accounts.Domain.DTOs.Wallet;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Settlement.Domain.Abstraction.Services;
 using Settlement.Domain.DTOs.Transaction;
-using Settlement.Domain.Services;
-using System.Transactions;
 
 namespace Settlement.API.Controllers
 {

@@ -17,12 +17,17 @@ builder.Services.AddScoped<ISettlementRepository, SettlementRepository>();
 
 builder.Services.AddQuartz(q =>
 {
-    var job = JobKey.Create(nameof(DailySettlementJob));
-    q.AddJob<DailySettlementJob>(job)
-            .AddTrigger(t => t
-            .ForJob(job)//.WithCronSchedule(CronExpressionConstant.cronExpression));
-            .WithDailyTimeIntervalSchedule(x => x
-                .WithIntervalInMinutes(5)));
+    var dailySettlementJob = JobKey.Create(nameof(DailySettlementJob));
+    q.AddJob<DailySettlementJob>(dailySettlementJob)
+        .AddTrigger(t => t
+            .ForJob(dailySettlementJob)
+            .WithCronSchedule(CronExpressionConstant.cronExpression));
+
+    var processFailedTransactions = JobKey.Create(nameof(ProcessFailedTransactionsJob));
+    q.AddJob<ProcessFailedTransactionsJob>(processFailedTransactions)
+        .AddTrigger(t => t
+            .ForJob(processFailedTransactions)
+            .WithCronSchedule(CronExpressionConstant.cronExpression));
 });
 
 builder.Services.AddQuartzHostedService();

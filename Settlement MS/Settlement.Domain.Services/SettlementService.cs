@@ -22,7 +22,6 @@ namespace Settlement.Domain.Services
             SettlementResponseDto response = new SettlementResponseDto();
 
             var userAccountBalance = await httpClientService.GetWalletBalance(transactionRequest.WalletId);
-
             var stockData = await httpClientService.GetStockByDateAndTicker(transactionRequest.Date, transactionRequest.StockTicker);
 
             if (stockData != null && stockData.ClosestPrice.HasValue)
@@ -30,19 +29,39 @@ namespace Settlement.Domain.Services
                 decimal closestPrice = stockData.ClosestPrice.Value;
                 decimal tradeCommission = (closestPrice * transactionRequest.Quantity) * CommissionPercentageConstant.commissionPercentage;
 
-                if (userAccountBalance.CurrentBalance >= tradeCommission)
+                bool transactionSucceeded = userAccountBalance.CurrentBalance >= tradeCommission;
+
+                if (transactionSucceeded)
                 {
-                    userAccountBalance.CurrentBalance -= tradeCommission;
+                    if (transactionRequest.TransactionType == Enums.TransactionType.Bought)
+                    {
+                        userAccountBalance.CurrentBalance -= tradeCommission;
+                    }
+                    else
+                    {
+                        userAccountBalance.CurrentBalance += tradeCommission;
+                    }
+
                     response.Success = true;
                     response.Message = ResponseMessagesConstants.AccountInGoodStanding;
+                    response.TotalBalance = userAccountBalance.CurrentBalance;
+                    response.StockPrice = closestPrice;
+                    transactionRequest.StockPrice = closestPrice;
+
+                    await settlementRepository.UpdateWalletBalance(transactionRequest.WalletId, userAccountBalance.CurrentBalance);
+                    await settlementRepository.InsertTransaction(transactionRequest, response);
+                    await settlementRepository.InsertHandledWallets(transactionRequest.WalletId);
                 }
                 else
                 {
                     response.Success = false;
                     response.Message = ResponseMessagesConstants.InsufficientFunds;
-                }
+                    response.TotalBalance = userAccountBalance.CurrentBalance;
+                    response.StockPrice = closestPrice;
+                    transactionRequest.StockPrice = closestPrice;
 
-                response.StockPrice = closestPrice;
+                    await settlementRepository.InsertTransaction(transactionRequest, response);
+                }
             }
             else
             {
@@ -50,15 +69,8 @@ namespace Settlement.Domain.Services
                 response.Message = ResponseMessagesConstants.ErrorProcessingDeal;
             }
 
-            response.TotalBalance = userAccountBalance.CurrentBalance;
-
-            await settlementRepository.InsertTransaction(transactionRequest, response); 
-
-            await settlementRepository.UpdateWalletBalance(transactionRequest.WalletId, userAccountBalance.CurrentBalance);
-
-            await settlementRepository.InsertHandledWallets(transactionRequest.WalletId);
-
             return response;
         }
+
     }
 }

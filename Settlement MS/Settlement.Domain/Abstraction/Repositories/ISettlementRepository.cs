@@ -1,4 +1,5 @@
-﻿using Accounts.Domain.DTOs.Wallet;
+﻿using Accounts.Domain.DTOs.Account;
+using Accounts.Domain.DTOs.Wallet;
 using Settlement.Domain.DTOs.Settlement;
 using Settlement.Domain.DTOs.Transaction;
 
@@ -11,5 +12,9 @@ namespace Settlement.Domain.Abstraction.Repository
         Task<List<WalletResponseDto>> GetAllWallets();
         Task InsertHandledWallets(Guid id);
         Task<List<Guid>> GetHandledWalletIds();
+        Task CreateFailedTransactionsTable();
+        Task InsertIntoFailedTransaction(TransactionRequestDto transaction);
+        Task<List<TransactionRequestDto>> GetFailedTransactions();
+        Task DeleteFailedTransaction(Guid walletId);
     }
 }

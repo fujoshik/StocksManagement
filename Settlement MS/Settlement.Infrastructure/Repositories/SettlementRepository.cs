@@ -1,6 +1,5 @@
 ﻿using Accounts.Domain.DTOs.Wallet;
 using Accounts.Domain.Enums;
-using Dapper;
 using Settlement.Domain.Abstraction.Repository;
 using Settlement.Domain.Constants;
 using Settlement.Domain.Constants.Queries;
@@ -12,7 +11,6 @@ namespace Settlement.Infrastructure.Repository
 {
     public class SettlementRepository : ISettlementRepository
     {
-        // just for testing...
         public async Task InsertTransaction(TransactionRequestDto transaction, SettlementResponseDto settlement)
         {
             try
@@ -20,17 +18,49 @@ namespace Settlement.Infrastructure.Repository
                 using (SqlConnection connection = new SqlConnection(ConnectionConstant.connectionString))
                 {
                     await connection.OpenAsync();
-
-                    var random = new Random();
-                    var randomTransactionType = random.Next(2) == 0 ? TransactionType.Bought : TransactionType.Sold;
-
+                    await CreateFailedTransactionsTable();
                     using (SqlCommand cmd = new SqlCommand(SqlQueriesConstants.InsertTransactionQuery, connection))
                     {
                         cmd.Parameters.AddWithValue("@StockTicker", transaction.StockTicker);
-                        cmd.Parameters.AddWithValue("@Price", settlement.StockPrice);
+                        cmd.Parameters.AddWithValue("@Price", transaction.StockPrice);
                         cmd.Parameters.AddWithValue("@Quantity", transaction.Quantity);
-                        cmd.Parameters.AddWithValue("@TransactionType", randomTransactionType);
+                        cmd.Parameters.AddWithValue("@TransactionType", transaction.TransactionType);
                         cmd.Parameters.AddWithValue("@AccountId", transaction.AccountId);
+
+                        if(!settlement.Success)
+                        {
+                            await InsertIntoFailedTransaction(transaction);
+                        }
+                        else
+                        {
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+                    }
+                }
+            }
+            catch (SqlException e)
+            {
+                throw new InvalidOperationException($"Error: {e.Message}. SQL Server error: {e.InnerException?.Message ?? "N/A"}");
+            }
+        }
+
+        public async Task InsertIntoFailedTransaction(TransactionRequestDto transaction)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(ConnectionConstant.connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    using (SqlCommand cmd = new SqlCommand(SqlQueriesConstants.InsertIntoFailedTransaction, connection))
+                    {
+                        cmd.Parameters.AddWithValue(@"WalletId", transaction.WalletId);
+                        cmd.Parameters.AddWithValue("@StockTicker", transaction.StockTicker);
+                        cmd.Parameters.AddWithValue("@Price", transaction.StockPrice);
+                        cmd.Parameters.AddWithValue("@Quantity", transaction.Quantity);
+                        cmd.Parameters.AddWithValue("@TransactionType", transaction.TransactionType);
+                        cmd.Parameters.AddWithValue("@AccountId", transaction.AccountId);
+                        cmd.Parameters.AddWithValue("@Date", transaction.Date);
 
                         await cmd.ExecuteNonQueryAsync();
                     }
@@ -50,7 +80,7 @@ namespace Settlement.Infrastructure.Repository
                 {
                     await connection.OpenAsync();
 
-                    using(SqlCommand cmd = new SqlCommand(SqlQueriesConstants.UpdateWalletBalanceQuery, connection))
+                    using (SqlCommand cmd = new SqlCommand(SqlQueriesConstants.UpdateWalletBalanceQuery, connection))
                     {
                         cmd.Parameters.AddWithValue("@NewBalance", newBalance);
                         cmd.Parameters.AddWithValue("@WalletId", Id);
@@ -68,15 +98,67 @@ namespace Settlement.Infrastructure.Repository
         {
             try
             {
+                List<WalletResponseDto> wallets = new List<WalletResponseDto>();
+
                 using (SqlConnection connection = new SqlConnection(ConnectionConstant.connectionString))
                 {
                     await connection.OpenAsync();
 
-                    var query = SqlQueriesConstants.GetAllWalletsQuery;
-                    var wallets = await connection.QueryAsync<WalletResponseDto>(query);
-
-                    return wallets.ToList();
+                    using (SqlCommand cmd = new SqlCommand(SqlQueriesConstants.GetAllWalletsQuery, connection))
+                    {
+                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                WalletResponseDto wallet = new WalletResponseDto();
+                                wallet.Id = reader.GetGuid(reader.GetOrdinal("Id"));
+                                wallet.InitialBalance = reader.GetDecimal(reader.GetOrdinal("InitialBalance"));
+                                wallet.CurrentBalance = reader.GetDecimal(reader.GetOrdinal("CurrentBalance"));
+                                wallet.CurrencyCode = (CurrencyCode)reader.GetInt32(reader.GetOrdinal("CurrencyCode"));
+                                wallets.Add(wallet);
+                            }
+                        }
+                    }
                 }
+
+                return wallets;
+            }
+            catch (SqlException e)
+            {
+                throw new InvalidOperationException($"Error: {e.Message}. SQL Server error: {e.InnerException?.Message ?? "N/A"}");
+            }
+        }
+
+        public async Task<List<TransactionRequestDto>> GetFailedTransactions()
+        {
+            try
+            {
+                List<TransactionRequestDto> transactions = new List<TransactionRequestDto>();
+
+                using (SqlConnection connection = new SqlConnection(ConnectionConstant.connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    using (SqlCommand cmd = new SqlCommand(SqlQueriesConstants.GetAllFailedTransactions, connection))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                TransactionRequestDto transaction = new TransactionRequestDto();
+                                transaction.WalletId = reader.GetGuid(reader.GetOrdinal("WalletId"));
+                                transaction.StockTicker = reader.GetString(reader.GetOrdinal("StockTicker"));
+                                transaction.Quantity = reader.GetInt32(reader.GetOrdinal("Quantity"));
+                                transaction.AccountId = reader.GetGuid(reader.GetOrdinal("AccountId"));
+                                transaction.TransactionType = (Domain.Enums.TransactionType)(TransactionType)reader.GetInt32(reader.GetOrdinal("TransactionType"));
+                                transaction.StockPrice = reader.GetDecimal(reader.GetOrdinal("Price"));
+                                transaction.Date = reader.GetString(reader.GetOrdinal("Date"));
+                                transactions.Add(transaction);
+                            }
+                        }
+                    }
+                }
+                return transactions;
             }
             catch (SqlException e)
             {
@@ -109,14 +191,67 @@ namespace Settlement.Infrastructure.Repository
         {
             try
             {
+                List<Guid> walletIds = new List<Guid>();
+
                 using (SqlConnection connection = new SqlConnection(ConnectionConstant.connectionString))
                 {
                     await connection.OpenAsync();
 
-                    var query = SqlQueriesConstants.GetHandledWalletIdsQuery;
-                    var walletIds = await connection.QueryAsync<Guid>(query);
+                    using (SqlCommand cmd = new SqlCommand(SqlQueriesConstants.GetHandledWalletIdsQuery, connection))
+                    {
+                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                Guid walletId = reader.GetGuid(reader.GetOrdinal("WalletId"));
+                                walletIds.Add(walletId);
+                            }
+                        }
+                    }
+                }
 
-                    return walletIds.ToList();
+                return walletIds;
+            }
+            catch (SqlException e)
+            {
+                throw new InvalidOperationException($"Error: {e.Message}. SQL Server error: {e.InnerException?.Message ?? "N/A"}");
+            }
+        }
+
+        public async Task CreateFailedTransactionsTable()
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(ConnectionConstant.connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    using (SqlCommand cmd = new SqlCommand(SqlQueriesConstants.CreateTableTransactionFailed, connection))
+                    {
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (SqlException e)
+            {
+                throw new InvalidOperationException($"Error: {e.Message}. SQL Server error: {e.InnerException?.Message ?? "N/A"}");
+            }
+        }
+
+        public async Task DeleteFailedTransaction(Guid walletId)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(ConnectionConstant.connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    using (SqlCommand cmd = new SqlCommand(SqlQueriesConstants.DeleteFailedTransaction, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@WalletId", walletId);
+
+                        await cmd.ExecuteNonQueryAsync();
+                    }
                 }
             }
             catch (SqlException e)
