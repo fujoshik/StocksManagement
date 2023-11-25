@@ -28,17 +28,27 @@ namespace StockAPI.Domain.Services
 
         public void InitializeDatabase()
         {
-            using (var command = new SqliteCommand("CREATE TABLE IF NOT EXISTS Stocks " +
+            try
+            {
+                using (var command = new SqliteCommand("CREATE TABLE IF NOT EXISTS Stocks " +
                 "(StockTicker TEXT, ClosestPrice REAL, HighestPrice REAL, LowestPrice REAL, " +
                 "TransactionCount INTEGER, OpenPrice REAL, IsOTC INTEGER, UnixTimestamp INTEGER," +
                 " TradingVolume INTEGER, VolumeWeightedAveragePrice REAL, Date TEXT)", _connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch(Exception ex)
             {
-                command.ExecuteNonQuery();
+                Log.Error(ex, "an exception occured while trying to initialize tha database.");
+                throw;
             }
         }
 
         public void InsertStockIntoDatabase(Stock stock)
         {
+            try
+            {
                 using (var command = new SqliteCommand("INSERT INTO Stocks (StockTicker, " +
                 "ClosestPrice, HighestPrice, LowestPrice, TransactionCount, OpenPrice, " +
                 "IsOTC, UnixTimestamp, TradingVolume, VolumeWeightedAveragePrice, Date) " +
@@ -59,6 +69,12 @@ namespace StockAPI.Domain.Services
                     command.Parameters.AddWithValue("@Date", stock.Date);
                     command.ExecuteNonQuery();
                 }
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex, $"an error occured while trying to add the stock {stock.StockTicker} from {stock.Date}.");
+                throw;
+            }
         }
 
         public void Dispose()

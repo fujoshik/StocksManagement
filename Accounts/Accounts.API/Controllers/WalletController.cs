@@ -1,4 +1,5 @@
 ﻿using Accounts.Domain.Abstraction.Services;
+using Accounts.Domain.Constants;
 using Accounts.Domain.DTOs.Wallet;
 using Accounts.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +9,7 @@ namespace Accounts.API.Controllers
 {
     [ApiController]
     [Route("accounts-api/wallets")]
+    [Authorize(Policy = PolicyConstants.AllowAll)]
     public class WalletController : ControllerBase
     {
         private readonly IWalletService _walletService;
@@ -16,8 +18,7 @@ namespace Accounts.API.Controllers
         {
             _walletService = walletService;
         }
-
-        [Authorize]
+        
         [HttpPost("deposit")]
         public async Task<ActionResult> DepositSum(DepositDto deposit)
         {
@@ -26,7 +27,6 @@ namespace Accounts.API.Controllers
             return Ok();
         }
 
-        [Authorize]
         [HttpPost("{currency}")]
         public async Task<ActionResult> ChangeCurrency([FromRoute] CurrencyCode currency)
         {
@@ -36,6 +36,7 @@ namespace Accounts.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = PolicyConstants.AllowAll)]
         public async Task<ActionResult<WalletResponseDto>> GetWalletInfoAsync(Guid id = default)
         {
             var wallet = await _walletService.GetWalletInfoAsync(id);
