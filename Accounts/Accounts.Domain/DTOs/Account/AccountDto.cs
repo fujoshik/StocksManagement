@@ -8,5 +8,6 @@ namespace Accounts.Domain.DTOs.Account
         public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }
         public Role Role { get; set; }
+        public DateTime? DateToDelete { get; set; }
     }
 }

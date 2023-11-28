@@ -1,9 +1,8 @@
-﻿using Accounts.Domain.Abstraction.Factories;
-using Accounts.Domain.Abstraction.Providers;
+﻿using Accounts.Domain.Abstraction.Providers;
 using Accounts.Domain.Abstraction.Services;
-using Accounts.Domain.DTOs.Transaction;
+using Accounts.Domain.DTOs.ExecuteDeal;
 using Accounts.Domain.Enums;
-using IHttpClientFactory = Accounts.Domain.Abstraction.Factories.IHttpClientFactory;
+using Accounts.Domain.Exceptions;
 
 namespace Accounts.Domain.Services
 {
@@ -11,38 +10,46 @@ namespace Accounts.Domain.Services
     {
         private readonly IUserDetailsProvider _userDetailsProvider;
         private readonly IAccountService _accountService;
-        private readonly ITransactionService _transactionService;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ISettlementService _settlementService;
+        private readonly IWalletService _walletService;
 
         public StockService(IUserDetailsProvider userDetailsProvider,
                             IAccountService accountService,
-                            ITransactionService transactionService,
-                            IHttpClientFactory httpClientFactory)
+                            ISettlementService settlementService,
+                            IWalletService walletService)
         {
             _userDetailsProvider = userDetailsProvider;
             _accountService = accountService;
-            _transactionService = transactionService;
-            _httpClientFactory = httpClientFactory;
+            _settlementService = settlementService;
+            _walletService = walletService;
         }
 
-        //public async Task BuyStock(string ticker, int quantity)
-        //{
-        //    var currentAccount = await _accountService.GetByIdAsync(_userDetailsProvider.GetAccountId());
+        public async Task BuyStockAsync(string ticker, int quantity)
+        {
+            var currentAccount = await _accountService.GetByIdAsync(_userDetailsProvider.GetAccountId());
 
-        //    var result = _httpClientFactory
-        //        .GetSettlementClient()
-        //        .BuyStock(ticker, quantity, currentAccount.WalletId, currentAccount.Role);
+            var wallet = await _walletService.GetWalletInfoAsync(currentAccount.WalletId);
+            CurrencyCode beforeCurrency = wallet.CurrencyCode;
 
-        //    var transactionRequest = new TransactionRequestDto()
-        //    {
-        //        AccountId = currentAccount.Id,
-        //        Price = result.Price,
-        //        Quantity = quantity,
-        //        StockTicker = ticker,
-        //        TransactionType = TransactionType.Bought,
-        //    };
+            if (wallet.CurrencyCode != CurrencyCode.USD)
+            {
+                await _walletService.ChangeCurrencyAsync(CurrencyCode.USD);
+            }
 
-        //    await _transactionService.CreateAsync(transactionRequest);
-        //}
+            //add Role and calculate based on the type of client
+            var result = await _settlementService.ExecuteDealAsync(new ExecuteDealDto
+            {
+                Ticker = ticker,
+                Quantity = quantity,
+                TransactionType = TransactionType.Bought,
+                AccountId = currentAccount.Id,
+                WalletId = currentAccount.WalletId
+            });
+
+            if (!result.Success)
+            {
+                throw new UnsuccessfulTransactionException();
+            }
+        }
     }
 }

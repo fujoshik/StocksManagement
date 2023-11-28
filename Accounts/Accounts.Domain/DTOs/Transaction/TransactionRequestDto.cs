@@ -9,5 +9,6 @@ namespace Accounts.Domain.DTOs.Transaction
         public int Quantity { get; set; }
         public decimal Price { get; set; }
         public TransactionType TransactionType { get; set; }
+        public Guid WalletId { get; set; }
     }
 }

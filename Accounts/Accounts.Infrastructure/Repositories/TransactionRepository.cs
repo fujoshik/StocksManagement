@@ -4,6 +4,7 @@ using Accounts.Domain.Enums;
 using Accounts.Infrastructure.Entities;
 using Microsoft.Extensions.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace Accounts.Infrastructure.Repositories
 {
@@ -29,6 +30,18 @@ namespace Accounts.Infrastructure.Repositories
             };
 
             return (TOutput)Convert.ChangeType(result, typeof(TOutput));
+        }
+
+        public async Task DeleteByAccountIdAsync(Guid accountId)
+        {
+            await CreateDbIfNotExist();
+
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand($"USE StocksDB; DELETE FROM {TableName} WHERE AccountId = '{accountId}'", connection);
+                await cmd.ExecuteNonQueryAsync();
+            }
         }
     }
 }

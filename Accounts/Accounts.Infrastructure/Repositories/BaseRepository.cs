@@ -140,7 +140,8 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"SELECT * FROM {TableName} WHERE Id = '{id}'", connection);
+                SqlCommand cmd = new SqlCommand($@"SELECT * FROM {TableName} WHERE Id = @Id", connection);
+                cmd.Parameters.Add(new SqlParameter("@Id", id));
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     dataTable.Load(reader);

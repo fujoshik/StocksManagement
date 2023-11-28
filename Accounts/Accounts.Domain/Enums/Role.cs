@@ -2,10 +2,11 @@
 {
     public enum Role
     {
-        Inactive,
+        Trial,
         Regular,
         Special,
         VIP,
-        Admin
+        Admin,
+        Inactive
     }
 }

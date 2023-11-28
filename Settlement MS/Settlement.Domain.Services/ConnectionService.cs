@@ -2,6 +2,7 @@
 using Accounts.Domain.DTOs.Wallet;
 using Newtonsoft.Json;
 using StockAPI.Infrastructure.Models;
+using Settlement.Domain.Abstraction.Routes;
 
 namespace Settlement.Domain.Services
 {
@@ -20,8 +21,6 @@ namespace Settlement.Domain.Services
 
         public async Task<WalletResponseDto> GetWalletBalance(Guid walletId)
         {
-            //httpClient.DefaultRequestHeaders.Add("X-Api-Name", "Accounts.API"); // Identifies the source of the API.
-
             HttpResponseMessage response = await httpClient.GetAsync(walletRoutes.Routes["GET"].Replace("{id}", walletId.ToString()));
             if (response.IsSuccessStatusCode)
             {
@@ -37,8 +36,6 @@ namespace Settlement.Domain.Services
 
         public async Task<Stock> GetStockByDateAndTicker(string date, string stockTicker)
         {
-            //httpClient.DefaultRequestHeaders.Add("X-Api-Name", "StockAPI.API");
-
             HttpResponseMessage response = await httpClient.GetAsync(stockRoutes.Routes["GET"]
                 .Replace("{date}", date)
                 .Replace("{stockTicker}", stockTicker));
@@ -54,7 +51,5 @@ namespace Settlement.Domain.Services
                 throw new HttpRequestException($"Error: {response.StatusCode} - {response.ReasonPhrase}");
             }
         }
-
-
     }
 }

@@ -23,7 +23,8 @@ namespace Accounts.Infrastructure.Repositories
                 Id = Guid.Parse(dataRow["Id"].ToString()),
                 Email = dataRow["Email"].ToString(),
                 WalletId = Guid.Parse(dataRow["WalletId"].ToString()),
-                Role = (Role)int.Parse(dataRow["Role"].ToString())
+                Role = (Role)int.Parse(dataRow["Role"].ToString()),
+                DateToDelete = dataRow["DateToDelete"].ToString() == null ? null : DateTime.Parse(dataRow["DateToDelete"].ToString()) 
             };
 
             return (TOutput)Convert.ChangeType(result, typeof(TOutput));
@@ -35,7 +36,8 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"USE StocksDB; SELECT * FROM {TableName} WHERE Email = '{email}'", connection);
+                SqlCommand cmd = new SqlCommand($@"USE StocksDB; SELECT * FROM {TableName} WHERE Email = @Email", connection);
+                cmd.Parameters.Add(new SqlParameter("@Email", email));
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     dataTable.Load(reader);
@@ -49,9 +51,38 @@ namespace Accounts.Infrastructure.Repositories
                     Id = Guid.Parse(x["Id"].ToString()),
                     Email = x["Email"].ToString(),
                     PasswordHash = x["PasswordHash"].ToString(),
-                    PasswordSalt = x["PasswordSalt"].ToString()
+                    PasswordSalt = x["PasswordSalt"].ToString(),
+                    Role = (Role)int.Parse(x["Role"].ToString()),
+                    DateToDelete = x["DateToDelete"].ToString() == null ? null : DateTime.Parse(x["DateToDelete"].ToString())
                 })
                 .ToList();
+        }
+
+        public async Task UpdateRoleAsync(Guid id, int role)
+        {
+            await CreateDbIfNotExist();
+
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand($@"USE StocksDB; UPDATE {TableName} SET Role = @Role WHERE Id = @Id", connection);
+                cmd.Parameters.Add(new SqlParameter("@Role", role));
+                cmd.Parameters.Add(new SqlParameter("@Id", id));
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task DeleteDateToDeleteAsync(Guid id)
+        {
+            await CreateDbIfNotExist();
+
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand($@"USE StocksDB; UPDATE {TableName} SET DateToDelete = '' WHERE Id = @Id", connection);
+                cmd.Parameters.Add(new SqlParameter("@Id", id));
+                await cmd.ExecuteNonQueryAsync();
+            }
         }
     }
 }

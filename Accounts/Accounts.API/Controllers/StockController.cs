@@ -1,15 +1,36 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Accounts.Domain.Abstraction.Services;
+using Accounts.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Accounts.API.Controllers
 {
     [ApiController]
-    [Route("accounts-api/stocks")]   
+    [Route("accounts-api/stocks")]
+    [Authorize(Policy = PolicyConstants.AllowAdminActiveAndTrialRoles)]
     public class StockController : ControllerBase
     {
+        private readonly IStockService _stockService;
 
-        //public Task<IActionResult> BuyStock(string ticker, int quantity)
-        //{
+        public StockController(IStockService stockService)
+        {
+            _stockService = stockService;
+        }
 
-        //}
+        [HttpPost("buy-stock")]
+        public async Task<IActionResult> BuyStock([FromQuery] string ticker, [FromQuery] int quantity)
+        {
+            await _stockService.BuyStockAsync(ticker, quantity);
+
+            return Ok();
+        }
+
+        [HttpPost("sell-stock")]
+        public async Task<IActionResult> SellStock([FromQuery] string ticker, [FromQuery] int quantity)
+        {
+            //await _stockService.Sell(ticker, quantity);
+
+            return Ok();
+        }
     }
 }

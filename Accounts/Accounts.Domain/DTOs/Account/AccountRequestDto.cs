@@ -7,5 +7,6 @@
         public string PasswordSalt { get; set; }
         public int Role { get; set; }
         public Guid WalletId { get; set; }
+        public string DateToDelete { get; set; }
     }
 }
