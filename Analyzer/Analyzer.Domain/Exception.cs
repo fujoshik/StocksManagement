@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace YourNamespace
+namespace Analyzer.API.Analyzer.Domain
 {
     public class UserDataNotFoundException : Exception
     {
