@@ -1,10 +1,6 @@
-﻿using Accounts.Domain.DTOs.Wallet;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Settlement.Domain.Abstraction.Services;
 using Settlement.Domain.DTOs.Transaction;
-using Settlement.Domain.Services;
-using System.Transactions;
 
 namespace Settlement.API.Controllers
 {
@@ -26,11 +22,6 @@ namespace Settlement.API.Controllers
         {
             try
             {
-                /*var apiName = HttpContext.Request.Headers["X-Api-Name"].FirstOrDefault();
-                if (apiName != "Accounts.API")
-                {
-                    return BadRequest("Invalid API access.");
-                }*/
                 var response = await httpClientService.GetWalletBalance(walletId);
                 return Ok(response);
             }
@@ -45,11 +36,6 @@ namespace Settlement.API.Controllers
         {
             try
             {
-                /*var apiName = HttpContext.Request.Headers["X-Api-Name"].FirstOrDefault();
-                if(apiName != "StockAPI.API")
-                {
-                   return BadRequest("Invalid API access.");
-                }*/
                 var response = await httpClientService.GetStockByDateAndTicker(date, stockTicker);
                 return Ok(response);
             }
