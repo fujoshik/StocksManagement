@@ -11,3 +11,13 @@ A Regular account allows
 Special
 VIP
 Users without registration on the platform are only able to view stock prices.
+
+## Gateway
+
+## Accounts API
+
+## StockAPI
+
+## Settlement API
+
+## Analyzer API
