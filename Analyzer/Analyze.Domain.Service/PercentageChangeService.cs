@@ -17,7 +17,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             this.httpClientService = httpClientService;
         }
 
-        public async Task<decimal> FetchPercentageChange(string stockTicker, string data)
+        public async Task<decimal> PercentageChange(string stockTicker, string data)
         {
             try
             {

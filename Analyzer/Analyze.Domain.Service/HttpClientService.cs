@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Accounts.Domain.DTOs.Transaction;
 using Accounts.Domain.DTOs.Wallet;
 using Analyzer.Domain.Abstracions.Interfaces;
 using Newtonsoft.Json;
@@ -26,7 +27,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
         {
             using (var httpClient = GetAccountClient())
             {
-                string getUrl = $"/accounts-api/wallets{id}";
+                string getUrl = $"/accounts-api/wallets/{id}";
                 HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
                 if (response.IsSuccessStatusCode)
@@ -69,6 +70,11 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
         public HttpClient GetStockAPI()
         {
             return stockApi;
+        }
+
+        public Task<List<TransactionResponseDto>> GetTransactionsForUserAndStockAsync(Guid userId, string stockTicker)
+        {
+            throw new NotImplementedException();
         }
     }
 }

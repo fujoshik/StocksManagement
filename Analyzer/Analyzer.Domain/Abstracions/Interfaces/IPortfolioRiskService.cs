@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Analyzer.Domain.Abstracions.Interfaces
 {
-    internal interface Interface1
+    public interface IPortfolioRiskService
     {
+        Task<decimal> CalculatePortfolioRisk(Guid accountId, string stockTicker, DateTime date);
     }
 }

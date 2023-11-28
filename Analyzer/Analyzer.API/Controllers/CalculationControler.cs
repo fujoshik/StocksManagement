@@ -24,12 +24,26 @@ namespace Analyzer.API.Controllers
             
         }
 
+        //[HttpGet("calculate-current-yield1")]
+        //public async Task<IActionResult> CalculateCurrentYield1([FromQuery] Guid userId)
+        //{
+        //    try
+        //    {
+        //        decimal currentYield = await calculationService.CalculateCurrentYieldForUser(userId);
+        //        return Ok(new { CurrentYield = currentYield });
+        //    }
+        //    catch (ArgumentException ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
         [HttpGet("calculate-current-yield")]
-        public async Task<IActionResult> CalculateCurrentYield([FromQuery] Guid userId)
+        public async Task<IActionResult> CalculateCurrentYield([FromQuery] Guid userId, string stockTicker, string Data)
         {
             try
             {
-                decimal currentYield = await calculationService.CalculateCurrentYieldForUser(userId);
+                decimal currentYield = await calculationService.CalculateCurrentYieldForUser(userId,stockTicker,Data);
                 return Ok(new { CurrentYield = currentYield });
             }
             catch (ArgumentException ex)
@@ -38,12 +52,12 @@ namespace Analyzer.API.Controllers
             }
         }
 
-        [HttpGet("fetch-percentage-change")]
-        public async Task<IActionResult> FetchPercentageChange([FromQuery] string stockTicker, [FromQuery] string data)
+        [HttpGet("percentage-change")]
+        public async Task<IActionResult> PercentageChange([FromQuery] string stockTicker, [FromQuery] string data)
         {
             try
             {
-                decimal percentageChange = await calculationService.FetchPercentageChange(stockTicker, data);
+                decimal percentageChange = await calculationService.PercentageChange(stockTicker, data);
                 return Ok(new { PercentageChange = percentageChange });
             }
             catch (UserDataNotFoundException ex)
@@ -55,8 +69,6 @@ namespace Analyzer.API.Controllers
                 return BadRequest($"Error calculating percentage change: {ex.Message}");
             }
         }
-
-
 
 
         [HttpGet("calculate-portfolio-risk")]

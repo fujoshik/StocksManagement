@@ -8,6 +8,7 @@ using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
 using Accounts.Domain.DTOs.Wallet;
 using StockAPI.Infrastructure.Models;
+using Accounts.Domain.DTOs.Transaction;
 
 namespace Analyze.Domain.Service
 {
@@ -62,6 +63,9 @@ namespace Analyze.Domain.Service
                 }
             }
         }
+
+        
+
 
 
         //public async Task< UserData> GetInfoFromSettlement(string id)

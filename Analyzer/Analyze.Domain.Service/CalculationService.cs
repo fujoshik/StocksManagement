@@ -5,6 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Accounts.Domain.Abstraction.Services;
+using StockAPI.Domain.Abstraction.Services;
+using Accounts.Domain.DTOs.Transaction;
+using Accounts.Domain.Abstraction.Repositories;
+using Analyze.Domain.Service;
+
+
 
 namespace Analyzer.API.Analyzer.Domain.Services
 {
@@ -24,18 +31,21 @@ namespace Analyzer.API.Analyzer.Domain.Services
             this.percentageChangeService = percentageChangeService;
         }
 
-        public async Task<decimal> CalculateCurrentYieldForUser(Guid userId)
+        
+
+        public async Task<decimal> CalculateCurrentYieldForUser(Guid userId, string stockTicker, string Data)
         {
             try
             {
                 var userData = await httpClientService.GetAccountInfoById(userId);
+                var stockData = await httpClientService.GetStockData(stockTicker,Data);
 
                 if (userData == null)
                 {
                     throw new UserDataNotFoundException();
                 }
 
-                decimal userInitialBalance = userData.InitialBalance;
+                decimal? closestPrice = stockData.ClosestPrice;
                 decimal userCurrentBalance = userData.CurrentBalance;
 
                 if (!IsValidMarketPrice(userCurrentBalance))
@@ -43,7 +53,7 @@ namespace Analyzer.API.Analyzer.Domain.Services
                     throw new ArgumentException("Invalid current market price for the user.");
                 }
 
-                decimal userCurrentYield = (userInitialBalance / userCurrentBalance) * 100;
+                decimal userCurrentYield = (decimal)(userCurrentBalance/ closestPrice) * 100;
                 return userCurrentYield;
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -56,9 +66,10 @@ namespace Analyzer.API.Analyzer.Domain.Services
             }
         }
 
-        public bool IsValidMarketPrice(decimal marketPrice)
+        public decimal CalculatePortfolioRisk(List<CalculationDTOs> stocks)
         {
-            return marketPrice > 0;
+            // Implement your logic for calculating portfolio risk here
+            return 10.5m;
         }
 
         public async Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks)
@@ -66,15 +77,49 @@ namespace Analyzer.API.Analyzer.Domain.Services
             return await dailyYieldChangesService.CalculateDailyYieldChanges(stocks);
         }
 
-        public async Task<decimal> FetchPercentageChange(string stockTicker, string data)
+
+        public async Task<decimal> PercentageChange(string stockTicker, string data)
         {
-            return await percentageChangeService.FetchPercentageChange(stockTicker, data);
+            return await percentageChangeService.PercentageChange(stockTicker, data);
         }
 
-        public decimal CalculatePortfolioRisk(List<CalculationDTOs> stocks)
+        public bool IsValidMarketPrice(decimal marketPrice)
         {
-            // Implement your logic for calculating portfolio risk here
-            return 10.5m;
+            return marketPrice > 0;
         }
+
+
+
+        //Task<decimal> ICalculationService.CalculateCurrentYield(Guid userId)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //Task<decimal> ICalculationService.CalculateCurrentYieldForUser(Guid userId)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //decimal ICalculationService.CalculatePortfolioRisk(List<CalculationDTOs> stocks)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+
+        //Task<decimal> ICalculationService.FetchPercentageChange(string stockTicker, string data)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //bool ICalculationService.IsValidMarketPrice(decimal currentBalance)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //Task<decimal> ICalculationService.CalculateDailyYieldChanges(List<CalculationDTOs> stocks)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
+    
 }

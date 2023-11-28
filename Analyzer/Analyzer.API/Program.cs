@@ -49,6 +49,7 @@ builder.Services.AddScoped<IService, ApiService>();
 builder.Services.AddScoped<ICalculationService, CalculationService>();
 builder.Services.AddScoped<IHttpClientService, HttpClientService>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

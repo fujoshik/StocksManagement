@@ -7,7 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Accounts\Accounts.Domain.Services\Accounts.Domain.Services.csproj" />
     <ProjectReference Include="..\..\Accounts\Accounts.Domain\Accounts.Domain.csproj" />
+    <ProjectReference Include="..\..\Settlement MS\Settlement.Domain\Settlement.Domain.csproj" />
+    <ProjectReference Include="..\..\Stock API\StockAPI.Domain\StockAPI.Domain.csproj" />
     <ProjectReference Include="..\Analyzer.Domain\Analyzer.Domain.csproj" />
   </ItemGroup>
 

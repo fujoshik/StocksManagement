@@ -2,6 +2,6 @@
 {
     public interface IPercentageChange
     {
-        Task<decimal> FetchPercentageChange(string stockTicker, string data);
+        Task<decimal> PercentageChange(string stockTicker, string data);
     }
 }

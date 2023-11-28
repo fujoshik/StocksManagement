@@ -17,6 +17,7 @@ namespace Analyzer.API.Controllers
         }
 
 
+
         [HttpGet("check-accounts")]
         public async Task<IActionResult> GetAccountInfo(Guid id)
         {
@@ -30,7 +31,7 @@ namespace Analyzer.API.Controllers
             return StatusCode(500, "Woopsie Daisy! Looks like something went completely wrong. You can try again later. ;)");
         }
 
-        [HttpGet]
+        [HttpGet("check-stockAPI/ticker")]
         public async Task<IActionResult> GetStockData(string stockTicker, string Data)
         {
             Stock stock = await httpClientService.GetStockData(stockTicker, Data);
