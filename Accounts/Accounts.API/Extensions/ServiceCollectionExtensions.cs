@@ -41,6 +41,12 @@ namespace Accounts.API.Extensions
                         Enum.GetName(typeof(Role), Role.Regular), Enum.GetName(typeof(Role), Role.Special), 
                         Enum.GetName(typeof(Role), Role.VIP))));
 
+                authConfig.AddPolicy(PolicyConstants.AllowAdminActiveAndTrialRoles,
+                policyBuilder => policyBuilder
+                        .AddRequirements(new ValidRoleAuthorizationRequirement(Enum.GetName(typeof(Role), Role.Admin),
+                        Enum.GetName(typeof(Role), Role.Regular), Enum.GetName(typeof(Role), Role.Special),
+                        Enum.GetName(typeof(Role), Role.VIP), Enum.GetName(typeof(Role), Role.Trial))));
+
                 authConfig.AddPolicy(PolicyConstants.AllowAll,
                 policyBuilder => policyBuilder
                         .AddRequirements(new ValidRoleAuthorizationRequirement(Enum.GetName(typeof(Role), Role.Admin),
