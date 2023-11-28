@@ -70,6 +70,8 @@ var app = builder.Build();
 
 app.ConfigureSafelistMiddleware(builder.Configuration["AdminSafeList"]);
 
+app.ConfigureLogMiddleware();
+
 app.ConfigureCustomExceptionMiddleware();
 
 if (app.Environment.IsDevelopment())

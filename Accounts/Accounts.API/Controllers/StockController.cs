@@ -28,7 +28,7 @@ namespace Accounts.API.Controllers
         [HttpPost("sell-stock")]
         public async Task<IActionResult> SellStock([FromQuery] string ticker, [FromQuery] int quantity)
         {
-            //await _stockService.Sell(ticker, quantity);
+            await _stockService.SellStockAsync(ticker, quantity);
 
             return Ok();
         }
