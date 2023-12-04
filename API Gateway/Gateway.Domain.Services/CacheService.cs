@@ -1,25 +1,14 @@
 ﻿using API.Gateway.Controllers;
+using Gateway.Domain.Abstraction.Services;
+using Gateway.Domain.DTOs.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gateway.Domain.Abstraction.Services
+namespace Gateway.Domain.Services
 {
-    public interface ICacheService
-    {
-        void CacheUserData(string userId, UserData userData);
-        UserData GetCachedUserData(string userId);
-        void ArchiveLog(string fileName, string logEntry);
-        void TrackUserRequests(string userId, string route);
-        void ClearUserCache(string userId);
-        void CacheDemoPeriodStart(string userId, DateTime startDate);
-        DateTime GetDemoPeriodStart(string userId);
-        void SetAccountExpiration(string userId, DateTime expirationDate);
-        DateTime GetAccountExpiration(string userId);
-    }
-
     public class CacheService : ICacheService
     {
         private readonly Dictionary<string, UserData> _userDataCache = new Dictionary<string, UserData>();
@@ -45,22 +34,22 @@ namespace Gateway.Domain.Abstraction.Services
 
             try
             {
-                
+
                 if (!File.Exists(logFilePath))
                 {
                     using (var fs = File.Create(logFilePath))
                     {
-                        
+
                     }
                 }
 
-                
+
                 File.AppendAllText(logFilePath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {logEntry}{Environment.NewLine}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Грешка при архивиране на лог: {ex.Message}");
-                
+                Console.WriteLine($"Error backing up log {ex.Message}");
+
             }
         }
 

@@ -1,23 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Gateway.Domain.Abstraction.Clients;
+using Gateway.Domain.Abstraction.Settings;
+using Gateway.Domain.DTOs.Authentication;
+using Gateway.Domain.DTOs.User;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Gateway.Domain.Abstraction.Clients
+namespace Gateway.Domain.Clients
 {
-    public interface IAccountClient
-    {
-        HttpClient GetApi();
-        Task RegisterAsync(RegisterWithSumDto registerDto);
-        Task RegisterTrialAsync(RegisterTrialDto registerDto);
-        Task<string> LoginAsync(LoginDto loginDto);
-        Task UpdateUser(Guid id, UserWithoutAccountIdDto user);
-    }
     public class AccountClient : IAccountClient
     {
         private HttpClient _httpClient;
@@ -46,7 +37,7 @@ namespace Gateway.Domain.Abstraction.Clients
             return _httpClient;
         }
 
-        public async Task RegisterAsync(RegisterWithSumDto registerDto)
+        public async Task RegisterAsync(RegisterWithSumDTO registerDto)
         {
             var response = await _httpClient.PostAsJsonAsync(_accountApiUrl + _accountSettings.RegisterRoute, registerDto);
 
@@ -56,7 +47,7 @@ namespace Gateway.Domain.Abstraction.Clients
             }
         }
 
-        public async Task RegisterTrialAsync(RegisterTrialDto registerDto)
+        public async Task RegisterTrialAsync(RegisterTrialDTO registerDto)
         {
             var response = await _httpClient.PostAsJsonAsync(_accountApiUrl + _accountSettings.RegisterTrialRoute, registerDto);
 
@@ -94,4 +85,3 @@ namespace Gateway.Domain.Abstraction.Clients
         }
     }
 }
-
