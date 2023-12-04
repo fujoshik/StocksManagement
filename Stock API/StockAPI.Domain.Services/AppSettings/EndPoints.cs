@@ -9,5 +9,9 @@ namespace StockAPI.Domain.Services.AppSettings
     public class EndPoints
     {
         public string GroupedDaily { get; set; }
+        public string DailyOpenClose { get; set; }
+        public string Tickers { get; set; }
+        public string DailyWeeklyMonthly { get; set; }
+
     }
 }

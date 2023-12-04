@@ -32,6 +32,8 @@ builder.Services.AddSingleton<IDataBaseContext>(provider => new DataBaseContext(
 
 builder.Services.Configure<ApiKeys>(configuration.GetSection("ApiKeys"));
 builder.Services.Configure<EndPoints>(configuration.GetSection("EndPoints"));
+builder.Services.Configure<PdfSettings>(configuration.GetSection("PdfSettings"));
+
 
 //logger
 Log.Logger = new LoggerConfiguration()
@@ -48,6 +50,8 @@ builder.Services.AddSwaggerGen();
 
 //adding my service
 builder.Services.AddScoped<IStockAPIService, StockAPIService>();
+builder.Services.AddScoped<IFillDatabaseService, FillDatabaseService>();
+builder.Services.AddScoped<IPdfDataService, PdfDataService>();
 
 builder.Services.AddScoped<IStockMapper, StockMapper>();
 

@@ -5,11 +5,22 @@ VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockAPI.API", "StockAPI.API.csproj", "{B9D20DAA-0275-4D1F-9673-E8764298AE6C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockAPI.Domain", "..\StockAPI.Domain\StockAPI.Domain.csproj", "{C86C5150-F8FF-457B-9FCC-986BB54EFBDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockAPI.Domain", "..\StockAPI.Domain\StockAPI.Domain.csproj", "{C86C5150-F8FF-457B-9FCC-986BB54EFBDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockAPI.Infrastructure", "..\StockAPI.Infrastructure\StockAPI.Infrastructure.csproj", "{8F7DAF86-3244-4AD0-B315-EEDA4790A2B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockAPI.Infrastructure", "..\StockAPI.Infrastructure\StockAPI.Infrastructure.csproj", "{8F7DAF86-3244-4AD0-B315-EEDA4790A2B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockAPI.Domain.Services", "..\StockAPI.Domain.Services\StockAPI.Domain.Services.csproj", "{55EDB04A-5B53-4ECB-A1D2-4C461E54E0E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockAPI.Domain.Services", "..\StockAPI.Domain.Services\StockAPI.Domain.Services.csproj", "{55EDB04A-5B53-4ECB-A1D2-4C461E54E0E5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Accounts.API", "..\..\Accounts\Accounts.API\Accounts.API.csproj", "{9966E734-A361-4615-BA3B-563600DB35E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Accounts.Domain.Services", "..\..\Accounts\Accounts.Domain.Services\Accounts.Domain.Services.csproj", "{AAC7A408-E19B-4AD3-9725-7EDE8C6475D3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D8E3CB31-DEDE-4E22-BF30-E1A9B881F3C9}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\Accounts\Accounts.Domain\Accounts.Domain.csproj = ..\..\Accounts\Accounts.Domain\Accounts.Domain.csproj
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Accounts.Domain", "..\..\Accounts\Accounts.Domain\Accounts.Domain.csproj", "{C9945BC9-57D2-472F-8A53-1EB18835B73D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +44,18 @@ Global
 		{55EDB04A-5B53-4ECB-A1D2-4C461E54E0E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55EDB04A-5B53-4ECB-A1D2-4C461E54E0E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55EDB04A-5B53-4ECB-A1D2-4C461E54E0E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9966E734-A361-4615-BA3B-563600DB35E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9966E734-A361-4615-BA3B-563600DB35E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9966E734-A361-4615-BA3B-563600DB35E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9966E734-A361-4615-BA3B-563600DB35E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAC7A408-E19B-4AD3-9725-7EDE8C6475D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAC7A408-E19B-4AD3-9725-7EDE8C6475D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAC7A408-E19B-4AD3-9725-7EDE8C6475D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAC7A408-E19B-4AD3-9725-7EDE8C6475D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9945BC9-57D2-472F-8A53-1EB18835B73D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9945BC9-57D2-472F-8A53-1EB18835B73D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9945BC9-57D2-472F-8A53-1EB18835B73D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9945BC9-57D2-472F-8A53-1EB18835B73D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

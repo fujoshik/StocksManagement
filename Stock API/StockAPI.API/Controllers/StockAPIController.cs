@@ -20,12 +20,41 @@ namespace StockAPI.API.Controllers
 
         [HttpGet]
         [Route("grouped-daily")]
+        [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Client)]
         public async Task<IActionResult> GetGroupedDailyData()
         {
             try
             {
                 var responseData = await _stockAPIService.GetGroupedDailyData();
+                //how to add custom header
+                //HttpContext.Response.Headers.Add("header", "value");
                 return Ok(responseData);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while processing the request.");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet]
+        [Route("get-stock-by-date-and-ticker-from-api")]
+        public async Task<IActionResult> GetStockByDateAndTickerFromAPI([FromQuery] string date, [FromQuery] string stockTicker)
+        {
+            try
+            {
+                var stock = await _stockAPIService.GetStockByDateAndTickerFromAPI(date, stockTicker);
+
+                if (stock != null)
+                {
+                    return Ok(stock);
+                }
+                else
+                {
+
+                    Log.Information($"No stock found for date '{date}' and stock ticker '{stockTicker}'.");
+                    return NotFound($"No stock found for date '{date}' and stock ticker '{stockTicker}'.");
+                }
             }
             catch (Exception ex)
             {
@@ -57,7 +86,7 @@ namespace StockAPI.API.Controllers
         {
             try
             {
-                var stock = await _stockAPIService.GetStockByDateAndTickerAsync(date, stockTicker);
+                var stock = await _stockAPIService.GetStockByDateAndTicker(date, stockTicker);
 
                 if (stock != null)
                 {
@@ -65,6 +94,7 @@ namespace StockAPI.API.Controllers
                 }
                 else
                 {
+
                     Log.Information($"No stock found for date '{date}' and stock ticker '{stockTicker}'.");
                     return NotFound($"No stock found for date '{date}' and stock ticker '{stockTicker}'.");
                 }
@@ -82,16 +112,16 @@ namespace StockAPI.API.Controllers
         {
             try
             {
-                var stock = await _stockAPIService.GetStocksByDate(date);
+                var stocks = await _stockAPIService.GetStocksByDate(date);
 
-                if (stock != null)
+                if (stocks != null && stocks.Any())
                 {
-                    return Ok(stock);
+                    return Ok(stocks);
                 }
                 else
                 {
-                    Log.Information($"No stock found for date '{date}'.");
-                    return NotFound($"No stock found for date '{date}'.");
+                    Log.Information($"No stocks found for date '{date}'.");
+                    return NotFound($"No stocks found for date '{date}'.");
                 }
             }
             catch (Exception ex)
@@ -127,18 +157,18 @@ namespace StockAPI.API.Controllers
 
         [HttpGet]
         [Route("invoke-event")]
-        public async Task<IActionResult> InvokeEvent()
+        public Task<IActionResult> InvokeEvent()
         {
             DailyJob job = new DailyJob(_stockAPIService);
             try
             {
                 job.Execute();
-                return Ok();
+                return Task.FromResult<IActionResult>(Ok());
             }
             catch(Exception ex)
             {
                 Log.Error(ex, "An error occurred while processing the request.");
-                return StatusCode(500, "Internal server error");
+                return Task.FromResult<IActionResult>(StatusCode(500, "Internal server error"));
             }
         }
     }
