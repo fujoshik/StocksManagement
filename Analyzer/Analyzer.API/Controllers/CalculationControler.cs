@@ -15,13 +15,13 @@ namespace Analyzer.API.Controllers
     {
         private readonly ICalculationService calculationService;
         private readonly IHttpClientService httpClientService;
-        
+
 
         public CalculationController(ICalculationService calculationService, IHttpClientService httpClientService)
         {
             this.calculationService = calculationService;
             this.httpClientService = httpClientService;
-            
+
         }
 
         //[HttpGet("calculate-current-yield1")]
@@ -39,11 +39,12 @@ namespace Analyzer.API.Controllers
         //}
 
         [HttpGet("calculate-current-yield")]
-        public async Task<IActionResult> CalculateCurrentYield([FromQuery] Guid userId, string stockTicker, string Data)
+        public async Task<IActionResult> CalculateCurrentYield([FromQuery] Guid userId, string stockTicker, string data)
         {
             try
             {
-                decimal currentYield = await calculationService.CalculateCurrentYieldForUser(userId,stockTicker,Data);
+                decimal currentYield = await calculationService.CalculateCurrentYield(userId, stockTicker, data);
+
                 return Ok(new { CurrentYield = currentYield });
             }
             catch (ArgumentException ex)

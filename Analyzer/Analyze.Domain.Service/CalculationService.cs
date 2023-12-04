@@ -1,16 +1,6 @@
-﻿using Analyzer.Domain.Abstracions.Interfaces;
+﻿using System.Net;
 using Analyzer.API.Analyzer.Domain.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using Accounts.Domain.Abstraction.Services;
-using StockAPI.Domain.Abstraction.Services;
-using Accounts.Domain.DTOs.Transaction;
-using Accounts.Domain.Abstraction.Repositories;
-using Analyze.Domain.Service;
-
+using Analyzer.Domain.Abstracions.Interfaces;
 
 
 namespace Analyzer.API.Analyzer.Domain.Services
@@ -31,16 +21,14 @@ namespace Analyzer.API.Analyzer.Domain.Services
             this.percentageChangeService = percentageChangeService;
         }
 
-        
-
-        public async Task<decimal> CalculateCurrentYieldForUser(Guid userId, string stockTicker, string Data)
+        public async Task<decimal> CalculateCurrentYield(Guid userId, string stockTicker, string data)
         {
             try
             {
                 var userData = await httpClientService.GetAccountInfoById(userId);
-                var stockData = await httpClientService.GetStockData(stockTicker,Data);
+                var stockData = await httpClientService.GetStockData(stockTicker, data);
 
-                if (userData == null)
+                if (userData == null || userData.UserData == null)
                 {
                     throw new UserDataNotFoundException();
                 }
@@ -53,8 +41,19 @@ namespace Analyzer.API.Analyzer.Domain.Services
                     throw new ArgumentException("Invalid current market price for the user.");
                 }
 
-                decimal userCurrentYield = (decimal)(userCurrentBalance/ closestPrice) * 100;
-                return userCurrentYield;
+                // Calculate Annual Income
+                decimal annualIncome = CalculateAnnualIncome(userData.UserData.CalculationDTO?.DividendTransactions);
+
+                if (annualIncome == 0)
+                {
+                    // Avoid division by zero
+                    return 0;
+                }
+
+                // Calculate Current Yield
+                decimal currentYield = (userCurrentBalance / annualIncome) * 100;
+
+                return currentYield;
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -64,6 +63,12 @@ namespace Analyzer.API.Analyzer.Domain.Services
             {
                 throw new ApplicationException($"Error calculating current yield for user {userId}.", ex);
             }
+        }
+
+
+        private decimal CalculateAnnualIncome(object dividendTransactions)
+        {
+            throw new NotImplementedException();
         }
 
         public decimal CalculatePortfolioRisk(List<CalculationDTOs> stocks)
@@ -121,5 +126,5 @@ namespace Analyzer.API.Analyzer.Domain.Services
         //    throw new NotImplementedException();
         //}
     }
-    
+
 }

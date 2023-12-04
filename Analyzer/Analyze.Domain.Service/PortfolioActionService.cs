@@ -1,6 +1,5 @@
 ﻿using Accounts.Domain.Abstraction.Services;
 using Analyzer.Domain.Abstracions.Interfaces;
-using Settlement.Domain.Abstraction.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,10 +21,6 @@ namespace Analyze.Domain.Service
 
         public async Task CheckAndExecuteActions(Guid accountId, decimal initialInvestment, decimal currentBalance)
         {
-            // Имплементирайте логиката за проверка и изпълнение на действията в портфейла тук
-            // Можете да използвате IAccountService и ISettlementService за вземане на необходимите данни
-            // ...
-
             // Пример: Проверка за загуба от 15%
             if (CheckLossExceeded(initialInvestment, currentBalance, 15))
             {
@@ -49,11 +44,6 @@ namespace Analyze.Domain.Service
 
         private async Task SellAssetsAndTransferFunds(Guid accountId)
         {
-            // Извършете логиката за продажба на активите и превеждане на остатъка
-            // Използвайте ISettlementService за превеждане на средствата
-            // ...
-
-            Console.WriteLine($"Assets sold, remaining funds transferred. Portfolio loss exceeded 20%.");
         }
     }
 }

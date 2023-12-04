@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
 using Accounts.Domain.DTOs.Wallet;
 using StockAPI.Infrastructure.Models;
 using Accounts.Domain.DTOs.Transaction;
+using Analyzer.Domain.Constants;
+using Analyzer.Domain.DTOs;
 
 namespace Analyze.Domain.Service
 {
@@ -22,17 +22,17 @@ namespace Analyze.Domain.Service
             this.httpClientAccaounts = httpClientAccaounts;
         }
 
-        public async Task<WalletResponseDto> GetAccountInfoById(Guid id)
+        public async Task<WalletDto> GetAccountInfoById(Guid id)
         {
             using (var httpClient = httpClientAccaounts.GetAccountClient())
             {
-                string getUrl = $"/accounts-api/wallets/{id}";
+                string getUrl = APIsConection.GetWallet.Replace("{id}", id.ToString());
                 HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
                 if (response.IsSuccessStatusCode)
                 {
                     string data = await response.Content.ReadAsStringAsync();
-                    WalletResponseDto accountData = JsonConvert.DeserializeObject<WalletResponseDto>(data);
+                    WalletDto accountData = JsonConvert.DeserializeObject<WalletDto>(data);
                     return accountData;
                 }
                 else
@@ -47,13 +47,16 @@ namespace Analyze.Domain.Service
         {
             using (var httpClient = httpClientAccaounts.GetStockAPI())
             {
-                string getUrl = $"/api/StockAPI/get-stock-by-date-and-ticker?date={Data}&stockTicker={stockTicker}";
+                string getUrl = APIsConection.GetStock
+                    .Replace("{date}", Data)
+                    .Replace("{stockTicker}", stockTicker);
+
                 HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
                 if (response.IsSuccessStatusCode)
                 {
                     string data = await response.Content.ReadAsStringAsync();
-                    Stock stockData = JsonConvert.DeserializeObject<Stock>(data);
+                    Stock stockData = JsonConvert.DeserializeObject<Stock>(Data);
                     return stockData;
                 }
                 else

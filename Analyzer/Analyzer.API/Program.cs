@@ -43,7 +43,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Register your services
-builder.Services.AddScoped<IPercentageChange,PercentageChangeService >();
+builder.Services.AddScoped<IPercentageChange, PercentageChangeService>();
 builder.Services.AddScoped<IDailyYieldChanges, DailyYieldChangesService>();
 builder.Services.AddScoped<IService, ApiService>();
 builder.Services.AddScoped<ICalculationService, CalculationService>();

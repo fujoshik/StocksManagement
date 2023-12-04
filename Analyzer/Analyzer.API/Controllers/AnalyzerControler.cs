@@ -3,6 +3,7 @@ using Accounts.Domain.DTOs.Wallet;
 using StockAPI.Infrastructure.Models;
 using Accounts.Domain.Abstraction.Services;
 using Analyzer.Domain.Abstracions.Interfaces;
+using Analyzer.Domain.DTOs;
 
 namespace Analyzer.API.Controllers
 {
@@ -21,7 +22,7 @@ namespace Analyzer.API.Controllers
         [HttpGet("check-accounts")]
         public async Task<IActionResult> GetAccountInfo(Guid id)
         {
-            WalletResponseDto accountData = await httpClientService.GetAccountInfoById(id);
+            WalletDto accountData = await httpClientService.GetAccountInfoById(id);
 
             if (accountData != null)
             {

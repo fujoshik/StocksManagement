@@ -1,9 +1,6 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Accounts.Domain.DTOs.Transaction;
-using Accounts.Domain.DTOs.Wallet;
+﻿using Accounts.Domain.DTOs.Transaction;
 using Analyzer.Domain.Abstracions.Interfaces;
+using Analyzer.Domain.DTOs;
 using Newtonsoft.Json;
 using StockAPI.Infrastructure.Models;
 
@@ -23,7 +20,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             stockApi.BaseAddress = new Uri("https://localhost:7195");
         }
 
-        public async Task<WalletResponseDto> GetAccountInfoById(Guid id)
+        public async Task<WalletDto> GetAccountInfoById(Guid id)
         {
             using (var httpClient = GetAccountClient())
             {
@@ -33,7 +30,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
                 if (response.IsSuccessStatusCode)
                 {
                     string data = await response.Content.ReadAsStringAsync();
-                    WalletResponseDto accountData = JsonConvert.DeserializeObject<WalletResponseDto>(data);
+                    WalletDto accountData = JsonConvert.DeserializeObject<WalletDto>(data);
                     return accountData;
                 }
                 else
@@ -72,9 +69,9 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             return stockApi;
         }
 
-        public Task<List<TransactionResponseDto>> GetTransactionsForUserAndStockAsync(Guid userId, string stockTicker)
-        {
-            throw new NotImplementedException();
-        }
+    //    public Task<List<TransactionResponseDto>> GetTransactionsForUserAndStockAsync(Guid userId, string stockTicker)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
     }
 }
