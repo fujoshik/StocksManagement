@@ -1,6 +1,8 @@
-﻿using Accounts.Domain.Jobs;
+﻿using Accounts.API.Policies.RolePolicy;
+using Accounts.Domain.Constants;
+using Accounts.Domain.Enums;
 using Accounts.Infrastructure.Mapper;
-using Quartz;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Accounts.API.Extensions
 {
@@ -14,23 +16,45 @@ namespace Accounts.API.Extensions
                 mc.AddProfile(new WalletProfile());
             });
 
-        public static void AddQuartzConfiguration(this IServiceCollection services)
+        public static IServiceCollection AddPolicyBasedRoleAuthorizationServices(this IServiceCollection services)
         {
-            services.AddQuartz(options =>
+            services.AddTransient<IAuthorizationHandler, ValidRoleHandler>();
+            services.AddAuthorization(authConfig =>
             {
-                var jobKey = JobKey.Create(nameof(TrialBackgroundJob));
-                options
-                    .AddJob<TrialBackgroundJob>(jobKey)
-                    .AddTrigger(trigger => 
-                        trigger
-                            .ForJob(jobKey)
-                            .WithCalendarIntervalSchedule(schedule =>
-                                schedule
-                                    .WithIntervalInDays(30))
-                                    .EndAt(DateBuilder.FutureDate(1, IntervalUnit.Month)));
-            });
+                authConfig.AddPolicy(PolicyConstants.AllowAdminRole,
+                policyBuilder => policyBuilder
+                        .AddRequirements(new ValidRoleAuthorizationRequirement(Enum.GetName(typeof(Role), Role.Admin))));
 
-            services.AddQuartzHostedService();
+                authConfig.AddPolicy(PolicyConstants.AllowAdminTrialRoles,
+                policyBuilder => policyBuilder
+                        .AddRequirements(new ValidRoleAuthorizationRequirement(Enum.GetName(typeof(Role), Role.Admin),
+                        Enum.GetName(typeof(Role), Role.Trial))));
+
+                authConfig.AddPolicy(PolicyConstants.AllowAdminInactiveRoles,
+                policyBuilder => policyBuilder
+                        .AddRequirements(new ValidRoleAuthorizationRequirement(Enum.GetName(typeof(Role), Role.Admin),
+                        Enum.GetName(typeof(Role), Role.Inactive))));
+
+                authConfig.AddPolicy(PolicyConstants.AllowAdminAndActiveRoles,
+                policyBuilder => policyBuilder
+                        .AddRequirements(new ValidRoleAuthorizationRequirement(Enum.GetName(typeof(Role), Role.Admin),
+                        Enum.GetName(typeof(Role), Role.Regular), Enum.GetName(typeof(Role), Role.Special), 
+                        Enum.GetName(typeof(Role), Role.VIP))));
+
+                authConfig.AddPolicy(PolicyConstants.AllowAdminActiveAndTrialRoles,
+                policyBuilder => policyBuilder
+                        .AddRequirements(new ValidRoleAuthorizationRequirement(Enum.GetName(typeof(Role), Role.Admin),
+                        Enum.GetName(typeof(Role), Role.Regular), Enum.GetName(typeof(Role), Role.Special),
+                        Enum.GetName(typeof(Role), Role.VIP), Enum.GetName(typeof(Role), Role.Trial))));
+
+                authConfig.AddPolicy(PolicyConstants.AllowAll,
+                policyBuilder => policyBuilder
+                        .AddRequirements(new ValidRoleAuthorizationRequirement(Enum.GetName(typeof(Role), Role.Admin),
+                        Enum.GetName(typeof(Role), Role.Trial), Enum.GetName(typeof(Role), Role.Regular), 
+                        Enum.GetName(typeof(Role), Role.Special), Enum.GetName(typeof(Role), Role.VIP), 
+                        Enum.GetName(typeof(Role), Role.Inactive))));
+            });
+            return services;
         }
     }
 }

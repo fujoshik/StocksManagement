@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
-using Analyzer.API.Analyzer.Domain.DTOs;
+﻿using Microsoft.AspNetCore.Mvc;
 using Accounts.Domain.DTOs.Wallet;
 using StockAPI.Infrastructure.Models;
+using Accounts.Domain.Abstraction.Services;
+using Analyzer.Domain.Abstracions.Interfaces;
 
 namespace Analyzer.API.Controllers
 {
@@ -11,17 +10,18 @@ namespace Analyzer.API.Controllers
     [ApiController]
     public class AnalyzerControler : ControllerBase
     {
-        private readonly IService iservice;
-        public AnalyzerControler(IService iservice)
+        private readonly IHttpClientService httpClientService;
+        public AnalyzerControler(IHttpClientService httpClientService)
         {
-            this.iservice = iservice;
+            this.httpClientService = httpClientService;
         }
+
 
 
         [HttpGet("check-accounts")]
         public async Task<IActionResult> GetAccountInfo(Guid id)
         {
-            WalletResponseDto accountData = await iservice.GetAccountInfoById(id);
+            WalletResponseDto accountData = await httpClientService.GetAccountInfoById(id);
 
             if (accountData != null)
             {
@@ -31,10 +31,10 @@ namespace Analyzer.API.Controllers
             return StatusCode(500, "Woopsie Daisy! Looks like something went completely wrong. You can try again later. ;)");
         }
 
-        [HttpGet]
+        [HttpGet("check-stockAPI/ticker")]
         public async Task<IActionResult> GetStockData(string stockTicker, string Data)
         {
-            Stock stock = await iservice.GetStockData(stockTicker, Data);
+            Stock stock = await httpClientService.GetStockData(stockTicker, Data);
 
             if (stock != null)
             {
@@ -43,6 +43,8 @@ namespace Analyzer.API.Controllers
 
             return StatusCode(500, "Woopsie Daisy! Looks like something went completely wrong. You can try again later. ;)");
         }
+
+
 
     }
 }

@@ -31,19 +31,43 @@ namespace Accounts.API.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("register-trial")]
-        public IActionResult RegisterTrial(RegisterTrialDto registerTrial)
+        [HttpPost("check-token")]
+        public IActionResult CheckIfTokenIsValid(string token)
         {
-            _service.Register(registerTrial);
+            if (!_service.ValidateToken(token))
+            {
+                return Unauthorized();
+            }
+
+            return NoContent();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("register-trial")]
+        public async Task<ActionResult> RegisterTrialAsync(RegisterTrialDto registerTrial)
+        {
+            await _service.SendVerificationEmailAsync(registerTrial);
 
             return NoContent();
         }
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public IActionResult Register(RegisterWithSumDto registerWithSumDto)
+        public async Task<ActionResult> RegisterAsync(RegisterWithSumDto registerWithSumDto)
         {
-            _service.Register(registerWithSumDto);
+            await _service.SendVerificationEmailAsync(registerWithSumDto);
+
+            return NoContent();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("verify")]
+        public async Task<ActionResult> VerifyCode(string code)
+        {
+            if (!await _service.VerifyCodeAsync(code))
+            {
+                return Unauthorized();
+            }
 
             return NoContent();
         }

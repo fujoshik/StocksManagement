@@ -3,8 +3,8 @@ using Accounts.Domain.Abstraction.Services;
 using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.DTOs.Authentication;
 using Accounts.Domain.DTOs.Wallet;
-using Accounts.Domain.Enums;
 using AutoMapper;
+using System;
 
 namespace Accounts.Domain.Services
 {
@@ -14,37 +14,40 @@ namespace Accounts.Domain.Services
         private readonly IPasswordService _passwordService;
         private readonly IWalletService _walletService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICurrencyConverterService _currencyConverterService;
+        private readonly IAssignRoleService _assignRoleService;
 
         public AccountService(IUnitOfWork unitOfWork,
                               IPasswordService passwordService,
                               IWalletService walletService,
-                              ICurrencyConverterService currencyConverterService,
-                              IMapper mapper)
+                              IMapper mapper,
+                              IAssignRoleService assignRoleService)
         {
             _unitOfWork = unitOfWork;
             _passwordService = passwordService;
             _walletService = walletService;
-            _currencyConverterService = currencyConverterService;
             _mapper = mapper;
+            _assignRoleService = assignRoleService;
         }
 
         public async Task<AccountResponseDto> CreateAsync(RegisterDto registerDto)
         {
-            var salt = _passwordService.GenerateSalt();
-
             var account = _mapper.Map<AccountRequestDto>(registerDto);
+            if (registerDto is RegisterTrialDto)
+            {
+                account.DateToDelete = DateTime.UtcNow.AddMonths(2).ToString("yyyy-MM-dd HH:mm:ss.fff");
+            }
+
             var walletRequest = _mapper.Map<WalletRequestDto>(registerDto);
             var wallet = await _walletService.CreateAsync(walletRequest);
 
-            account.PasswordHash = _passwordService.HashPasword(registerDto.Password, salt);
-            account.PasswordSalt = Convert.ToBase64String(salt);
+            GeneratePassword(account, registerDto);
             account.WalletId = wallet.Id;
 
-            AssignRole(wallet, account);
+            var role = _assignRoleService.AssignRole(_mapper.Map<DepositDto>(wallet));
+            account.Role = role;
 
             return await _unitOfWork.AccountRepository.InsertAsync<AccountRequestDto, AccountResponseDto>(account);
-        }
+        }      
 
         public async Task<AccountResponseDto> GetByIdAsync(Guid id)
         {
@@ -66,26 +69,11 @@ namespace Accounts.Domain.Services
             await _unitOfWork.AccountRepository.DeleteAsync(id);
         }
 
-        private void AssignRole(WalletResponseDto wallet, AccountRequestDto account)
+        private void GeneratePassword(AccountRequestDto account, RegisterDto registerDto)
         {
-            decimal sum = wallet.InitialBalance;
-
-            if (wallet.CurrencyCode != CurrencyCode.USD)
-            {
-                sum = _currencyConverterService.Convert(wallet.CurrencyCode, CurrencyCode.USD, wallet.InitialBalance);
-            }
-
-            if (sum > 0)
-            {
-                if (sum < 1000)
-                    account.Role = (int)Role.Regular;
-                else if (sum >= 1000 && sum < 5000)
-                    account.Role = (int)Role.Special;
-                else if (sum >= 5000)
-                    account.Role = (int)Role.VIP;
-            }
-            else
-                account.Role = (int)Role.Inactive;
+            var salt = _passwordService.GenerateSalt();
+            account.PasswordHash = _passwordService.HashPasword(registerDto.Password, salt);
+            account.PasswordSalt = Convert.ToBase64String(salt);
         }
     }
 }

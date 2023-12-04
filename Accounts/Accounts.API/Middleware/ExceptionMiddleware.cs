@@ -47,9 +47,13 @@ namespace Accounts.API.Middleware
                         statusCode = HttpStatusCode.Forbidden;
                         detail = ex.Message;
                         break;
+                    case HttpRequestException:
+                        statusCode = HttpStatusCode.BadRequest;
+                        detail = ex.Message;
+                        break;
                     default:
                         statusCode = HttpStatusCode.InternalServerError;
-                        detail = "Internal Server Error.";
+                        detail = ex.Message;
                         break;
                 }
 

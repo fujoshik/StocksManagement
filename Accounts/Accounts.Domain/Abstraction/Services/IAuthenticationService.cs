@@ -4,7 +4,9 @@ namespace Accounts.Domain.Abstraction.Services
 {
     public interface IAuthenticationService
     {
-        void Register(RegisterDto registerDto);
+        Task SendVerificationEmailAsync(RegisterDto registerDto);
         Task<string> LoginAsync(LoginDto accountDto);
+        bool ValidateToken(string token);
+        Task<bool> VerifyCodeAsync(string code);
     }
 }

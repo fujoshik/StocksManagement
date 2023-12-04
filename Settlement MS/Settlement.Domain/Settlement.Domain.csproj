@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Quartz" Version="3.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Accounts\Accounts.Domain\Accounts.Domain.csproj" />
     <ProjectReference Include="..\..\Stock API\StockAPI.Infrastructure\StockAPI.Infrastructure.csproj" />
   </ItemGroup>

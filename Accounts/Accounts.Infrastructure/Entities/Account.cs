@@ -8,6 +8,7 @@ namespace Accounts.Infrastructure.Entities
         public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }
         public Role Role { get; set; }
+        public DateTime DateToDelete { get; set; }
         public Guid WalletId { get; set; }
     }
 }

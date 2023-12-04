@@ -1,12 +1,8 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
 using Accounts.Domain.Abstraction.Services;
-using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.DTOs.Authentication;
-using Accounts.Domain.Settings;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using Accounts.Domain.DTOs.MongoDB;
+using AutoMapper;
 
 namespace Accounts.Domain.Services
 {
@@ -16,26 +12,49 @@ namespace Accounts.Domain.Services
         private readonly IUserService _userService;
         private readonly IPasswordService _passwordService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly JwtSettings _jwtSettings;
+        private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
+        private readonly IMongoDBService _mongoDBService;
+        private readonly IMapper _mapper;
 
         public AuthenticationService(IAccountService accountService,
                                      IUserService userService,
                                      IPasswordService passwordService,
                                      IUnitOfWork unitOfWork,
-                                     JwtSettings jwtSettings) 
+                                     ITokenService tokenService,
+                                     IEmailService emailService,
+                                     IMongoDBService mongoDBService,
+                                     IMapper mapper) 
         {
             _accountService = accountService;
             _userService = userService;
             _passwordService = passwordService;
             _unitOfWork = unitOfWork;
-            _jwtSettings = jwtSettings;
+            _tokenService = tokenService;
+            _emailService = emailService;
+            _mongoDBService = mongoDBService;
+            _mapper = mapper;
         }
 
-        public async void Register(RegisterDto registerDto)
+        public async Task SendVerificationEmailAsync(RegisterDto registerDto)
         {
-            var account = await _accountService.CreateAsync(registerDto);
+            var verificationCode = Guid.NewGuid().ToString();
+            _emailService.SendEmail(registerDto.Email, verificationCode);
 
-            await _userService.CreateAsync(registerDto, account.Id);
+            UserDto userDto;
+
+            if (registerDto is RegisterWithSumDto)
+            {
+                userDto = _mapper.Map<UserDto>(registerDto as RegisterWithSumDto);
+            }
+            else
+            {
+                userDto = _mapper.Map<UserDto>(registerDto as RegisterTrialDto);
+            }
+
+            userDto.VerificationCode = verificationCode;
+            
+            await _mongoDBService.CreateUserAsync(userDto);
         }
 
         public async Task<string> LoginAsync(LoginDto loginDto)
@@ -49,42 +68,48 @@ namespace Accounts.Domain.Services
 
             var user = accounts.FirstOrDefault();
 
-            if (!_passwordService.VerifyPassword(loginDto.Password, user.PasswordHash, Convert.FromBase64String(user.PasswordSalt)))
+            if (!_passwordService.VerifyPassword(loginDto.Password, user.PasswordHash, 
+                Convert.FromBase64String(user.PasswordSalt)))
             {
                 return null;
             }
 
-            var token = GenerateJwtToken(user);
+            var token = _tokenService.GenerateJwtToken(user);
 
             return token;
         }
-
-        private IEnumerable<Claim> GetClaims(AccountDto dto)
+        
+        public bool ValidateToken(string token)
         {
-            return new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, dto.Id.ToString()),
-                new Claim(ClaimTypes.Role, dto.Role.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, dto.Email),
-                new Claim(JwtRegisteredClaimNames.NameId, dto.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+            return _tokenService.ValidateToken(token);
         }
 
-        private string GenerateJwtToken(AccountDto dto)
+        public async Task<bool> VerifyCodeAsync(string code)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                issuer: _jwtSettings.Issuer,
-                audience: _jwtSettings.Audience,
-                claims: GetClaims(dto),
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
-                signingCredentials: credentials);
+            var user = await _mongoDBService.GetUserByCodeAsync(code);
 
-            return tokenHandler.WriteToken(token);
+            if (user == null)
+            {
+                return false;
+            }
+
+            if (user.Sum == 0 || user.Sum == null)
+            {
+                await RegisterAccountAsync(_mapper.Map<RegisterTrialDto>(user));
+            }
+            else
+            {
+                await RegisterAccountAsync(_mapper.Map<RegisterWithSumDto>(user));
+            }
+
+            return true;
+        }
+
+        private async Task RegisterAccountAsync(RegisterDto registerDto)
+        {
+            var account = await _accountService.CreateAsync(registerDto);
+
+            await _userService.CreateAsync(registerDto, account.Id);
         }
     }
 }
