@@ -1,18 +1,14 @@
-﻿using API.Gateway.Controllers;
+﻿
+using API.Gateway.Controllers;
+using Gateway.Domain.Abstraction.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gateway.Domain.Abstraction.Services
+namespace Gateway.Domain.Services
 {
-    public interface IStockService
-    {
-        decimal GetCurrentStockValue();
-        IEnumerable<HistoricalData> GetHistoricalData();
-    }
-
     public class StockService : IStockService
     {
         private readonly IBlacklistService _blacklistService;
@@ -26,7 +22,7 @@ namespace Gateway.Domain.Abstraction.Services
 
         public decimal GetCurrentStockValue()
         {
-            
+
             decimal stockValue = GetStockValueFromExternalAPI();
 
             _loggingService.LogActivity("StockService", $"User requested current stock value: {stockValue}");
@@ -37,15 +33,15 @@ namespace Gateway.Domain.Abstraction.Services
         private decimal GetStockValueFromExternalAPI()
         {
             //API
-            
+
             Random random = new Random();
-            return (decimal)random.NextDouble() * 1000; 
+            return (decimal)random.NextDouble() * 1000;
         }
 
 
         public IEnumerable<HistoricalData> GetHistoricalData()
         {
-            
+
             IEnumerable<HistoricalData> historicalData = GetHistoricalDataFromSource();
 
             _loggingService.LogActivity("StockService", "User requested historical stock data");
@@ -69,6 +65,16 @@ namespace Gateway.Domain.Abstraction.Services
             return historicalData;
         }
 
+        public object GetCurrentPrice(string symbol)
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerable<HistoricalData> IStockService.GetHistoricalData()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }
+

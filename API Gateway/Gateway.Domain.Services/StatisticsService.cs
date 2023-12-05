@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gateway.Domain.Abstraction.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,12 +7,6 @@ using System.Threading.Tasks;
 
 namespace Gateway.Domain.Services
 {
-    public interface IStatisticsService
-    {
-        int GetRequestCount(string route);
-        List<string> GetTopUsersByRequests(int count);
-        
-    }
     public class StatisticsService : IStatisticsService
     {
         private readonly Dictionary<string, int> _requestCounts = new Dictionary<string, int>();
@@ -45,6 +40,11 @@ namespace Gateway.Domain.Services
                 _userRequests[userId] = new List<string> { route };
 
             //services.AddSingleton<IStatisticsService, StatisticsService>();
+        }
+
+        public void LogRequest(string route)
+        {
+            throw new NotImplementedException();
         }
     }
 

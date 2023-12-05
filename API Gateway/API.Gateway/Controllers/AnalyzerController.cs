@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Gateway.Domain.Abstraction.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Gateway.Controllers
 {

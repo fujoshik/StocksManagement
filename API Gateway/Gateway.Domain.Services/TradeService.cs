@@ -1,16 +1,14 @@
-﻿using System;
+﻿using Gateway.Domain.Abstraction.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace Gateway.Domain.Services
 {
-    public interface ITradeService
-    {
-        void ExecuteTrade(string userId, string symbol, decimal amount, TradeType type);
-        
-    }
+    
 
     public class TradeService : ITradeService
     {
