@@ -11,23 +11,36 @@ namespace Settlement.Domain.Services
     {
         private readonly IHttpClientService httpClientService;
         private readonly ISettlementRepository settlementRepository;
-        public SettlementService(IHttpClientService httpClientService, ISettlementRepository settlementRepository)
+        private readonly IWalletCacheService walletCacheService;
+        public SettlementService(IHttpClientService httpClientService, ISettlementRepository settlementRepository,
+            IWalletCacheService walletCacheService)
         {
             this.httpClientService = httpClientService;
             this.settlementRepository = settlementRepository;
+            this.walletCacheService = walletCacheService;
         }
 
         public async Task<SettlementResponseDto> ExecuteDeal(TransactionRequestDto transactionRequest)
         {
             SettlementResponseDto response = new SettlementResponseDto();
 
-            var userAccountBalance = await httpClientService.GetWalletBalance(transactionRequest.WalletId);
             var stockData = await httpClientService.GetStockByDateAndTicker(transactionRequest.Date, transactionRequest.StockTicker);
 
-            if (stockData != null && stockData.ClosestPrice.HasValue)
+            if (stockData != null && stockData.ClosestPrice.HasValue)            
             {
                 decimal closestPrice = stockData.ClosestPrice.Value;
                 decimal tradeCommission = (closestPrice * transactionRequest.Quantity) * CommissionPercentageConstant.commissionPercentage;
+
+                transactionRequest.StockPrice = closestPrice;
+
+                var userAccountBalance = await walletCacheService.GetWalletFromCache(transactionRequest.WalletId);
+
+                if(userAccountBalance == null)
+                {
+                    userAccountBalance = await httpClientService.GetWalletBalance(transactionRequest.WalletId, transactionRequest);
+                }
+
+                bool isValidWalletId = await settlementRepository.CheckValidWalletId(transactionRequest.WalletId);
 
                 bool transactionSucceeded = userAccountBalance.CurrentBalance >= tradeCommission;
 
@@ -46,11 +59,15 @@ namespace Settlement.Domain.Services
                     response.Message = ResponseMessagesConstants.AccountInGoodStanding;
                     response.TotalBalance = userAccountBalance.CurrentBalance;
                     response.StockPrice = closestPrice;
-                    transactionRequest.StockPrice = closestPrice;
 
-                    await settlementRepository.UpdateWalletBalance(transactionRequest.WalletId, userAccountBalance.CurrentBalance);
-                    await settlementRepository.InsertTransaction(transactionRequest, response);
-                    await settlementRepository.InsertHandledWallets(transactionRequest.WalletId);
+                    if(isValidWalletId)
+                    {
+                        await settlementRepository.UpdateWalletBalance(transactionRequest.WalletId, userAccountBalance.CurrentBalance);
+                        await settlementRepository.InsertTransaction(transactionRequest, response);
+                        await settlementRepository.InsertHandledWallets(transactionRequest.WalletId, transactionRequest.AccountId, 
+                            transactionRequest.Id);
+                        await settlementRepository.UpdateTransaction(transactionRequest);
+                    }
                 }
                 else
                 {
@@ -58,9 +75,12 @@ namespace Settlement.Domain.Services
                     response.Message = ResponseMessagesConstants.InsufficientFunds;
                     response.TotalBalance = userAccountBalance.CurrentBalance;
                     response.StockPrice = closestPrice;
-                    transactionRequest.StockPrice = closestPrice;
 
-                    await settlementRepository.InsertTransaction(transactionRequest, response);
+                    if(isValidWalletId)
+                    {
+                        await settlementRepository.InsertTransaction(transactionRequest, response);
+                        await settlementRepository.UpdateTransaction(transactionRequest);
+                    }
                 }
             }
             else
@@ -71,6 +91,5 @@ namespace Settlement.Domain.Services
 
             return response;
         }
-
     }
 }
