@@ -1,4 +1,5 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
+using Accounts.Domain.Constants;
 using Accounts.Domain.DTOs.User;
 using Accounts.Infrastructure.Entities;
 using Microsoft.Extensions.Configuration;
@@ -38,7 +39,7 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($@"USE StocksDB; DELETE FROM {TableName} WHERE AccountId = @AccountId", connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.DELETE_BY_ACCOUNTID, connection);
                 cmd.Parameters.Add(new SqlParameter("@AccountId", accountId));
                 await cmd.ExecuteNonQueryAsync();
             }

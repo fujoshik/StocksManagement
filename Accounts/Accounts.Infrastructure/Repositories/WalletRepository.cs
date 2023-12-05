@@ -1,4 +1,5 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
+using Accounts.Domain.Constants;
 using Accounts.Domain.DTOs.Wallet;
 using Accounts.Domain.Enums;
 using Accounts.Infrastructure.Entities;
@@ -38,8 +39,7 @@ namespace Accounts.Infrastructure.Repositories
                 using (var connection = new SqlConnection(_dbConnectionString))
                 {
                     connection.Open();
-                    SqlCommand cmd = new SqlCommand($@"USE StocksDB; UPDATE {TableName} SET CurrentBalance = CurrentBalance + @Sum " +
-                        $@"WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = @Id)", connection);
+                    SqlCommand cmd = new SqlCommand(SqlQueryConstants.DEPOSIT_SUM_IF_INITIALBALANCE_ABOVE_ZERO, connection);
                     cmd.Parameters.Add(new SqlParameter("@Id", accountId));
                     cmd.Parameters.Add(new SqlParameter("@Sum", deposit.Sum));
                     await cmd.ExecuteNonQueryAsync();
@@ -51,9 +51,7 @@ namespace Accounts.Infrastructure.Repositories
                 using (var connection = new SqlConnection(_dbConnectionString))
                 {
                     connection.Open();
-                    SqlCommand cmd = new SqlCommand($@"USE StocksDB; UPDATE {TableName} SET CurrentBalance = @Sum, " +
-                        $@"InitialBalance = @Sum " +
-                        $@"WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = @Id)", connection);
+                    SqlCommand cmd = new SqlCommand(SqlQueryConstants.DEPOSIT_SUM_IF_INITIALBALANCE_IS_ZERO, connection);
                     cmd.Parameters.Add(new SqlParameter("@Id", accountId));
                     cmd.Parameters.Add(new SqlParameter("@Sum", deposit.Sum));
                     await cmd.ExecuteNonQueryAsync();
@@ -69,9 +67,7 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand("USE StocksDB; DECLARE @MyTableVar table([test] [int]); " +
-                    $@"INSERT INTO @MyTableVar (test) VALUES((SELECT CurrencyCode FROM {TableName} WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = @Id))) " +
-                    "SELECT * FROM @MyTableVar", connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_CURRENCY_CODE, connection);
                 cmd.Parameters.Add(new SqlParameter("@Id", accountId));
 
                 using (var reader = await cmd.ExecuteReaderAsync())
@@ -91,9 +87,7 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand("USE StocksDB; DECLARE @MyTableVar table([test] [decimal]); " +
-                    $@"INSERT INTO @MyTableVar (test) VALUES((SELECT @BalanceName FROM {TableName} WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = @Id))) " +
-                    "SELECT * FROM @MyTableVar", connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_BALANCE, connection);
                 cmd.Parameters.Add(new SqlParameter("@Id", accountId));
                 cmd.Parameters.Add(new SqlParameter("@BalanceName", balanceName));
 
@@ -112,9 +106,7 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"USE StocksDB; UPDATE {TableName} " +
-                    $@"SET CurrencyCode = @NewCurrency, CurrentBalance = @NewCurrentBalance, InitialBalance = @NewInitialBalance " +
-                    $@"WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = @Id)", connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.CHANGE_CURRENCY_CODE, connection);
                 cmd.Parameters.Add(new SqlParameter("@Id", accountId));
                 cmd.Parameters.Add(new SqlParameter("@NewCurrency", newCurrency));
                 cmd.Parameters.Add(new SqlParameter("@NewInitialBalance", newInitialBalance));

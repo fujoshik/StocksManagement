@@ -21,6 +21,11 @@ namespace Accounts.Domain.Services
 
         public async Task<UserResponseDto> CreateAsync(RegisterDto registerDto, Guid accountId)
         {
+            if (registerDto == null)
+            {
+                throw new ArgumentNullException(nameof(registerDto));
+            }
+
             var user = _mapper.Map<UserRequestDto>(registerDto);
             user.AccountId = accountId;
 
@@ -29,6 +34,11 @@ namespace Accounts.Domain.Services
 
         public async Task<UserResponseDto> UpdateAsync(Guid id, UserWithoutAccountIdDto user)
         {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
             return await _unitOfWork.UserRepository.UpdateAsync<UserWithoutAccountIdDto, UserResponseDto>(id, user);
         }
 

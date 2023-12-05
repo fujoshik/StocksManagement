@@ -59,6 +59,11 @@ namespace Accounts.Domain.Services
 
         public async Task<string> LoginAsync(LoginDto loginDto)
         {
+            if (loginDto == null)
+            {
+                throw new ArgumentNullException(nameof(loginDto));
+            }
+
             var accounts = await _unitOfWork.AccountRepository.GetAccountsByEmail(loginDto.Email);
 
             if (accounts == null || accounts.Count == 0)
