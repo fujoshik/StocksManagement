@@ -15,7 +15,6 @@ namespace Analyze.Domain.Service
     public class ApiService : IService
     {
         private readonly IHttpClientService httpClientAccaounts;
-        // private readonly IHttpClientService httpClientSettlement;
 
         public ApiService(IHttpClientService httpClientAccaounts)
         {
@@ -37,7 +36,6 @@ namespace Analyze.Domain.Service
                 }
                 else
                 {
-                    // Handle the error or throw an exception
                     throw new HttpRequestException($"Error fetching user data. Status code: {response.StatusCode}");
                 }
             }
@@ -61,7 +59,6 @@ namespace Analyze.Domain.Service
                 }
                 else
                 {
-                    // Handle the error or throw an exception
                     throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
                 }
             }

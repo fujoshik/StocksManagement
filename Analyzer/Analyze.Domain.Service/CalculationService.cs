@@ -51,7 +51,7 @@ namespace Analyzer.API.Analyzer.Domain.Services
                 }
 
                 // Calculate Current Yield
-                decimal currentYield = (userCurrentBalance / annualIncome) * 100;
+                decimal currentYield = ( annualIncome / userCurrentBalance) * 100;
 
                 return currentYield;
             }

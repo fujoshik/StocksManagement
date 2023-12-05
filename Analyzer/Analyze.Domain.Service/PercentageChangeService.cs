@@ -30,7 +30,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 
                 decimal? percentageChange = ((decimal)(stockData.LowestPrice - stockData.HighestPrice) / stockData.HighestPrice) * 100;
 
-                return percentageChange ?? 0;  // Return 0 if percentageChange is null
+                return percentageChange ?? 0;  
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
