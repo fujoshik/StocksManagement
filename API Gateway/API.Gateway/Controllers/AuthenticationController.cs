@@ -1,9 +1,8 @@
-﻿using Gateway.Domain.Services;
+﻿using Microsoft.Extensions.Logging;
+using Gateway.Domain.Abstraction.Services;
+using Gateway.Domain.DTOs.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using System.Text;
 
 namespace API.Gateway.Controllers
 {
@@ -70,7 +69,7 @@ namespace API.Gateway.Controllers
             return false;
         }
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterWithSumDto account)
+        public async Task<IActionResult> Register(RegisterWithSumDTO account)
         {
             await _accountService.RegisterAsync(account);
 
@@ -78,7 +77,7 @@ namespace API.Gateway.Controllers
         }
 
         [HttpPost("register-trial")]
-        public async Task<IActionResult> RegisterTrial(RegisterTrialDto account)
+        public async Task<IActionResult> RegisterTrial(RegisterTrialDTO account)
         {
             await _accountService.RegisterTrialAsync(account);
 

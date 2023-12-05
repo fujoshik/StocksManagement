@@ -1,17 +1,12 @@
-﻿using System;
+﻿using Gateway.Domain.Abstraction.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gateway.Domain.Abstraction.Services
+namespace Gateway.Domain.Services
 {
-    public interface ILoggingService
-    {
-        void LogRequest(string userId, string route);
-        void LogActivity(string userId, string activity);
-    }
-
     public class LoggingService : ILoggingService
     {
         private readonly ICacheService _cacheService;
@@ -23,17 +18,19 @@ namespace Gateway.Domain.Abstraction.Services
 
         public void LogRequest(string userId, string route)
         {
-            
+
             string logEntry = $"User {userId} requested route {route}";
             _cacheService.ArchiveLog("request_log.txt", logEntry);
         }
 
         public void LogActivity(string userId, string activity)
         {
-            
+
             string logEntry = $"User {userId} performed activity: {activity}";
             _cacheService.ArchiveLog("activity_log.txt", logEntry);
         }
     }
 
 }
+
+

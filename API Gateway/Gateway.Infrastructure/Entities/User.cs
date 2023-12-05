@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace Gateway.Infrastructure.Entities
 {
-    public class Account : BaseEntity
+    public class User : BaseEntity
+
     {
+        public int Id { get; set; }
+        public string Email { get; set; }
+        public decimal Balance { get; set; }
+        
     }
+   
 }

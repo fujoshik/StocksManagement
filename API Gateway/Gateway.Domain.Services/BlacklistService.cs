@@ -1,17 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Gateway.Domain.Abstraction.Services;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gateway.Domain.Abstraction.Services
+namespace Gateway.Domain.Services
 {
-    public interface IBlacklistService
-    {
-        bool IsEmailBlacklisted(string email);
-    }
-
     public class BlacklistService : IBlacklistService
     {
         private readonly HashSet<string> _blacklistedEmails;
@@ -34,7 +30,7 @@ namespace Gateway.Domain.Abstraction.Services
                 var blacklistedEmails = dbContext.Blacklist.Select(b => b.Email).ToList();
                 return new HashSet<string>(blacklistedEmails);
             }
-           
+
         }
         private HashSet<string> LoadBlacklistedEmailsFromConfig()
         {
@@ -45,7 +41,7 @@ namespace Gateway.Domain.Abstraction.Services
         }
         private HashSet<string> LoadBlacklistedEmails()
         {
-            
+
             return new HashSet<string>
         {
             "blocked@example.com",
@@ -53,4 +49,9 @@ namespace Gateway.Domain.Abstraction.Services
         };
         }
 
+        public bool IsUserBlacklisted(string userId)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
