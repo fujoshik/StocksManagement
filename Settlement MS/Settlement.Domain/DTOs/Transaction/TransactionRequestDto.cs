@@ -2,7 +2,7 @@
 
 namespace Settlement.Domain.DTOs.Transaction
 {
-    public class TransactionRequestDto
+    public class TransactionRequestDto : BaseDto
     {
         public Guid WalletId { get; set; }
         public string Date { get; set; }
