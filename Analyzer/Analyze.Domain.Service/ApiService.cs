@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Analyzer.API.Analyzer.Domain.Abstracions.Interfaces;
+using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
-using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.DTOs.Wallet;
 using StockAPI.Infrastructure.Models;
+using Accounts.Domain.DTOs.Transaction;
 
-namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
+namespace Analyze.Domain.Service
 {
     public class ApiService : IService
     {
@@ -64,6 +63,9 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
                 }
             }
         }
+
+        
+
 
 
         //public async Task< UserData> GetInfoFromSettlement(string id)

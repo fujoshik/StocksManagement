@@ -2,6 +2,8 @@
 using Microsoft.Data.Sqlite;
 using StockAPI.Domain.Abstraction.Mappers;
 using StockAPI.Infrastructure.Models;
+using StockAPI.Infrastructure.Models.FillData;
+using StockAPI.Infrastructure.Models.GetGroupedDaily;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -25,6 +27,13 @@ namespace StockAPI.Domain.Services.Mappers
             return stock;
         }
 
+        public Stock StockByDateAndTickerRootToStock(StockByDateAndTickerRoot item, string currentDate)
+        {
+            var stock = _mapper.Map<Stock>(item);
+            stock.Date = currentDate;
+            return stock;
+        }
+
         public Stock DataToStock(SqliteDataReader reader)
         {
             return new Stock
@@ -41,6 +50,16 @@ namespace StockAPI.Domain.Services.Mappers
                 VolumeWeightedAveragePrice = reader["VolumeWeightedAveragePrice"] == DBNull.Value ? null : (double?)Convert.ToDouble(reader["VolumeWeightedAveragePrice"]),
                 Date = reader["Date"].ToString()
             };
+        }
+
+        public Stock TimeSeriesToStock(TimeSeries item, string symbol, string date)
+        {
+            var stock = _mapper.Map<Stock>(item);
+            stock.StockTicker = symbol;
+            stock.Date = date;
+            stock.VolumeWeightedAveragePrice = null;
+            stock.UnixTimestamp = null;
+            return stock;
         }
     }
 }
