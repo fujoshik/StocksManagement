@@ -1,6 +1,8 @@
 ﻿using System.Net;
+using Accounts.Infrastructure.Entities;
 using Analyzer.API.Analyzer.Domain.DTOs;
 using Analyzer.Domain.Abstracions.Interfaces;
+using Analyzer.Domain.DTOs;
 
 
 namespace Analyzer.API.Analyzer.Domain.Services
@@ -25,106 +27,39 @@ namespace Analyzer.API.Analyzer.Domain.Services
         {
             try
             {
-                var userData = await httpClientService.GetAccountInfoById(userId);
                 var stockData = await httpClientService.GetStockData(stockTicker, data);
+                var transactions = await httpClientService.GetTransactions(userId);
 
-                if (userData == null || userData.UserData == null)
+                if (stockData != null && transactions != null && transactions.Any())
                 {
-                    throw new UserDataNotFoundException();
+                    decimal currentYield = ((decimal)stockData.OpenPrice * transactions.Sum(t => t.Quantity)) - (transactions.Sum(t => t.Quantity * t.Price));
+                    return currentYield;
                 }
-
-                decimal? closestPrice = stockData.ClosestPrice;
-                decimal userCurrentBalance = userData.CurrentBalance;
-
-                if (!IsValidMarketPrice(userCurrentBalance))
+                else
                 {
-                    throw new ArgumentException("Invalid current market price for the user.");
+                    throw new InvalidOperationException("Unable to calculate current yield. Stock or transactions data not available.");
                 }
-
-                // Calculate Annual Income
-                decimal annualIncome = CalculateAnnualIncome(userData.UserData.CalculationDTO?.DividendTransactions);
-
-                if (annualIncome == 0)
-                {
-                    // Avoid division by zero
-                    return 0;
-                }
-
-                // Calculate Current Yield
-                decimal currentYield = ( annualIncome / userCurrentBalance) * 100;
-
-                return currentYield;
-            }
-            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
-            {
-                throw new UserDataNotFoundException();
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"Error calculating current yield for user {userId}.", ex);
+                throw new InvalidOperationException($"Error calculating current yield: {ex.Message}");
             }
         }
 
 
-        private decimal CalculateAnnualIncome(object dividendTransactions)
-        {
-            throw new NotImplementedException();
-        }
-
-        public decimal CalculatePortfolioRisk(List<CalculationDTOs> stocks)
-        {
-            // Implement your logic for calculating portfolio risk here
-            return 10.5m;
-        }
-
-        public async Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks)
-        {
-            return await dailyYieldChangesService.CalculateDailyYieldChanges(stocks);
-        }
 
 
-        public async Task<decimal> PercentageChange(string stockTicker, string data)
+        public async Task<decimal> PercentageChange(Guid userId, string stockTicker, string data)
         {
-            return await percentageChangeService.PercentageChange(stockTicker, data);
+            return await percentageChangeService.PercentageChange(userId,stockTicker, data);
         }
+
 
         public bool IsValidMarketPrice(decimal marketPrice)
         {
             return marketPrice > 0;
         }
 
-
-
-        //Task<decimal> ICalculationService.CalculateCurrentYield(Guid userId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //Task<decimal> ICalculationService.CalculateCurrentYieldForUser(Guid userId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //decimal ICalculationService.CalculatePortfolioRisk(List<CalculationDTOs> stocks)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-
-        //Task<decimal> ICalculationService.FetchPercentageChange(string stockTicker, string data)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //bool ICalculationService.IsValidMarketPrice(decimal currentBalance)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //Task<decimal> ICalculationService.CalculateDailyYieldChanges(List<CalculationDTOs> stocks)
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 
 }

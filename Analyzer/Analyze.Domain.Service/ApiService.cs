@@ -1,10 +1,5 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Analyzer.Domain.Abstracions.Interfaces;
-using Analyzer.API.Analyzer.Domain.DTOs;
-using Accounts.Domain.DTOs.Wallet;
 using StockAPI.Infrastructure.Models;
 using Accounts.Domain.DTOs.Transaction;
 using Analyzer.Domain.Constants;
@@ -63,26 +58,94 @@ namespace Analyze.Domain.Service
                 }
             }
         }
+        public async Task<List<Analyzer.Domain.DTOs.TransactionResponseDto>> GetTransactions(Guid walletId)
+        {
+            try
+            {
+                using (var httpClient = httpClientAccaounts.GetSettlementAPI())
+                {
+                    string apiUrl = $"{APIsConection.GetSettlementAPI}/transactions?walletId={walletId}";
 
-        
+                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
 
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string transactionDataJson = await response.Content.ReadAsStringAsync();
+                        List<Analyzer.Domain.DTOs.TransactionResponseDto> transactions = JsonConvert.DeserializeObject<List<Analyzer.Domain.DTOs.TransactionResponseDto>>(transactionDataJson);
+                        return transactions;
+                    }
+                    else
+                    {
+                        throw new HttpRequestException($"Failed to get transactions. Status code: {response.StatusCode}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
 
+        public async Task<List<Analyzer.Domain.DTOs.TransactionResponseDto>> GetTransactionsDetails(Guid userId, string stockTicker)
+        {
+            try
+            {
+                using (var httpClient = httpClientAccaounts.GetSettlementAPI())
+                {
+                    string apiUrl = $"{APIsConection.GetSettlementAPI}/transactions?userId={userId}&stockTicker={stockTicker}";
 
-        //public async Task< UserData> GetInfoFromSettlement(string id)
-        //{
-        //    using (var httpClient = httpClientSettlement.GetAccountClient())
-        //    {
-        //        string getUrl = $"/api/accounts/{id}";
-        //        HttpResponseMessage response = await httpClient.GetAsync(getUrl);
+                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
 
-        //        if (response.IsSuccessStatusCode)
-        //        {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string transactionDataJson = await response.Content.ReadAsStringAsync();
+                        List<Analyzer.Domain.DTOs.TransactionResponseDto> transactions = JsonConvert.DeserializeObject<List<Analyzer.Domain.DTOs.TransactionResponseDto>>(transactionDataJson);
 
-        //        }
+                        // Extract only Quantity and Price properties
+                        var transactionsDetails = transactions.Select(t => new Analyzer.Domain.DTOs.TransactionResponseDto
+                        {
+                            Quantity = t.Quantity,
+                            Price = t.Price
+                        }).ToList();
 
-        //        return null;
-        //    }
-        //}
+                        return transactionsDetails;
+                    }
+                    else
+                    {
+                        throw new HttpRequestException($"Failed to get transactions. Status code: {response.StatusCode}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
 
     }
+
 }
+
+
+
+
+
+
+    //public async Task< UserData> GetInfoFromSettlement(string id)
+    //{
+    //    using (var httpClient = httpClientSettlement.GetAccountClient())
+    //    {
+    //        string getUrl = $"/api/accounts/{id}";
+    //        HttpResponseMessage response = await httpClient.GetAsync(getUrl);
+
+    //        if (response.IsSuccessStatusCode)
+    //        {
+
+    //        }
+
+    //        return null;
+    //    }
+    //}
+
+

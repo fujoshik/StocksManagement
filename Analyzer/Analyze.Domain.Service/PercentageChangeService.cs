@@ -1,4 +1,5 @@
-﻿using Analyzer.Domain.Abstracions.Interfaces;
+﻿using Accounts.Infrastructure.Entities;
+using Analyzer.Domain.Abstracions.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.Net;
@@ -17,20 +18,23 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             this.httpClientService = httpClientService;
         }
 
-        public async Task<decimal> PercentageChange(string stockTicker, string data)
+        public async Task<decimal> PercentageChange(Guid userId, string stockTicker, string data)
         {
             try
             {
                 var stockData = await httpClientService.GetStockData(stockTicker, data);
+                var transactionsDetails = await httpClientService.GetTransactionsDetails(userId, stockTicker);
 
                 if (stockData == null)
                 {
                     throw new UserDataNotFoundException();
                 }
 
-                decimal? percentageChange = ((decimal)(stockData.LowestPrice - stockData.HighestPrice) / stockData.HighestPrice) * 100;
+                decimal? percentageChange = ((decimal)(stockData.OpenPrice * 100) - transactionsDetails.Sum(t => (decimal?)t.Price * 100)) / transactionsDetails.Sum(t => (decimal?)t.Price) * 100;
 
-                return percentageChange ?? 0;  
+
+
+                return percentageChange ?? 0;
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -41,6 +45,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
                 throw new ApplicationException($"Error calculating percentage change for stock {stockTicker}.", ex);
             }
         }
+
 
     }
 }

@@ -5,51 +5,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Analyzer.Domain.DTOs;
 
 namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 {
     public class DailyYieldChangesService : IDailyYieldChanges
     {
         private readonly IHttpClientService httpClientService;
+       
 
         public DailyYieldChangesService(IHttpClientService httpClientService)
         {
             this.httpClientService = httpClientService;
+            
         }
 
-        public async Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks)
+        public List<decimal> CalculateDailyYieldChanges(List<StockDTO> stockDataList)
         {
-            try
+            List<decimal> dailyYieldChanges = new List<decimal>();
+
+            foreach (var stockData in stockDataList)
             {
-                if (stocks == null || !stocks.Any())
-                {
-                    throw new ArgumentException("Stocks list is null or empty.");
-                }
+                decimal dailyYieldChange = (stockData.CurrentPrice * stockData.Quantity - stockData.OpenPrice * stockData.Quantity) /
+                                           (stockData.OpenPrice * stockData.Quantity);
 
-                decimal totalDailyChanges = 0;
-
-                foreach (var stock in stocks)
-                {
-                    var stockData = await httpClientService.GetStockData(stock.Ticker, stock.Date);
-
-                    if (stockData == null)
-                    {
-                        throw new UserDataNotFoundException();
-                    }
-
-                    decimal? dailyChange = ((decimal)(stockData.LowestPrice - stockData.HighestPrice) / stockData.HighestPrice) * 100 ;
-
-                    totalDailyChanges += dailyChange.Value;
-                }
-
-                decimal averageDailyChange = totalDailyChanges / stocks.Count;
-
-                return averageDailyChange;
+                dailyYieldChanges.Add(dailyYieldChange);
             }
-            catch (Exception ex)
-            {
-                throw new ApplicationException("Error calculating average daily yield changes.", ex);
-            }
+
+            return dailyYieldChanges;
         }
+
     }
 }

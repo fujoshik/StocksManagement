@@ -4,6 +4,7 @@ using StockAPI.Infrastructure.Models;
 using Accounts.Domain.Abstraction.Services;
 using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.Domain.DTOs;
+using Analyze.Domain.Service;
 
 namespace Analyzer.API.Controllers
 {
@@ -45,7 +46,19 @@ namespace Analyzer.API.Controllers
             return StatusCode(500, "Woopsie Daisy! Looks like something went completely wrong. You can try again later. ;)");
         }
 
-
+        [HttpGet("get-transactions")]
+        public async Task<IActionResult> GetTransactions(Guid walletId)
+        {
+            try
+            {
+                var transactions = await httpClientService.GetTransactions(walletId);
+                return Ok(transactions);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error retrieving transactions: {ex.Message}");
+            }
+        }
 
     }
 }

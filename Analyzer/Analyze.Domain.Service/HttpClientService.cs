@@ -1,8 +1,9 @@
-﻿using Accounts.Domain.DTOs.Transaction;
+﻿
 using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.Domain.DTOs;
 using Newtonsoft.Json;
 using StockAPI.Infrastructure.Models;
+using Analyzer.Domain.Constants; 
 
 namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 {
@@ -10,14 +11,22 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
     {
         private readonly HttpClient accountClient;
         private readonly HttpClient stockApi;
+        private readonly HttpClient settlementApi;
+        private readonly HttpClient settlementApiDetails;
 
         public HttpClientService()
         {
             accountClient = new HttpClient();
-            accountClient.BaseAddress = new Uri("https://localhost:7073");
+            accountClient.BaseAddress = new Uri(APIsConection.GetWallet);
 
             stockApi = new HttpClient();
-            stockApi.BaseAddress = new Uri("https://localhost:7195");
+            stockApi.BaseAddress = new Uri(APIsConection.GetStock);
+
+            settlementApi = new HttpClient();
+            settlementApi.BaseAddress = new Uri(APIsConection.GetSettlementAPI);
+
+            settlementApi = new HttpClient();
+            settlementApi.BaseAddress = new Uri(APIsConection.GetTransactionsDetails);
         }
 
         public async Task<WalletDto> GetAccountInfoById(Guid id)
@@ -59,6 +68,60 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             }
         }
 
+        public async Task<List<TransactionResponseDto>> GetTransactions(Guid walletId)
+        {
+            try
+            {
+                string apiUrl = $"{APIsConection.GetSettlementAPI}/transactions?walletId={walletId}";
+                HttpResponseMessage response = await settlementApi.GetAsync(apiUrl);
+
+                if (response.IsSuccessStatusCode)
+                    {
+                        string transactionDataJson = await response.Content.ReadAsStringAsync();
+                        List<TransactionResponseDto> transactions = JsonConvert.DeserializeObject<List<TransactionResponseDto>>(transactionDataJson);
+                        return transactions;
+                }
+                    else
+                    {
+                        throw new HttpRequestException($"Failed to get transactions. Status code: {response.StatusCode}");
+                    }
+            }
+            catch (Exception ex)
+            {
+                throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
+            }
+        }
+
+        public async Task<List<TransactionResponseDto>> GetTransactionsDetails(Guid userId, string stockTicker)
+        {
+            try
+            {
+                using (var httpClient = GetSettlementAPI())
+                {
+                    string apiUrl = $"{APIsConection.GetSettlementAPI}/transactions?userId={userId}&stockTicker={stockTicker}";
+
+                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string transactionDataJson = await response.Content.ReadAsStringAsync();
+                        List<TransactionResponseDto> transactions = JsonConvert.DeserializeObject<List<TransactionResponseDto>>(transactionDataJson);
+
+                        return transactions;
+                    }
+                    else
+                    {
+                        throw new HttpRequestException($"Failed to get transactions. Status code: {response.StatusCode}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
+            }
+        }
+
+
         public HttpClient GetAccountClient()
         {
             return accountClient;
@@ -69,9 +132,14 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             return stockApi;
         }
 
-    //    public Task<List<TransactionResponseDto>> GetTransactionsForUserAndStockAsync(Guid userId, string stockTicker)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
+        public HttpClient GetSettlementAPI()
+        {
+            return settlementApi;
+        }
+
+        public HttpClient GetTransactionsDetails()
+        {
+            return settlementApiDetails;
+        }
     }
 }
