@@ -18,7 +18,7 @@ namespace Accounts.API.Extensions
 
         public static IServiceCollection AddPolicyBasedRoleAuthorizationServices(this IServiceCollection services)
         {
-            services.AddTransient<IAuthorizationHandler, ValidRoleHandler>();
+            services.AddScoped<IAuthorizationHandler, ValidRoleHandler>();
             services.AddAuthorization(authConfig =>
             {
                 authConfig.AddPolicy(PolicyConstants.AllowAdminRole,

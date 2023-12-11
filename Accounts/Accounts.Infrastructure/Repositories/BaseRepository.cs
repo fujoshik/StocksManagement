@@ -1,4 +1,5 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
+using Accounts.Domain.Exceptions;
 using Accounts.Domain.Pagination;
 using Accounts.Infrastructure.Entities;
 using Accounts.Infrastructure.Extensions;
@@ -146,6 +147,11 @@ namespace Accounts.Infrastructure.Repositories
                 {
                     dataTable.Load(reader);
                 }
+            }
+
+            if (dataTable.Rows.Count == 0)
+            {
+                throw new NotFoundException();
             }
 
             return DataRowToEntity<TOutput>(dataTable.Rows[0]);

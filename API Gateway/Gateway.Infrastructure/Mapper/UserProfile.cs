@@ -10,10 +10,5 @@ namespace Gateway.Infrastructure.Mapper
         {
             CreateMap<RegisterDto, UserRequestDto>();
         }
-
-        public string UserId { get; set; }
-        public UserType UserType { get; set; }
-        public int LoadedAmount { get; set; }
-        public DateTime CreatedAt { get; set; }
     }
 }

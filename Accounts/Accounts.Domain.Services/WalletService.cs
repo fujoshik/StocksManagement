@@ -27,6 +27,11 @@ namespace Accounts.Domain.Services
 
         public async Task<WalletResponseDto> CreateAsync(WalletRequestDto wallet)
         {
+            if (wallet == null)
+            {
+                throw new ArgumentNullException(nameof(wallet));
+            }
+
             if (wallet.InitialBalance == 0)
             {
                 wallet.CurrentBalance = 10000;
@@ -42,11 +47,18 @@ namespace Accounts.Domain.Services
                 id = _userDetailsProvider.GetAccountId();
             }
 
-            return await _unitOfWork.WalletRepository.GetByIdAsync<WalletResponseDto>(id);
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync<AccountResponseDto>(id);
+
+            return await _unitOfWork.WalletRepository.GetByIdAsync<WalletResponseDto>(account.WalletId);
         }
 
         public async Task DepositSumAsync(DepositDto deposit)
         {
+            if (deposit == null)
+            {
+                throw new ArgumentNullException(nameof(deposit));
+            }
+
             var accountId = _userDetailsProvider.GetAccountId();
             var currentCurrency = await _unitOfWork.WalletRepository.GetCurrencyCodeAsync(accountId);
 

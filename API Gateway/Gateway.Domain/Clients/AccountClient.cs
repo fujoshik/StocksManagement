@@ -1,7 +1,10 @@
 ﻿using Gateway.Domain.Abstraction.Clients;
-using Gateway.Domain.Abstraction.Settings;
 using Gateway.Domain.DTOs.Authentication;
+using Gateway.Domain.DTOs.Stock;
 using Gateway.Domain.DTOs.User;
+using Gateway.Domain.DTOs.Wallet;
+using Gateway.Domain.Enums;
+using Gateway.Domain.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
@@ -43,7 +46,7 @@ namespace Gateway.Domain.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException("Unsuccessful request");
+                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
             }
         }
 
@@ -53,7 +56,7 @@ namespace Gateway.Domain.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException("Unsuccessful request");
+                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
             }
         }
 
@@ -63,7 +66,7 @@ namespace Gateway.Domain.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException("Unsuccessful request");
+                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
             }
 
             return await response.Content.ReadAsStringAsync();
@@ -71,17 +74,73 @@ namespace Gateway.Domain.Clients
 
         public async Task UpdateUser(Guid id, UserWithoutAccountIdDto user)
         {
-            string value = _httpContextAccessor.HttpContext?.Request?.Headers["Authorization"];
-            _httpClient.DefaultRequestHeaders.Authorization
-                         = new AuthenticationHeaderValue("Bearer", value.Replace("Bearer", ""));
+            AddAuthorizationHeader();
+
             var updateRoute = _accountApiUrl + _userSettings.UpdateRoute + "/" + id;
 
             var response = await _httpClient.PutAsJsonAsync(updateRoute, user);
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(response.StatusCode + response.ReasonPhrase);
+                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
             }
+        }
+
+        public async Task DepositSumAsync(DepositSumDto deposit)
+        {
+            AddAuthorizationHeader();
+
+            var response = await _httpClient.PostAsJsonAsync(_accountApiUrl + _accountSettings.DepositRoute, deposit);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+            }
+        }
+
+        public async Task ChangeCurrencyAsync(Currency currency)
+        {
+            AddAuthorizationHeader();
+
+            var response = await _httpClient.PostAsJsonAsync(_accountApiUrl + _accountSettings.ChangeCurrencyRoute, currency);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+            }
+        }
+
+        public async Task<WalletResponse> GetWalletInfoAsync(Guid id)
+        {
+            AddAuthorizationHeader();
+
+            var response = await _httpClient.GetAsync(_accountApiUrl + _accountSettings.GetWalletInfoRoute);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+            }
+
+            return await response.Content.ReadFromJsonAsync<WalletResponse>();
+        }
+
+        public async Task BuyStockAsync(BuyStockDTO buyStock)
+        {
+            AddAuthorizationHeader();
+
+            var response = await _httpClient.PostAsJsonAsync(_accountApiUrl + _accountSettings.BuyStockRoute, buyStock);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+            }
+        }
+
+        private void AddAuthorizationHeader()
+        {
+            string value = _httpContextAccessor.HttpContext?.Request?.Headers["Authorization"];
+            _httpClient.DefaultRequestHeaders.Authorization
+                         = new AuthenticationHeaderValue("Bearer", value.Replace("Bearer", ""));
         }
     }
 }

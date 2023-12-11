@@ -15,7 +15,7 @@ namespace Gateway.Domain.Abstraction.Services
         void DeleteAccount(string userId);
         void UpdateUserStatus(string userId, decimal accountBalance, decimal tradeResult);
         void UpdateUserStatus(string userId, UserType newUserStatus);
-        UserType GetUserType(string userId);
+        //UserType GetUserType(string userId);
         Task RegisterAsync(RegisterWithSumDTO account);
         Task RegisterTrialAsync(RegisterTrialDTO account);
         Task<string> LoginAsync(LoginDto loginDto);

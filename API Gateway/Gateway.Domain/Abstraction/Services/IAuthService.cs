@@ -17,6 +17,6 @@ namespace Gateway.Domain.Abstraction.Services
         void Logout(string userId);
         void DeleteAccount(string userId);
         void UpdateUserStatus(string userId, decimal accountBalance, decimal tradeResult);
-        UserType GetUserType(string userId);
+        //UserType GetUserType(string userId);
     }
 }
