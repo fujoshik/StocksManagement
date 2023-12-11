@@ -1,6 +1,7 @@
-﻿
-using API.Gateway.Controllers;
+﻿using Gateway.Domain.Abstraction.Factories;
 using Gateway.Domain.Abstraction.Services;
+using Gateway.Domain.DTOs.HistoricalData;
+using Gateway.Domain.DTOs.Stock;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,11 +14,13 @@ namespace Gateway.Domain.Services
     {
         private readonly IBlacklistService _blacklistService;
         private readonly ILoggingService _loggingService;
+        private readonly IHttpClientFactoryCustom _httpClientFactoryCustom;
 
-        public StockService(IBlacklistService blacklistService, ILoggingService loggingService)
+        public StockService(IBlacklistService blacklistService, ILoggingService loggingService, IHttpClientFactoryCustom httpClientFactory)
         {
             _blacklistService = blacklistService;
             _loggingService = loggingService;
+            _httpClientFactoryCustom = httpClientFactory;
         }
 
         public decimal GetCurrentStockValue()
@@ -39,27 +42,27 @@ namespace Gateway.Domain.Services
         }
 
 
-        public IEnumerable<HistoricalData> GetHistoricalData()
+        public IEnumerable<HistoricalDataDto> GetHistoricalData()
         {
 
-            IEnumerable<HistoricalData> historicalData = GetHistoricalDataFromSource();
+            IEnumerable<HistoricalDataDto> historicalData = GetHistoricalDataFromSource();
 
             _loggingService.LogActivity("StockService", "User requested historical stock data");
 
             return historicalData;
         }
 
-        private IEnumerable<HistoricalData> GetHistoricalDataFromSource()
+        private IEnumerable<HistoricalDataDto> GetHistoricalDataFromSource()
         {
             // API 
 
-            List<HistoricalData> historicalData = new List<HistoricalData>
+            List<HistoricalDataDto> historicalData = new List<HistoricalDataDto>
     {
-        new HistoricalData { Date = DateTime.Now.AddDays(-5), Value = 150 },
-        new HistoricalData { Date = DateTime.Now.AddDays(-4), Value = 160 },
-        new HistoricalData { Date = DateTime.Now.AddDays(-3), Value = 145 },
-        new HistoricalData { Date = DateTime.Now.AddDays(-2), Value = 170 },
-        new HistoricalData { Date = DateTime.Now.AddDays(-1), Value = 155 }
+        new HistoricalDataDto { Date = DateTime.Now.AddDays(-5), Value = 150 },
+        new HistoricalDataDto { Date = DateTime.Now.AddDays(-4), Value = 160 },
+        new HistoricalDataDto { Date = DateTime.Now.AddDays(-3), Value = 145 },
+        new HistoricalDataDto { Date = DateTime.Now.AddDays(-2), Value = 170 },
+        new HistoricalDataDto { Date = DateTime.Now.AddDays(-1), Value = 155 }
     };
 
             return historicalData;
@@ -70,11 +73,17 @@ namespace Gateway.Domain.Services
             throw new NotImplementedException();
         }
 
-        IEnumerable<HistoricalData> IStockService.GetHistoricalData()
+        public object AnalyzeStockData(string symbol)
         {
             throw new NotImplementedException();
         }
-    }
 
+        public async Task BuyStockAsync(BuyStockDTO buyStock)
+        {
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .BuyStockAsync(buyStock);
+        }
+    }
 }
 

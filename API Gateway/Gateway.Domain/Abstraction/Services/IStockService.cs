@@ -1,9 +1,5 @@
-﻿using API.Gateway.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gateway.Domain.DTOs.HistoricalData;
+using Gateway.Domain.DTOs.Stock;
 
 namespace Gateway.Domain.Abstraction.Services
 {
@@ -12,7 +8,7 @@ namespace Gateway.Domain.Abstraction.Services
         object AnalyzeStockData(string symbol);
         object GetCurrentPrice(string symbol);
         decimal GetCurrentStockValue();
-        IEnumerable<HistoricalData> GetHistoricalData();
+        IEnumerable<HistoricalDataDto> GetHistoricalData();
+        Task BuyStockAsync(BuyStockDTO buyStock);
     }
-
 }

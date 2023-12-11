@@ -29,6 +29,12 @@
                     $@"SET CurrencyCode = @NewCurrency, CurrentBalance = @NewCurrentBalance, InitialBalance = @NewInitialBalance " +
                     $@"WHERE Id = (SELECT WalletId FROM Accounts WHERE Id = @Id)";
 
-        public const string DELETE_BY_ACCOUNTID = $@"{USE_STOCKSDB} DELETE FROM Users WHERE AccountId = @AccountId";
+        public const string DELETE_BY_ACCOUNTID_FROM_USERS = $@"{USE_STOCKSDB} DELETE FROM Users WHERE AccountId = @AccountId";
+
+        public const string DELETE_BY_ACCOUNTID_FROM_TRANSACTIONS = $@"{USE_STOCKSDB} DELETE FROM Transactions WHERE AccountId = @AccountId";
+
+        public const string GET_SOLD_TRANSACTIONS_BY_ACCOUNTID = $@"{USE_STOCKSDB} SELECT * FROM Transactions WHERE AccountId = @AccountId AND TransactionType = 1";
+
+        public const string GET_TRANSACTIONS_BY_ACCOUNTID_TICKER_AND_DATE = $@"{USE_STOCKSDB} SELECT * FROM Transactions WHERE AccountId = @AccountId AND StockTicker = @Ticker AND DateOfTransaction = @Date";
     }
 }

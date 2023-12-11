@@ -17,5 +17,11 @@ namespace Accounts.Domain.Services
         {
             return await _unitOfWork.TransactionRepository.GetSoldTransactionsByAccountId(accountId);
         }
+
+        public async Task<List<TransactionResponseDto>> GetTransactionsByAccountIdTickerAndDateAsync(Guid accountId, 
+            string ticker, DateTime dateTime)
+        {
+            return await _unitOfWork.TransactionRepository.GetTransactionsByAccountIdTickerAndDate(accountId, ticker, dateTime);
+        }
     }
 }

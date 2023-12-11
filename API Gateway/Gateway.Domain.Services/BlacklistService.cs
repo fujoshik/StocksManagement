@@ -1,5 +1,4 @@
 ﻿using Gateway.Domain.Abstraction.Services;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +13,7 @@ namespace Gateway.Domain.Services
 
         public BlacklistService()
         {
-            _blacklistedEmails = LoadBlacklistedEmailsFromConfig();
+            //_blacklistedEmails = LoadBlacklistedEmailsFromConfig();
         }
 
         public bool IsEmailBlacklisted(string email)
@@ -22,23 +21,23 @@ namespace Gateway.Domain.Services
             return _blacklistedEmails.Contains(email.ToLowerInvariant());
         }
 
-        private HashSet<string> LoadBlacklistedEmailsFromDatabase()
-        {
+        //private HashSet<string> LoadBlacklistedEmailsFromDatabase()
+        //{
 
-            using (var dbContext = new YourDbContext())
-            {
-                var blacklistedEmails = dbContext.Blacklist.Select(b => b.Email).ToList();
-                return new HashSet<string>(blacklistedEmails);
-            }
+        //    using (var dbContext = new YourDbContext())
+        //    {
+        //        var blacklistedEmails = dbContext.Blacklist.Select(b => b.Email).ToList();
+        //        return new HashSet<string>(blacklistedEmails);
+        //    }
 
-        }
-        private HashSet<string> LoadBlacklistedEmailsFromConfig()
-        {
+        //}
+        //private HashSet<string> LoadBlacklistedEmailsFromConfig()
+        //{
 
-            var blacklistedEmails = ConfigurationManager.AppSettings["BlacklistedEmails"];
-            var emailList = blacklistedEmails?.Split(',').Select(e => e.Trim()).ToList() ?? new List<string>();
-            return new HashSet<string>(emailList);
-        }
+        //    var blacklistedEmails = ConfigurationManager.AppSettings["BlacklistedEmails"];
+        //    var emailList = blacklistedEmails?.Split(',').Select(e => e.Trim()).ToList() ?? new List<string>();
+        //    return new HashSet<string>(emailList);
+        //}
         private HashSet<string> LoadBlacklistedEmails()
         {
 

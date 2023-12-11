@@ -1,4 +1,5 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
+using Accounts.Domain.Constants;
 using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.DTOs.Transaction;
 using Accounts.Domain.Enums;
@@ -40,7 +41,8 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"USE StocksDB; DELETE FROM {TableName} WHERE AccountId = '{accountId}'", connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.DELETE_BY_ACCOUNTID_FROM_TRANSACTIONS, connection);
+                cmd.Parameters.Add(new SqlParameter("@AccountId", accountId));
                 await cmd.ExecuteNonQueryAsync();
             }
         }
@@ -51,8 +53,40 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($@"USE StocksDB; SELECT * FROM {TableName} WHERE AccountId = @AccountId AND TransactionType = 1", connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_SOLD_TRANSACTIONS_BY_ACCOUNTID, connection);
                 cmd.Parameters.Add(new SqlParameter("@AccountId", accountId));
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    dataTable.Load(reader);
+                }
+            }
+
+            return dataTable
+                .AsEnumerable()
+                .Select(x => new TransactionResponseDto
+                {
+                    Id = Guid.Parse(x["Id"].ToString()),
+                    StockTicker = x["StockTicker"].ToString(),
+                    TransactionType = (TransactionType)int.Parse(x["TransactionType"].ToString()),
+                    Price = decimal.Parse(x["Price"].ToString()),
+                    Quantity = int.Parse(x["Quantity"].ToString()),
+                    DateOfTransaction = DateTime.Parse(x["DateOfTransaction"].ToString()),
+                    AccountId = Guid.Parse(x["AccountId"].ToString())
+                })
+                .ToList();
+        }
+
+        public async Task<List<TransactionResponseDto>> GetTransactionsByAccountIdTickerAndDate(Guid accountId, 
+            string ticker, DateTime date)
+        {
+            var dataTable = new DataTable();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_TRANSACTIONS_BY_ACCOUNTID_TICKER_AND_DATE, connection);
+                cmd.Parameters.Add(new SqlParameter("@AccountId", accountId));
+                cmd.Parameters.Add(new SqlParameter("@Ticker", ticker));
+                cmd.Parameters.Add(new SqlParameter("@Date", date));
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     dataTable.Load(reader);

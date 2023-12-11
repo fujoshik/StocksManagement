@@ -25,8 +25,7 @@ namespace API.Gateway.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] UserWithoutAccountIdDto user)
         {
-            Task updateTask = _userService.UpdateAsync(id, user);
-            await updateTask;
+            await _userService.UpdateAsync(id, user);
 
             return NoContent();
         }

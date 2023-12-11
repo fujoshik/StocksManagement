@@ -13,14 +13,9 @@
 
         public async Task InvokeAsync(HttpContext httpContext)
         {
-            httpContext.Request.EnableBuffering();
-
-            using (var reader = new StreamReader(httpContext.Request.Body))
-            {
-                var requestBody = await reader.ReadToEndAsync();
-                string logMessage = $" Path: {httpContext.Request.Path}, Method: {httpContext.Request.Method}, Body: {requestBody}";
-                _logger.LogInformation(logMessage);
-            }
+            string logMessage = $"Path: {httpContext.Request.Path}, Method: {httpContext.Request.Method}, " +
+                $"Body: {httpContext.Request.BodyReader}";
+            _logger.LogInformation(logMessage);
 
             await _next(httpContext);
         }

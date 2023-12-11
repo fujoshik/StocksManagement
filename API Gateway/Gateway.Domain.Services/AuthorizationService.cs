@@ -36,8 +36,8 @@ namespace Gateway.Domain.Services
                 }
 
 
-                var userType = _accountService.GetUserType(userId);
-                return IsAuthorizedForRoute(userType, route);
+                //var userType = _accountService.GetUserType(userId);
+                //return IsAuthorizedForRoute(userType, route);
             }
 
             return false;
@@ -74,33 +74,33 @@ namespace Gateway.Domain.Services
             _cacheService.ClearUserCache(userId);
         }
 
-        public UserType CalculateNewStatus(decimal accountBalance, decimal tradeResult)
-        {
+        //public UserType CalculateNewStatus(decimal accountBalance, decimal tradeResult)
+        //{
 
-            return UserType.Regular;
-        }
+        //    return UserType.Regular;
+        //}
 
-        public void UpdateUserStatus(string userId, decimal accountBalance, decimal tradeResult)
-        {
+        //public void UpdateUserStatus(string userId, decimal accountBalance, decimal tradeResult)
+        //{
 
-            var newUserStatus = CalculateNewStatus(accountBalance, tradeResult);
-            _accountService.UpdateUserStatus(userId, newUserStatus);
-        }
+        //    var newUserStatus = CalculateNewStatus(accountBalance, tradeResult);
+        //    _accountService.UpdateUserStatus(userId, newUserStatus);
+        //}
 
-        private bool IsAuthorizedForRoute(UserType userType, string route)
-        {
-            switch (userType)
-            {
-                case UserType.Regular:
-                    return route != "AdminAPI";
-                case UserType.Special:
-                    return true;
-                case UserType.Vip:
-                    return true;
-                default:
-                    return false;
-            }
-        }
+        //private bool IsAuthorizedForRoute(UserType userType, string route)
+        //{
+        //    switch (userType)
+        //    {
+        //        case UserType.Regular:
+        //            return route != "AdminAPI";
+        //        case UserType.Special:
+        //            return true;
+        //        case UserType.Vip:
+        //            return true;
+        //        default:
+        //            return false;
+        //    }
+        //}
 
     }
 }

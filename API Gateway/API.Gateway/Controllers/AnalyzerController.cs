@@ -29,19 +29,19 @@ namespace API.Gateway.Controllers
             }
         }
 
-        [HttpGet("historical-data/{symbol}")]
-        public IActionResult GetHistoricalStockData(string symbol)
-        {
-            try
-            {
-                var historicalData = _stockService.GetHistoricalData(symbol);
-                return Ok(historicalData);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error retrieving historical stock data: {ex.Message}");
-            }
-        }
+        //[HttpGet("historical-data/{symbol}")]
+        //public IActionResult GetHistoricalStockData(string symbol)
+        //{
+        //    try
+        //    {
+        //        var historicalData = _stockService.GetHistoricalData(symbol);
+        //        return Ok(historicalData);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error retrieving historical stock data: {ex.Message}");
+        //    }
+        //}
 
         [HttpGet("top-users")]
         public IActionResult GetTopUsers()

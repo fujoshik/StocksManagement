@@ -39,7 +39,7 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand(SqlQueryConstants.DELETE_BY_ACCOUNTID, connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.DELETE_BY_ACCOUNTID_FROM_USERS, connection);
                 cmd.Parameters.Add(new SqlParameter("@AccountId", accountId));
                 await cmd.ExecuteNonQueryAsync();
             }

@@ -39,7 +39,7 @@ builder.Services.AddEndpointsApiExplorer()
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "StockManagement API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Accounts API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Example: \"Athorization: Bearer {token}\"",

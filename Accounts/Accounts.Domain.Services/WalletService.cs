@@ -47,7 +47,9 @@ namespace Accounts.Domain.Services
                 id = _userDetailsProvider.GetAccountId();
             }
 
-            return await _unitOfWork.WalletRepository.GetByIdAsync<WalletResponseDto>(id);
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync<AccountResponseDto>(id);
+
+            return await _unitOfWork.WalletRepository.GetByIdAsync<WalletResponseDto>(account.WalletId);
         }
 
         public async Task DepositSumAsync(DepositDto deposit)

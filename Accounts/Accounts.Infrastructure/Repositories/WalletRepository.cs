@@ -2,6 +2,7 @@
 using Accounts.Domain.Constants;
 using Accounts.Domain.DTOs.Wallet;
 using Accounts.Domain.Enums;
+using Accounts.Domain.Exceptions;
 using Accounts.Infrastructure.Entities;
 using Microsoft.Extensions.Configuration;
 using System.Data;
