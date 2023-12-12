@@ -46,7 +46,7 @@ namespace Gateway.Domain.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
             }
         }
 
@@ -56,7 +56,7 @@ namespace Gateway.Domain.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
             }
         }
 
@@ -66,7 +66,7 @@ namespace Gateway.Domain.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
             }
 
             return await response.Content.ReadAsStringAsync();
@@ -82,7 +82,7 @@ namespace Gateway.Domain.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
             }
         }
 
@@ -94,7 +94,7 @@ namespace Gateway.Domain.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
             }
         }
 
@@ -106,7 +106,7 @@ namespace Gateway.Domain.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
             }
         }
 
@@ -118,7 +118,7 @@ namespace Gateway.Domain.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
             }
 
             return await response.Content.ReadFromJsonAsync<WalletResponse>();
@@ -128,11 +128,13 @@ namespace Gateway.Domain.Clients
         {
             AddAuthorizationHeader();
 
-            var response = await _httpClient.PostAsJsonAsync(_accountApiUrl + _accountSettings.BuyStockRoute, buyStock);
+            var query = string.Format($"?ticker={buyStock.Ticker}&quantity={buyStock.Quantity}");
+
+            var response = await _httpClient.PostAsync(_accountApiUrl + _accountSettings.BuyStockRoute + query, null);
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(response.StatusCode + " " + response.ReasonPhrase);
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
             }
         }
 
