@@ -16,7 +16,7 @@ namespace Accounts.Domain.Services
 
         public async Task<bool> DeleteAccountWhenTrialEndsAsync(Guid accountId, string dateToDelete)
         {
-            if (dateToDelete != null)
+            if (dateToDelete != null && !dateToDelete.Contains("1.1.1900"))
             {
                 if (DateTime.Parse(dateToDelete) <= DateTime.Now)
                 {
