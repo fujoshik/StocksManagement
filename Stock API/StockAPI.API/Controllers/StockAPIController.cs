@@ -18,6 +18,7 @@ namespace StockAPI.API.Controllers
             _stockAPIService = stockAPIService;
         }
 
+        //get daily stocks from polygon
         [HttpGet]
         [Route("grouped-daily")]
         [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Client)]
@@ -32,7 +33,7 @@ namespace StockAPI.API.Controllers
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "An error occurred while processing the request.");
+                Log.Error(ex, "an error occurred while trying to get daily stocks from polygon.");
                 return StatusCode(500, "Internal server error");
             }
         }
