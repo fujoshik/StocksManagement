@@ -10,7 +10,7 @@ namespace Analyzer.Domain.Abstracions.Interfaces
 {
     public interface IDailyYieldChanges
     {
-        List<decimal> CalculateDailyYieldChanges(List<StockDTO> stockDataList);
+        public List<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stockData);
     }
 
 }

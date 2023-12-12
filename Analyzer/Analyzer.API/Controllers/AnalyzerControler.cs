@@ -5,6 +5,7 @@ using Accounts.Domain.Abstraction.Services;
 using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.Domain.DTOs;
 using Analyze.Domain.Service;
+using static Analyzer.Domain.Abstracions.Interfaces.IService;
 
 namespace Analyzer.API.Controllers
 {
@@ -46,12 +47,12 @@ namespace Analyzer.API.Controllers
             return StatusCode(500, "Woopsie Daisy! Looks like something went completely wrong. You can try again later. ;)");
         }
 
-        [HttpGet("get-transactions")]
-        public async Task<IActionResult> GetTransactions(Guid walletId)
+        [HttpPost("get-transaction")]
+        public async Task<IActionResult> GetTransaction(TransactionResponseDto transaction)
         {
             try
             {
-                var transactions = await httpClientService.GetTransactions(walletId);
+                var transactions = await httpClientService.GetTransactions(transaction);
                 return Ok(transactions);
             }
             catch (Exception ex)
@@ -59,6 +60,21 @@ namespace Analyzer.API.Controllers
                 return StatusCode(500, $"Error retrieving transactions: {ex.Message}");
             }
         }
+
+        [HttpGet("transactions/details")]
+        public async Task<IActionResult> GetTransactionsDetails(Guid userId, string stockTicker)
+        {
+            try
+            {
+                var transactions = await httpClientService.GetTransactionsDetails(userId, stockTicker);
+                return Ok(transactions);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error retrieving transactions details: {ex.Message}");
+            }
+        }
+
 
     }
 }

@@ -13,7 +13,7 @@ namespace Analyzer.Domain.Abstracions.Interfaces
             public Task<List<TransactionResponseDto>> GetTransactionList(Guid userId);
             public Task<List<Analyzer.Domain.DTOs.TransactionResponseDto>> GetTransactionsDetails(Guid userId, string stockTicker);
 
-
+            Task<SettlementDto> GetTransactions(TransactionResponseDto transaction);
             //Task<List<TransactionResponseDto>> GetTransactionsForUserAndStockAsync(Guid userId, string stockTicker);
 
         }

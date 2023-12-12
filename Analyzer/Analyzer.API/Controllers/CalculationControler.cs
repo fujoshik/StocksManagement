@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using StockAPI.Infrastructure.Models;
 using System;
 using Analyze.Domain.Service;
+using Analyzer.API.Analyzer.Domain.Abstracions.Services;
 
 namespace Analyzer.API.Controllers
 {
@@ -31,11 +32,11 @@ namespace Analyzer.API.Controllers
 
 
         [HttpGet("calculate-current-yield")]
-        public async Task<IActionResult> CalculateCurrentYield(Guid userId, string stockTicker, string data)
+        public async Task<IActionResult> CalculateCurrentYield(Guid userId, string stockTicker, string data, TransactionResponseDto transaction)
         {
             try
             {
-                decimal currentYield = await calculationService.CalculateCurrentYield(userId, stockTicker, data);
+                decimal currentYield = await calculationService.CalculateCurrentYield(userId, stockTicker, data, transaction);
 
                 return Ok(currentYield);
             }
@@ -68,19 +69,23 @@ namespace Analyzer.API.Controllers
         }
 
 
-
-
-        [HttpPost("calculate")]
-        public ActionResult<List<decimal>> CalculateDailyYieldChanges([FromBody] List<StockDTO> stockDataList)
+        [HttpGet("calculate-daily-yield-changes")]
+        public IActionResult CalculateDailyYieldChanges([FromBody] List<CalculationDTOs> stockData)
         {
             try
             {
-                List<decimal> dailyYieldChanges = yieldService.CalculateDailyYieldChanges(stockDataList);
-                return Ok(dailyYieldChanges);
+                if (stockData == null || stockData.Count < 2)
+                {
+                    return BadRequest("Insufficient data for calculating daily yield changes.");
+                }
+
+                List<decimal> result = yieldService.CalculateDailyYieldChanges(stockData);
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error calculating daily yield changes: {ex.Message}");
+                return StatusCode(500, $"Error calculating daily yield changes: {ex.Message}");
             }
         }
 
