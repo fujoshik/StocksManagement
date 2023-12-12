@@ -1,4 +1,6 @@
-﻿using Gateway.Domain.Services;
+﻿
+using Gateway.Domain.Abstraction.Services;
+using Gateway.Domain.DTOs.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -20,10 +22,10 @@ namespace API.Gateway.Controllers
             _userService = userService;
         }
 
-         [HttpPut("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] UserWithoutAccountIdDto user)
         {
-            object value = await _userService.UpdateAsync(id, user);
+            await _userService.UpdateAsync(id, user);
 
             return NoContent();
         }
@@ -60,14 +62,5 @@ namespace API.Gateway.Controllers
             return user;
         }
         
-    }
-
-    public class UserData
-    {
-        public string Username { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-        
-    }
+    }  
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Gateway.Domain.Abstraction.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Gateway.Controllers
 {
@@ -27,19 +29,19 @@ namespace API.Gateway.Controllers
             }
         }
 
-        [HttpGet("historical-data/{symbol}")]
-        public IActionResult GetHistoricalStockData(string symbol)
-        {
-            try
-            {
-                var historicalData = _stockService.GetHistoricalData(symbol);
-                return Ok(historicalData);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error retrieving historical stock data: {ex.Message}");
-            }
-        }
+        //[HttpGet("historical-data/{symbol}")]
+        //public IActionResult GetHistoricalStockData(string symbol)
+        //{
+        //    try
+        //    {
+        //        var historicalData = _stockService.GetHistoricalData(symbol);
+        //        return Ok(historicalData);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error retrieving historical stock data: {ex.Message}");
+        //    }
+        //}
 
         [HttpGet("top-users")]
         public IActionResult GetTopUsers()

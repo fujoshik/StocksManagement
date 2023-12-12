@@ -44,7 +44,7 @@ namespace Accounts.API.Middleware
                 if (badIp)
                 {
                     _logger.LogWarning(
-                        "Forbidden Request from Remote IP address: {RemoteIp}", remoteIp);
+                        $"Forbidden Request from Remote IP address: {remoteIp}");
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     return;
                 }

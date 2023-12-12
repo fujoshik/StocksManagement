@@ -13,5 +13,10 @@ namespace Accounts.API.Extensions
         {
             app.UseMiddleware<SafelistMiddleware>(safelist);
         }
+
+        public static void ConfigureLogMiddleware(this WebApplication app)
+        {
+            app.UseMiddleware<LogMiddleware>();
+        }
     }
 }

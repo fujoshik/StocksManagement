@@ -1,5 +1,6 @@
 ﻿using Accounts.Domain.Abstraction.Services;
 using Accounts.Domain.Constants;
+using Accounts.Domain.DTOs.Stock;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +19,9 @@ namespace Accounts.API.Controllers
         }
 
         [HttpPost("buy-stock")]
-        public async Task<IActionResult> BuyStock([FromQuery] string ticker, [FromQuery] int quantity)
+        public async Task<IActionResult> BuyStock([FromQuery] BuyStockQuery buyStockQuery)
         {
-            await _stockService.BuyStockAsync(ticker, quantity);
+            await _stockService.BuyStockAsync(buyStockQuery.Ticker, buyStockQuery.Quantity);
 
             return Ok();
         }
@@ -28,7 +29,7 @@ namespace Accounts.API.Controllers
         [HttpPost("sell-stock")]
         public async Task<IActionResult> SellStock([FromQuery] string ticker, [FromQuery] int quantity)
         {
-            //await _stockService.Sell(ticker, quantity);
+            await _stockService.SellStockAsync(ticker, quantity);
 
             return Ok();
         }

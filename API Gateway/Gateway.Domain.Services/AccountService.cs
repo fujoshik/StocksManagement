@@ -1,69 +1,49 @@
-﻿using Microsoft.Azure.Management.Graph.RBAC.Fluent.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gateway.Domain.Abstraction.Services;
+using Gateway.Domain.DTOs.Authentication;
+using Gateway.Domain.Abstraction.Factories;
+using Gateway.Domain.DTOs.User;
+
 
 namespace Gateway.Domain.Services
 {
-    public interface IAccountService
-    {
-        void CreateAccount(string userId, decimal initialBalance);
-        void StartTrialPeriod(string userId, decimal demoBalance, int trialPeriodDays);
-        void DeactivateAccount(string userId);
-        void DeleteAccount(string userId);
-        void UpdateUserStatus(string userId, decimal accountBalance, decimal tradeResult);
-        UserType GetUserType(string userId);
-        void StartTrialPeriod(string userId);
-        Task LoginAsync(LoginDto account);
-    }
+
     public class AccountService : IAccountService
     {
-        private readonly IUserService _userService;
+        //private readonly IUserService _userService;
+        private readonly IHttpClientFactoryCustom _httpClientFactoryCustom;
 
-        public AccountService(IUserService userService)
+        public AccountService(//IUserService userService, 
+            IHttpClientFactoryCustom httpClientFactoryCustom)
         {
-            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            //_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _httpClientFactoryCustom = (IHttpClientFactoryCustom?)httpClientFactoryCustom;
         }
 
         public void CreateAccount(string userId, decimal initialBalance)
         {
 
-            _userService.CreateUser(userId, initialBalance);
+            //_userService.CreateUser(userId, initialBalance);
         }
 
-        public void StartTrialPeriod(string userId, decimal demoBalance, int trialPeriodDays)
-        {
-
-            _userService.UpdateUserStatus(userId, UserType.Demo, demoBalance);
-
-        }
-
-        public void DeactivateAccount(string userId)
-        {
-
-            _userService.UpdateUserStatus(userId, UserType.Inactive, 0);
-        }
 
         public void DeleteAccount(string userId)
         {
 
-            _userService.DeleteAccount(userId);
+            //_userService.DeleteAccount(userId);
         }
 
         public void UpdateUserStatus(string userId, decimal accountBalance, decimal tradeResult)
         {
 
             UserType newStatus = CalculateNewStatus(accountBalance, tradeResult);
-            _userService.UpdateUserStatus(userId, newStatus, accountBalance);
+            //_userService.UpdateUserStatus(userId, newStatus, accountBalance);
         }
 
-        public UserType GetUserType(string userId)
-        {
+        //public UserType GetUserType(string userId)
+        //{
 
-            return _userService.GetUserType(userId);
-        }
+        //    return _userService.GetUserType(userId);
+        //}
 
         private UserType CalculateNewStatus(decimal accountBalance, decimal tradeResult)
         {
@@ -73,21 +53,43 @@ namespace Gateway.Domain.Services
             }
             else if (tradeResult > 10000)
             {
-                return UserType.VIP;
+                return UserType.VipTrader;
             }
             else if (accountBalance > 5000)
             {
-                return UserType.Special;
+                return UserType.SpecialTrader;
             }
             else
             {
-                return UserType.Regular;
+                return UserType.RegularTrader;
             }
         }
 
+        public void UpdateUserStatus(string userId, UserType newUserStatus)
+        {
+            throw new NotImplementedException();
+        }
+        public async Task RegisterAsync(RegisterWithSumDTO registerDto)
+        {
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .RegisterAsync(registerDto);
+        }
+
+        public async Task RegisterTrialAsync(RegisterTrialDTO registerDto)
+        {
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .RegisterTrialAsync(registerDto);
+        }
+
+        public async Task<string> LoginAsync(LoginDto loginDto)
+        {
+            return await _httpClientFactoryCustom
+                .GetAccountClient()
+                .LoginAsync(loginDto);
+        }
     }
-
-
 }
 
-}
+

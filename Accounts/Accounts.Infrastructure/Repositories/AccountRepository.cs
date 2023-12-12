@@ -1,4 +1,5 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
+using Accounts.Domain.Constants;
 using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.Enums;
 using Accounts.Infrastructure.Entities;
@@ -36,7 +37,7 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($@"USE StocksDB; SELECT * FROM {TableName} WHERE Email = @Email", connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_ACCOUNTS_BY_EMAIL, connection);
                 cmd.Parameters.Add(new SqlParameter("@Email", email));
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
@@ -65,7 +66,7 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($@"USE StocksDB; UPDATE {TableName} SET Role = @Role WHERE Id = @Id", connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.UPDATE_ROLE, connection);
                 cmd.Parameters.Add(new SqlParameter("@Role", role));
                 cmd.Parameters.Add(new SqlParameter("@Id", id));
                 await cmd.ExecuteNonQueryAsync();
@@ -79,7 +80,7 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($@"USE StocksDB; UPDATE {TableName} SET DateToDelete = '' WHERE Id = @Id", connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.DELETE_DATE_TO_DELETE, connection);
                 cmd.Parameters.Add(new SqlParameter("@Id", id));
                 await cmd.ExecuteNonQueryAsync();
             }

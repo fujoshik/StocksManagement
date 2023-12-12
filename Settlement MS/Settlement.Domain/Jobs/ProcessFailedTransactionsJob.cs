@@ -19,11 +19,18 @@ public class ProcessFailedTransactionsJob : IJob
 
         foreach (var failedTransaction in failedTransactions)
         {
-            var isProcessed = await settlementService.ExecuteDeal(failedTransaction);
-
-            if (isProcessed.Success)
+            var wallet = await settlementRepository.GetWalletById(failedTransaction.WalletId);
+            var transaction = await settlementRepository.GetTransactionById(failedTransaction.Id);
+            if(wallet == null && transaction == null)
             {
-                await settlementRepository.DeleteFailedTransaction(failedTransaction.WalletId);
+                var originalWalletId = failedTransaction.WalletId;
+                var associatedAccount = await settlementRepository.GetAccountById(failedTransaction.AccountId);
+                if(associatedAccount != null)
+                {
+                    failedTransaction.WalletId = associatedAccount.WalletId;
+                    await settlementService.ExecuteDeal(failedTransaction);
+                    await settlementRepository.DeleteFailedTransaction(originalWalletId);
+                }
             }
         }
     }

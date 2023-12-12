@@ -1,16 +1,14 @@
-﻿using System;
+﻿using Gateway.Domain.Abstraction.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace Gateway.Domain.Services
 {
-    public interface ITradeService
-    {
-        void ExecuteTrade(string userId, string symbol, decimal amount, TradeType type);
-        
-    }
+    
 
     public class TradeService : ITradeService
     {
@@ -23,53 +21,53 @@ namespace Gateway.Domain.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public void ExecuteTrade(string userId, string symbol, decimal amount, TradeType type)
-        {
-            try
-            {
+        //public void ExecuteTrade(string userId, string symbol, decimal amount, TradeType type)
+        //{
+        //    try
+        //    {
                 
-                if (!_userService.UserExists(userId))
-                {
-                    _logger.LogWarning($"User {userId} not found. Trade execution skipped.");
-                    return;
-                }
+        //        if (!_userService.UserExists(userId))
+        //        {
+        //            _logger.LogWarning($"User {userId} not found. Trade execution skipped.");
+        //            return;
+        //        }
 
-                decimal tradeValue = CalculateTradeValue(symbol, amount, type);
+        //        decimal tradeValue = CalculateTradeValue(symbol, amount, type);
 
-                _userService.UpdateUserBalance(userId, tradeValue);
+        //        _userService.UpdateUserBalance(userId, tradeValue);
 
-                UpdateUserStatus(userId, tradeValue);
+        //        UpdateUserStatus(userId, tradeValue);
 
-                _logger.LogInformation($"Trade executed for user {userId}. Symbol: {symbol}, Amount: {amount}, Type: {type}, Trade Value: {tradeValue}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error executing trade for user {userId}: {ex.Message}");
-            }
-        }
+        //        _logger.LogInformation($"Trade executed for user {userId}. Symbol: {symbol}, Amount: {amount}, Type: {type}, Trade Value: {tradeValue}");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError($"Error executing trade for user {userId}: {ex.Message}");
+        //    }
+        //}
 
-        private decimal CalculateTradeValue(string symbol, decimal amount, TradeType type)
-        {
-            decimal assetValue = GetAssetValue(symbol);
+        //private decimal CalculateTradeValue(string symbol, decimal amount, TradeType type)
+        //{
+        //    decimal assetValue = GetAssetValue(symbol);
 
-            decimal tradeValue = 0;
+        //    decimal tradeValue = 0;
 
-            switch (type)
-            {
-                case TradeType.Buy:
-                    tradeValue = amount * assetValue;
-                    break;
+        //    switch (type)
+        //    {
+        //        case TradeType.Buy:
+        //            tradeValue = amount * assetValue;
+        //            break;
 
-                case TradeType.Sell:
-                    tradeValue = amount * assetValue;
-                    break;
+        //        case TradeType.Sell:
+        //            tradeValue = amount * assetValue;
+        //            break;
 
-                default:
-                    break;
-            }
+        //        default:
+        //            break;
+        //    }
 
-            return tradeValue;
-        }
+        //    return tradeValue;
+        //}
 
         private decimal GetAssetValue(string symbol)
         {

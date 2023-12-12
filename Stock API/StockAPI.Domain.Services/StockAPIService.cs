@@ -13,6 +13,7 @@ using StockAPI.Domain.Services.Mappers;
 using StockAPI.Domain.Services.Scheduling;
 using StockAPI.Infrastructure.Enums;
 using StockAPI.Infrastructure.Models;
+using StockAPI.Infrastructure.Models.GetGroupedDaily;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,6 +33,7 @@ namespace StockAPI.Domain.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _apiKey;
         private readonly string _groupedDaily;
+        private readonly string _dailyOpenClose;
         private readonly IDataBaseContext _dataBaseContext;
         private readonly IStockMapper _stockMapper;
 
@@ -40,6 +42,7 @@ namespace StockAPI.Domain.Services
             _apiKey = apiKeys.Value.PolygonApiKey;
             _httpClientFactory = httpClientFactory;
             _groupedDaily = endPoints.Value.GroupedDaily;
+            _dailyOpenClose = endPoints.Value.DailyOpenClose;
             _dataBaseContext = dataBaseContext;
             _stockMapper = stockMapper;
         }
@@ -73,6 +76,35 @@ namespace StockAPI.Domain.Services
             catch (Exception ex)
             {
                 Log.Error(ex, "an error occurred while fetching grouped daily data and adding it to the database.");
+                throw;
+            }
+        }
+
+        public async Task<Stock> GetStockByDateAndTickerFromAPI(string date, string stockTicker)
+        {
+            try
+            {
+                string endpointUrl = $"{_dailyOpenClose}{stockTicker}/{date}?adjusted=true&apiKey={_apiKey}";
+
+                HttpResponseMessage response = await _httpClientFactory.CreateClient()
+                    .GetAsync(endpointUrl);
+                response.EnsureSuccessStatusCode();
+
+                string responseData = await response.Content.ReadAsStringAsync();
+
+                StockByDateAndTickerRoot result = JsonConvert.DeserializeObject<StockByDateAndTickerRoot>(responseData);
+
+                var stock = new Stock();
+
+                stock = _stockMapper.StockByDateAndTickerRootToStock(result, date);
+                InsertStockIntoDatabase(stock);
+
+                return stock;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"an error occurred while trying to add {stockTicker} from {date}" +
+                    $" to the database.");
                 throw;
             }
         }
@@ -126,7 +158,7 @@ namespace StockAPI.Domain.Services
             return stocks;
         }
 
-        public async Task<Stock> GetStockByDateAndTickerAsync(string date, string stockTicker)
+        public async Task<Stock> GetStockByDateAndTicker(string date, string stockTicker)
         {
             try
             {
@@ -146,7 +178,8 @@ namespace StockAPI.Domain.Services
                     }
                 }
 
-                Log.Information($"successfully retrieved data for the stock {stockTicker} from {date}.");
+                if (stock != null) Log.Information($"successfully retrieved data for the stock {stockTicker} from {date}.");
+                else stock = await GetStockByDateAndTickerFromAPI(date, stockTicker);
                 return stock;
             }
             catch(Exception ex)
@@ -236,7 +269,7 @@ namespace StockAPI.Domain.Services
             
             catch(Exception ex)
             {
-                Log.Error($"an error occured while trying to retrieve stocks from {date}.");
+                Log.Error(ex, $"an error occured while trying to retrieve stocks from {date}.");
                 throw;
             }
         }

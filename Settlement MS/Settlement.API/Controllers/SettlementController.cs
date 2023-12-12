@@ -18,11 +18,11 @@ namespace Settlement.API.Controllers
         }
 
         [HttpGet("{walletId}")]
-        public async Task<IActionResult> GetWalletBalance(Guid walletId)
+        public async Task<IActionResult> GetWalletBalance(Guid walletId, TransactionRequestDto transaction)
         {
             try
             {
-                var response = await httpClientService.GetWalletBalance(walletId);
+                var response = await httpClientService.GetWalletBalance(walletId, transaction);
                 return Ok(response);
             }
             catch (Exception e)

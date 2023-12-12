@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Gateway.Infrastructure.Entities
 {
-    internal class Account
+    public class Account : BaseEntity
     {
     }
 }
