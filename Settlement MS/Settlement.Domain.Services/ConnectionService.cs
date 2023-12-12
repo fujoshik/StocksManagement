@@ -3,6 +3,10 @@ using Accounts.Domain.DTOs.Wallet;
 using Newtonsoft.Json;
 using StockAPI.Infrastructure.Models;
 using Settlement.Domain.Abstraction.Routes;
+using System.Net;
+using Settlement.Domain.DTOs.Transaction;
+using Settlement.Domain.Abstraction.Repository;
+using Settlement.Domain.DTOs.Settlement;
 
 namespace Settlement.Domain.Services
 {
@@ -11,18 +15,21 @@ namespace Settlement.Domain.Services
         private readonly HttpClient httpClient;
         private readonly IWalletRoutes walletRoutes;
         private readonly IStockRoutes stockRoutes;
+        private readonly ISettlementRepository settlementRepository;
 
-        public ConnectionService(HttpClient httpClient, IWalletRoutes walletRoutes, IStockRoutes stockRoutes)
+        public ConnectionService(HttpClient httpClient, IWalletRoutes walletRoutes,
+            IStockRoutes stockRoutes, ISettlementRepository settlementRepository)
         {
             this.httpClient = httpClient;
             this.walletRoutes = walletRoutes;
             this.stockRoutes = stockRoutes;
+            this.settlementRepository = settlementRepository;
         }
 
-        public async Task<WalletResponseDto> GetWalletBalance(Guid walletId)
+        public async Task<WalletResponseDto> GetWalletBalance(Guid walletId, TransactionRequestDto transaction)
         {
             HttpResponseMessage response = await httpClient.GetAsync(walletRoutes.Routes["GET"].Replace("{id}", walletId.ToString()));
-            if (response.IsSuccessStatusCode)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
                 string data = await response.Content.ReadAsStringAsync();
                 WalletResponseDto wallet = JsonConvert.DeserializeObject<WalletResponseDto>(data);
@@ -30,7 +37,8 @@ namespace Settlement.Domain.Services
             }
             else
             {
-                throw new HttpRequestException($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                await settlementRepository.InsertIntoFailedTransaction(transaction);
+                return new WalletResponseDto();
             }
         }
 

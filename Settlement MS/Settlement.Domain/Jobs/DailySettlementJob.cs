@@ -1,6 +1,7 @@
 ﻿using Quartz;
 using Settlement.Domain.Abstraction.Repository;
 using Settlement.Domain.Constants;
+using System.Linq;
 
 namespace Settlement.Domain
 {
@@ -14,18 +15,24 @@ namespace Settlement.Domain
 
         public async Task Execute(IJobExecutionContext context)
         {
-            var wallets = await settlementRepository.GetAllWallets();
             var handledWallets = await settlementRepository.GetHandledWalletIds();
 
-            foreach (var wallet in wallets)
+            foreach (var handledWallet in handledWallets)
             {
-                if (handledWallets.Contains(wallet.Id))
+                var assocoatedTransaction = await settlementRepository.GetTransactionById(handledWallet.TransactionId);
+
+                if (assocoatedTransaction != null)
                 {
-                    decimal tradeCommission = wallet.CurrentBalance * CommissionPercentageConstant.commissionPercentage;
+                    var wallet = await settlementRepository.GetWalletById(handledWallet.WalletId);
 
-                    wallet.CurrentBalance -= tradeCommission;
+                    if (wallet != null)
+                    {
+                        decimal tradeCommission = wallet.CurrentBalance * CommissionPercentageConstant.commissionPercentage;
 
-                    await settlementRepository.UpdateWalletBalance(wallet.Id, wallet.CurrentBalance);
+                        wallet.CurrentBalance -= tradeCommission;
+
+                        await settlementRepository.UpdateWalletBalance(wallet.Id, wallet.CurrentBalance);
+                    }
                 }
             }
         }
