@@ -27,7 +27,7 @@ namespace Accounts.Domain.Clients
         }
 
         public async Task<decimal> CalculateAverageIncomeAsync(Guid accountId, string ticker)
-        {
+        {   
             var query = $"?userId={accountId}&stockTicker={ticker}";
             var response = await _httpClient.GetAsync(_analyzerApiUrl + "calculate-current-yield" + query);
 
