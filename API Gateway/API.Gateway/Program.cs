@@ -36,7 +36,8 @@ builder.Services.AddScoped<IHttpClientFactoryCustom, HttpClientFactoryCustom>();
 builder.Services.AddHttpContextAccessor()
                 .Configure<HostSettings>(builder.Configuration.GetSection("HostSettings"))
                 .Configure<UserSettings>(builder.Configuration.GetSection("UserSettings"))
-                .Configure<AccountSettings>(builder.Configuration.GetSection("AccountSettings"));
+                .Configure<AccountSettings>(builder.Configuration.GetSection("AccountSettings"))
+                .Configure<StockApiSettings>(builder.Configuration.GetSection("StockApiSettings"));
 
 builder.Services.AddAutoMapper(mc =>
 {

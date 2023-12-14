@@ -35,6 +35,6 @@
 
         public const string GET_SOLD_TRANSACTIONS_BY_ACCOUNTID = $@"{USE_STOCKSDB} SELECT * FROM Transactions WHERE AccountId = @AccountId AND TransactionType = 1";
 
-        public const string GET_TRANSACTIONS_BY_ACCOUNTID_TICKER_AND_DATE = $@"{USE_STOCKSDB} SELECT * FROM Transactions WHERE AccountId = @AccountId AND StockTicker = @Ticker AND DateOfTransaction = @Date";
+        public const string GET_TRANSACTIONS_BY_ACCOUNTID_AND_TICKER = $@"{USE_STOCKSDB} SELECT * FROM Transactions WHERE AccountId = @AccountId AND StockTicker = @Ticker";
     }
 }

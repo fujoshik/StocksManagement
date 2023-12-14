@@ -23,7 +23,8 @@ namespace Accounts.Domain.Services
                 StockTicker = executeDealDto.Ticker,
                 Quantity = executeDealDto.Quantity,
                 TransactionType = executeDealDto.TransactionType,
-                AccountId = executeDealDto.AccountId
+                AccountId = executeDealDto.AccountId,
+                Date = "2023-10-25"
             };
 
             return await _httpClientFactory.SettlementClient().ExecuteDeal(transactionForSettlement);

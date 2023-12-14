@@ -226,7 +226,8 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"DELETE FROM {TableName} WHERE Id = '{id}'", connection);
+                SqlCommand cmd = new SqlCommand($"DELETE FROM {TableName} WHERE Id = @Id", connection);
+                cmd.Parameters.Add(new SqlParameter("@Id", id));
                 await cmd.ExecuteNonQueryAsync();
             }
         }      

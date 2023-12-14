@@ -43,8 +43,10 @@ namespace Accounts.API.Policies.RolePolicy
                     context.Succeed(requirement);
                 }                   
             }
-
-            context.Fail();
+            else
+            {
+                context.Fail();
+            }           
         }
     }
 }

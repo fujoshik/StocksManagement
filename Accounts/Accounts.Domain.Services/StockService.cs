@@ -71,7 +71,19 @@ namespace Accounts.Domain.Services
                 throw new ArgumentException("You don't have enough stocks with this ticker!");
             }
 
-            // connect to the Settlement Api and see
+            var result = await _settlementService.ExecuteDealAsync(new ExecuteDealDto
+            {
+                Ticker = ticker,
+                Quantity = quantity,
+                TransactionType = TransactionType.Sold,
+                AccountId = currentAccount.Id,
+                WalletId = currentAccount.WalletId
+            });
+
+            if (!result.Success)
+            {
+                throw new UnsuccessfulTransactionException();
+            }
         }
     }
 }

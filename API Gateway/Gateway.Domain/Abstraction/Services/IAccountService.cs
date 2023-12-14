@@ -1,5 +1,4 @@
-﻿
-using Gateway.Domain.DTOs.Authentication;
+﻿using Gateway.Domain.DTOs.Authentication;
 using Gateway.Domain.DTOs.User;
 using System;
 using System.Collections.Generic;
@@ -19,5 +18,6 @@ namespace Gateway.Domain.Abstraction.Services
         Task RegisterAsync(RegisterWithSumDTO account);
         Task RegisterTrialAsync(RegisterTrialDTO account);
         Task<string> LoginAsync(LoginDto loginDto);
+        Task VerifyCodeAsync(string code);
     }
 }

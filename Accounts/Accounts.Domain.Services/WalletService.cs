@@ -45,11 +45,13 @@ namespace Accounts.Domain.Services
             if (id == default)
             {
                 id = _userDetailsProvider.GetAccountId();
+
+                var account = await _unitOfWork.AccountRepository.GetByIdAsync<AccountResponseDto>(id);
+
+                return await _unitOfWork.WalletRepository.GetByIdAsync<WalletResponseDto>(account.WalletId);
             }
 
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync<AccountResponseDto>(id);
-
-            return await _unitOfWork.WalletRepository.GetByIdAsync<WalletResponseDto>(account.WalletId);
+            return await _unitOfWork.WalletRepository.GetByIdAsync<WalletResponseDto>(id);
         }
 
         public async Task DepositSumAsync(DepositDto deposit)

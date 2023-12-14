@@ -5,10 +5,12 @@ namespace Gateway.Domain.Abstraction.Services
 {
     public interface IStockService
     {
-        object AnalyzeStockData(string symbol);
-        object GetCurrentPrice(string symbol);
-        decimal GetCurrentStockValue();
-        IEnumerable<HistoricalDataDto> GetHistoricalData();
         Task BuyStockAsync(BuyStockDTO buyStock);
+        Task SellStockAsync(BuyStockDTO sellStock);
+        Task<List<StockDTO>> GetGroupedDailyData();
+        Task<List<StockDTO>> GetStocksByDate(string date);
+        Task<StockDTO> GetStockByDateAndTicker(string date, string stockTicker);
+        Task<StockDTO> GetStockByDateAndTickerFromAPI(string date, string stockTicker);
+        Task<StockMarketCharacteristicsDTO> GetStockMarketCharacteristics(string date);
     }
 }

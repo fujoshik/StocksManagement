@@ -75,14 +75,5 @@ namespace Gateway.Domain.Services
             
             return 100;
         }
-
-
-        private void UpdateUserStatus(string userId, decimal tradeValue)
-        {
-            string newStatus = tradeValue > 10000 ? "VIP" : "Regular";
-
-            _userService.UpdateUserStatus(userId, newStatus, tradeValue);
-        }
     }
-
 }
