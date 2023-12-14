@@ -1,6 +1,5 @@
 ﻿using Accounts.Domain.Abstraction.Clients;
 using Accounts.Domain.DTOs.Settlement;
-using Accounts.Domain.DTOs.Transaction;
 using Accounts.Domain.Settings;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -8,28 +7,29 @@ using System.Net.Http.Json;
 
 namespace Accounts.Domain.Clients
 {
-    public class SettlementClient : ISettlementClient
+    public class AnalyzerClient : IAnalyzerClient
     {
         private HttpClient _httpClient;
-        private readonly string _settlementApiUrl;
+        private readonly string _analyzerApiUrl;
 
-        public SettlementClient(IOptions<HostsSettings> hosts)
+        public AnalyzerClient(IOptions<HostsSettings> hosts)
         {
-            _settlementApiUrl = hosts.Value.Settlement;
+            _analyzerApiUrl = hosts.Value.Analyzer;
             _httpClient = new HttpClient
             {
-                BaseAddress = new Uri(_settlementApiUrl)
+                BaseAddress = new Uri(_analyzerApiUrl)
             };
         }
 
-        public HttpClient GetSettlementClient()
+        public HttpClient GetAnalyzerClient()
         {
             return _httpClient;
         }
 
-        public async Task<SettlementResponseDto> ExecuteDeal(TransactionForSettlementDto transactionSettlement)
+        public async Task<decimal> CalculateAverageIncomeAsync(Guid accountId, string ticker)
         {
-            var response = await _httpClient.PostAsJsonAsync(_settlementApiUrl, transactionSettlement);
+            var query = $"?userId={accountId}&stockTicker={}";
+            var response = await _httpClient.GetAsync(_analyzerApiUrl + "calculate-current-yield" + query);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -38,7 +38,7 @@ namespace Accounts.Domain.Clients
 
             var result = await response.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<SettlementResponseDto>(result);
+            return JsonConvert.DeserializeObject<decimal>(result);
         }
     }
 }

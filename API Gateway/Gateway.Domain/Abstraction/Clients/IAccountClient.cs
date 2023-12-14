@@ -12,10 +12,12 @@ namespace Gateway.Domain.Abstraction.Clients
         Task RegisterAsync(RegisterWithSumDTO registerDto);
         Task RegisterTrialAsync(RegisterTrialDTO registerDto);
         Task<string> LoginAsync(LoginDto loginDto);
+        Task VerifyCodeAsync(string code);
         Task UpdateUser(Guid id, UserWithoutAccountIdDto user);
         Task DepositSumAsync(DepositSumDto deposit);
         Task ChangeCurrencyAsync(Currency currency);
         Task<WalletResponse> GetWalletInfoAsync(Guid id);
         Task BuyStockAsync(BuyStockDTO buyStock);
+        Task SellStockAsync(BuyStockDTO sellStock);
     }
 }

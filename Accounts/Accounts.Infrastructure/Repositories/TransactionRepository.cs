@@ -76,17 +76,15 @@ namespace Accounts.Infrastructure.Repositories
                 .ToList();
         }
 
-        public async Task<List<TransactionResponseDto>> GetTransactionsByAccountIdTickerAndDate(Guid accountId, 
-            string ticker, DateTime date)
+        public async Task<List<TransactionResponseDto>> GetTransactionsByAccountIdAndTickerAsync(Guid accountId, string ticker)
         {
             var dataTable = new DataTable();
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_TRANSACTIONS_BY_ACCOUNTID_TICKER_AND_DATE, connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_TRANSACTIONS_BY_ACCOUNTID_AND_TICKER, connection);
                 cmd.Parameters.Add(new SqlParameter("@AccountId", accountId));
                 cmd.Parameters.Add(new SqlParameter("@Ticker", ticker));
-                cmd.Parameters.Add(new SqlParameter("@Date", date));
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     dataTable.Load(reader);
