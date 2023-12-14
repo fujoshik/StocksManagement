@@ -18,33 +18,33 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             this.httpClientService = httpClientService;
         }
 
-        public async Task<decimal> PercentageChange(Guid userId, string stockTicker, string data)
-        {
-            try
-            {
-                var stockData = await httpClientService.GetStockData(stockTicker, data);
-                var transactionsDetails = await httpClientService.GetTransactionsDetails(userId, stockTicker);
+        //public async Task<decimal> PercentageChange(Guid userId, string stockTicker, string data)
+        //{
+        //    try
+        //    {
+        //        var stockData = await httpClientService.GetStockData(stockTicker, data);
+        //        var getTransactions = await httpClientService.GetTransactions(userId, stockTicker);
 
-                if (stockData == null)
-                {
-                    throw new UserDataNotFoundException();
-                }
+        //        if (stockData == null)
+        //        {
+        //            throw new UserDataNotFoundException();
+        //        }
 
-                decimal? percentageChange = ((decimal)(stockData.OpenPrice * 100) - transactionsDetails.Sum(t => (decimal?)t.Price * 100)) / transactionsDetails.Sum(t => (decimal?)t.Price) * 100;
+        //        decimal? percentageChange = ((decimal)(stockData.OpenPrice * 100));
 
 
 
-                return percentageChange ?? 0;
-            }
-            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
-            {
-                throw new UserDataNotFoundException();
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException($"Error calculating percentage change for stock {stockTicker}.", ex);
-            }
-        }
+        //        return percentageChange ?? 0;
+        //    }
+        //    catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        //    {
+        //        throw new UserDataNotFoundException();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new ApplicationException($"Error calculating percentage change for stock {stockTicker}.", ex);
+        //    }
+        //}
 
 
     }

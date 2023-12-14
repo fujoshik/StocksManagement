@@ -9,13 +9,20 @@ namespace Analyzer.Domain.Abstracions.Interfaces
     {
         Task<WalletDto> GetAccountInfoById(Guid id);
         Task<Stock> GetStockData(string stockTicker, string data);
-        Task<SettlementDto> GetTransactions(TransactionResponseDto transaction);
+        public Task<SettlementDto> GetExecuteDeal(TransactionResponseDto transaction);
+        public Task<TransactionResponseDto> GetTransactions(Guid accountId, string stockTicker);
 
-        public Task<List<TransactionResponseDto>> GetTransactionsDetails(Guid userId, string stockTicker);
+        Task<HttpResponseMessage> GetAsync(string requestUri);
+
+        Task<List<TransactionResponseDto>> GetTransactionsByAccountIdTickerAndDateAsync(Guid accountId, string ticker, DateTime dateTime);
+
+
+        //public Task<List<TransactionResponseDto>> GetTransactionsDetails(Guid userId, string stockTicker);
         HttpClient GetAccountClient();
         HttpClient GetStockAPI();
         HttpClient GetSettlementAPI();
         HttpClient GetTransactionsDetails();
+        HttpClient GetTransactions();
 
         //Task<List<TransactionResponseDto>> GetTransactionsForUserAndStockAsync(Guid userId, string stockTicker);
     }

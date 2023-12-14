@@ -48,11 +48,11 @@ namespace Analyzer.API.Controllers
         }
 
         [HttpPost("get-transaction")]
-        public async Task<IActionResult> GetTransaction(TransactionResponseDto transaction)
+        public async Task<IActionResult> ExecuteDealAsync(TransactionResponseDto transaction)
         {
             try
             {
-                var transactions = await httpClientService.GetTransactions(transaction);
+                var transactions = await httpClientService.GetExecuteDeal(transaction);
                 return Ok(transactions);
             }
             catch (Exception ex)
@@ -61,19 +61,7 @@ namespace Analyzer.API.Controllers
             }
         }
 
-        [HttpGet("transactions/details")]
-        public async Task<IActionResult> GetTransactionsDetails(Guid userId, string stockTicker)
-        {
-            try
-            {
-                var transactions = await httpClientService.GetTransactionsDetails(userId, stockTicker);
-                return Ok(transactions);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error retrieving transactions details: {ex.Message}");
-            }
-        }
+        
 
 
     }

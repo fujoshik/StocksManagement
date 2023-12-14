@@ -38,7 +38,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddScoped<IPercentageChange, PercentageChangeService>();
 builder.Services.AddScoped<IDailyYieldChanges, DailyYieldChangesService>();
 builder.Services.AddScoped<IService, ApiService>();
-builder.Services.AddScoped<ICalculationService, CalculationService>();
+builder.Services.AddScoped<ICalculationService, CalculateCurrentYieldService>();
 builder.Services.AddScoped<IHttpClientService, HttpClientService>();
 
 
