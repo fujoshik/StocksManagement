@@ -1,4 +1,5 @@
 ﻿using Analyzer.API.Analyzer.Domain.DTOs;
+using Analyzer.Domain.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Analyzer.Domain.Abstracions.Interfaces
 {
     public interface IDailyYieldChanges
     {
-        Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks);
+        public List<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stockData);
     }
 
 }

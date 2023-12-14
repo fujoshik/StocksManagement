@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Analyzer.Domain.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 {
@@ -17,39 +19,21 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             this.httpClientService = httpClientService;
         }
 
-        public async Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks)
+        public List<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stockData)
         {
-            try
+            List<decimal> dailyYieldChanges = new List<decimal>();
+
+            for (int i = 1; i < stockData.Count; i++)
             {
-                if (stocks == null || !stocks.Any())
-                {
-                    throw new ArgumentException("Stocks list is null or empty.");
-                }
+                decimal currentStockPrice = stockData[i].StockPrice;
+                decimal previousStockPrice = stockData[i - 1].StockPrice;
 
-                decimal totalDailyChanges = 0;
+                decimal dailyYieldChange = ((currentStockPrice - previousStockPrice) / previousStockPrice) * 100;
 
-                foreach (var stock in stocks)
-                {
-                    var stockData = await httpClientService.GetStockData(stock.Ticker, stock.Date);
-
-                    if (stockData == null)
-                    {
-                        throw new UserDataNotFoundException();
-                    }
-
-                    decimal? dailyChange = ((decimal)(stockData.LowestPrice - stockData.HighestPrice) / stockData.HighestPrice) * 100 ;
-
-                    totalDailyChanges += dailyChange.Value;
-                }
-
-                decimal averageDailyChange = totalDailyChanges / stocks.Count;
-
-                return averageDailyChange;
+                dailyYieldChanges.Add(dailyYieldChange);
             }
-            catch (Exception ex)
-            {
-                throw new ApplicationException("Error calculating average daily yield changes.", ex);
-            }
+
+            return dailyYieldChanges;
         }
     }
 }

@@ -2,6 +2,6 @@
 {
     public class ConnectionConstant
     {
-        public const string connectionString = "Server=Laptop-DPN235VU\\SQLEXPRESS;Database=StocksDB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True";
+       public const string connectionString = "Server=Laptop-DPN235VU\\SQLEXPRESS;Database=StocksDB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True";
     }
 }

@@ -1,6 +1,5 @@
 ﻿
-using Accounts.Domain.DTOs.Transaction;
-using Accounts.Domain.DTOs.Wallet;
+using Analyzer.Domain.DTOs;
 using StockAPI.Infrastructure.Models;
 
 namespace Analyzer.Domain.Abstracions.Interfaces
@@ -9,12 +8,15 @@ namespace Analyzer.Domain.Abstracions.Interfaces
     {
         public interface IService
         {
-            Task<WalletResponseDto> GetAccountInfoById(Guid id);
+            Task<WalletDto> GetAccountInfoById(Guid id);
             Task<Stock> GetStockDataInternal(string stockTicker, string Data);
+            public Task<List<TransactionResponseDto>> GetTransactionList(Guid userId);
+            public Task<Analyzer.Domain.DTOs.TransactionResponseDto> GetTransactions(Guid accountId, string stockTicker, DateTime dateTime);
+            public Task<List<TransactionResponseDto>> GetTransactionsByAccountIdTickerAndDateAsync(Guid accountId, string ticker, DateTime dateTime);
 
-           
+            Task<SettlementDto> GetExecuteDeal(TransactionResponseDto transaction);
             //Task<List<TransactionResponseDto>> GetTransactionsForUserAndStockAsync(Guid userId, string stockTicker);
-            
+
         }
     }
 }

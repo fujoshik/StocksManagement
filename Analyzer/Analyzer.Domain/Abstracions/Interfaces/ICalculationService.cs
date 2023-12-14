@@ -1,24 +1,15 @@
-﻿using Accounts.Domain.DTOs.Transaction;
-using Analyzer.API.Analyzer.Domain.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Analyzer.API.Analyzer.Domain.DTOs;
+using Analyzer.Domain.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Analyzer.Domain.Abstracions.Interfaces
 {
     public interface ICalculationService
     {
-        //Task<decimal> CalculateCurrentYield(Guid userId);
+        public Task<TransactionResponseDto> CalculateCurrentYield(Guid userId, string stockTicker, string data);
 
-        //Task<List<TransactionResponseDto>> GetTransactionsAsync(Guid userId, string stockTicker);
-
-        public Task<decimal> CalculateCurrentYieldForUser(Guid userId, string stockTicker, string Data);
-        public decimal CalculatePortfolioRisk(List<CalculationDTOs> stocks);
-        public Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks);
-        public Task<decimal> PercentageChange(string stockTicker, string data);
+        //public Task<decimal> PercentageChange(Guid userId, string stockTicker, string data);
         public bool IsValidMarketPrice(decimal currentBalance);
-
+        
     }
 }

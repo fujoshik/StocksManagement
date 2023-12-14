@@ -1,17 +1,9 @@
-using System;
-using System.Net.Http;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.Abstracions.Services;
 using Analyzer.API.Analyzer.Domain.Services;
-using Analyzer.API.Analyzer.Domain.DTOs;
 using Analyze.Domain.Service;
-using StockAPI.Infrastructure;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,10 +35,10 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Register your services
-builder.Services.AddScoped<IPercentageChange,PercentageChangeService >();
+builder.Services.AddScoped<IPercentageChange, PercentageChangeService>();
 builder.Services.AddScoped<IDailyYieldChanges, DailyYieldChangesService>();
 builder.Services.AddScoped<IService, ApiService>();
-builder.Services.AddScoped<ICalculationService, CalculationService>();
+builder.Services.AddScoped<ICalculationService, CalculateCurrentYieldService>();
 builder.Services.AddScoped<IHttpClientService, HttpClientService>();
 
 

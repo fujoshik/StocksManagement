@@ -3,6 +3,9 @@ using Accounts.Domain.DTOs.Wallet;
 using StockAPI.Infrastructure.Models;
 using Accounts.Domain.Abstraction.Services;
 using Analyzer.Domain.Abstracions.Interfaces;
+using Analyzer.Domain.DTOs;
+using Analyze.Domain.Service;
+using static Analyzer.Domain.Abstracions.Interfaces.IService;
 
 namespace Analyzer.API.Controllers
 {
@@ -21,7 +24,7 @@ namespace Analyzer.API.Controllers
         [HttpGet("check-accounts")]
         public async Task<IActionResult> GetAccountInfo(Guid id)
         {
-            WalletResponseDto accountData = await httpClientService.GetAccountInfoById(id);
+            WalletDto accountData = await httpClientService.GetAccountInfoById(id);
 
             if (accountData != null)
             {
@@ -44,6 +47,21 @@ namespace Analyzer.API.Controllers
             return StatusCode(500, "Woopsie Daisy! Looks like something went completely wrong. You can try again later. ;)");
         }
 
+        [HttpPost("get-transaction")]
+        public async Task<IActionResult> ExecuteDealAsync(TransactionResponseDto transaction)
+        {
+            try
+            {
+                var transactions = await httpClientService.GetExecuteDeal(transaction);
+                return Ok(transactions);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error retrieving transactions: {ex.Message}");
+            }
+        }
+
+        
 
 
     }

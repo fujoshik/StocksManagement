@@ -2,10 +2,13 @@
 using Analyzer.API.Analyzer.Domain;
 using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
+using Analyzer.Domain.DTOs;
 using Analyzer.API.Analyzer.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 using StockAPI.Infrastructure.Models;
 using System;
+using Analyze.Domain.Service;
+using Analyzer.API.Analyzer.Domain.Abstracions.Services;
 
 namespace Analyzer.API.Controllers
 {
@@ -15,83 +18,83 @@ namespace Analyzer.API.Controllers
     {
         private readonly ICalculationService calculationService;
         private readonly IHttpClientService httpClientService;
-        
+        private readonly IDailyYieldChanges yieldService;
 
-        public CalculationController(ICalculationService calculationService, IHttpClientService httpClientService)
+
+        public CalculationController(ICalculationService calculationService, IHttpClientService httpClientService, IDailyYieldChanges yieldService)
         {
             this.calculationService = calculationService;
             this.httpClientService = httpClientService;
-            
+            this.yieldService = yieldService;
+
         }
 
-        //[HttpGet("calculate-current-yield1")]
-        //public async Task<IActionResult> CalculateCurrentYield1([FromQuery] Guid userId)
+
+
+        [HttpGet("calculate-current-yield")]
+        public async Task<IActionResult> CalculateCurrentYield(Guid userId, string stockTicker, string data)
+        {
+            try
+            {
+                DateTime currentDateTime = DateTime.Now;
+
+                TransactionResponseDto currentYield = await calculationService.CalculateCurrentYield(userId, stockTicker, data);
+
+                return Ok(new { CurrentYield = currentYield, CurrentDateTime = currentDateTime });
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Log the exception details for debugging purposes
+                Console.WriteLine($"InvalidOperationException: {ex.Message}");
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details for debugging purposes
+                Console.WriteLine($"Exception: {ex.Message}");
+                return StatusCode(500, $"Error calculating current yield: {ex.Message}");
+            }
+        }
+
+
+        //[HttpGet("percentage-change")]
+        //public async Task<IActionResult> PercentageChange([FromQuery] Guid userId, [FromQuery] string stockTicker, [FromQuery] string data)
         //{
         //    try
         //    {
-        //        decimal currentYield = await calculationService.CalculateCurrentYieldForUser(userId);
-        //        return Ok(new { CurrentYield = currentYield });
+        //        decimal percentageChange = await calculationService.PercentageChange(userId, stockTicker, data);
+        //        return Ok(new { PercentageChange = percentageChange });
         //    }
-        //    catch (ArgumentException ex)
+        //    catch (UserDataNotFoundException ex)
         //    {
-        //        return BadRequest(ex.Message);
+        //        return NotFound($"User data not found: {ex.Message}");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest($"Error calculating percentage change: {ex.Message}");
         //    }
         //}
 
-        [HttpGet("calculate-current-yield")]
-        public async Task<IActionResult> CalculateCurrentYield([FromQuery] Guid userId, string stockTicker, string Data)
-        {
-            try
-            {
-                decimal currentYield = await calculationService.CalculateCurrentYieldForUser(userId,stockTicker,Data);
-                return Ok(new { CurrentYield = currentYield });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpGet("percentage-change")]
-        public async Task<IActionResult> PercentageChange([FromQuery] string stockTicker, [FromQuery] string data)
-        {
-            try
-            {
-                decimal percentageChange = await calculationService.PercentageChange(stockTicker, data);
-                return Ok(new { PercentageChange = percentageChange });
-            }
-            catch (UserDataNotFoundException ex)
-            {
-                return NotFound($"User data not found: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Error calculating percentage change: {ex.Message}");
-            }
-        }
-
-
-        [HttpGet("calculate-portfolio-risk")]
-        public IActionResult CalculatePortfolioRisk([FromBody] List<CalculationDTOs> stocks)
-        {
-            decimal portfolioRisk = calculationService.CalculatePortfolioRisk(stocks);
-            return Ok(new { PortfolioRisk = portfolioRisk });
-        }
 
         [HttpGet("calculate-daily-yield-changes")]
-        public async Task<IActionResult> CalculateDailyYieldChanges([FromBody] List<CalculationDTOs> stocks)
+        public IActionResult CalculateDailyYieldChanges([FromBody] List<CalculationDTOs> stockData)
         {
             try
             {
-                decimal dailyYieldChanges = await calculationService.CalculateDailyYieldChanges(stocks);
-                return Ok(new { DailyYieldChanges = dailyYieldChanges });
+                if (stockData == null || stockData.Count < 2)
+                {
+                    return BadRequest("Insufficient data for calculating daily yield changes.");
+                }
+
+                List<decimal> result = yieldService.CalculateDailyYieldChanges(stockData);
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error calculating daily yield changes: {ex.Message}");
+                return StatusCode(500, $"Error calculating daily yield changes: {ex.Message}");
             }
         }
-
 
 
 
