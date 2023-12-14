@@ -72,6 +72,16 @@ namespace Gateway.Domain.Clients
             return await response.Content.ReadAsStringAsync();
         }
 
+        public async Task VerifyCodeAsync(string code)
+        {
+            var response = await _httpClient.PostAsJsonAsync(_accountApiUrl + _accountSettings.VerifyCodeRoute, code);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
+            }
+        }
+
         public async Task UpdateUser(Guid id, UserWithoutAccountIdDto user)
         {
             AddAuthorizationHeader();
@@ -131,6 +141,20 @@ namespace Gateway.Domain.Clients
             var query = string.Format($"?ticker={buyStock.Ticker}&quantity={buyStock.Quantity}");
 
             var response = await _httpClient.PostAsync(_accountApiUrl + _accountSettings.BuyStockRoute + query, null);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
+            }
+        }
+
+        public async Task SellStockAsync(BuyStockDTO sellStock)
+        {
+            AddAuthorizationHeader();
+
+            var query = string.Format($"?ticker={sellStock.Ticker}&quantity={sellStock.Quantity}");
+
+            var response = await _httpClient.PostAsync(_accountApiUrl + _accountSettings.SellStockRoute + query, null);
 
             if (!response.IsSuccessStatusCode)
             {

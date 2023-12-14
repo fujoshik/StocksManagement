@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Gateway.Domain.Abstraction.Services;
+﻿using Gateway.Domain.Abstraction.Services;
 using Gateway.Domain.DTOs.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +46,14 @@ namespace API.Gateway.Controllers
         public async Task<IActionResult> RegisterTrial(RegisterTrialDTO account)
         {
             await _accountService.RegisterTrialAsync(account);
+
+            return NoContent();
+        }
+
+        [HttpPost("verify")]
+        public async Task<ActionResult> VerifyCode(string code)
+        {
+            await _accountService.VerifyCodeAsync(code);
 
             return NoContent();
         }

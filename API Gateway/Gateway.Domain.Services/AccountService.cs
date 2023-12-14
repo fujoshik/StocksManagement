@@ -89,6 +89,13 @@ namespace Gateway.Domain.Services
                 .GetAccountClient()
                 .LoginAsync(loginDto);
         }
+
+        public async Task VerifyCodeAsync(string code)
+        {
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .VerifyCodeAsync(code);
+        }
     }
 }
 

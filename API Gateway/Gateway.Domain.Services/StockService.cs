@@ -22,6 +22,13 @@ namespace Gateway.Domain.Services
                 .BuyStockAsync(buyStock);
         }
 
+        public async Task SellStockAsync(BuyStockDTO sellStock)
+        {
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .SellStockAsync(sellStock);
+        }
+
         public async Task<List<StockDTO>> GetGroupedDailyData()
         {
             return await _httpClientFactoryCustom

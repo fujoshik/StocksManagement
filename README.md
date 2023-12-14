@@ -14,23 +14,58 @@ Users without registration on the platform are only able to view stock prices.
 
 ## Gateway
 
+### Routes
+#### Authentication  
+**POST api/authentication/register** -> Register with sum  
+**POST api/authentication/register-trial** -> Register without sum (trial)  
+**POST api/authentication/verify** -> Endpoint for verifying the registration with the token that was send to the email  
+**POST api/authentication/login** -> Login  
+
+#### Wallet  
+**GET api/wallets/{id?}** -> Endpoint for getting wallet information (id is not required; if you do not input id, it will automatically get the logged in user's wallet information)  
+**POST api/wallets/deposit** -> Endpoint for depositing money *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*  
+**POST api/wallets/{currency}** -> Endpoint for changing the wallet currency, by default the currency is USD *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*   
+
+#### Stocks  
+**POST api/stocks/buy-stock** -> Endpoint for buying a certain stock by providing a stock ticker and quantity  
+**POST api/stocks/sell-stock** -> Endpoint for selling stocks which the user owns  
+**GET api/stocks/grouped-daily** ->  Gets the daily data from an external API and groups it
+**GET api/stocks/get-stock-by-date-and-ticker-from-api** ->  Gets stocks by date and stock ticker from an external API
+**GET api/stocks/get-stock-by-date-and-ticker** -> Gets stocks by date and stock ticker from a local database
+**GET api/stocks/get-stocks-by-date** ->  Gets stocks by date from an external API
+**GET api/stocks/get-market-characteristics** -> gets the market characteristics from a local database
+
 ## Accounts API
 
 ### Routes
-**Authentication**  
-accounts-api/authentication/register -> Register with sum  
-accounts-api/authentication/register-trial -> Register without sum (trial)  
-accounts-api/authentication/verify -> Endpoint for verifying the registration with the token that was send to the email  
-accounts-api/authentication/login -> Login  
-accounts-api/authentication/check-token -> Endpoint that checks whether the provided token is valid  
+#### Authentication  
+**POST accounts-api/authentication/register** -> Register with sum  
+**POST accounts-api/authentication/register-trial** -> Register without sum (trial)  
+**POST accounts-api/authentication/verify** -> Endpoint for verifying the registration with the token that was send to the email  
+**POST accounts-api/authentication/login** -> Login  
+**POST accounts-api/authentication/check-token** -> Endpoint that checks whether the provided token is valid  
 
-**Wallet**  
-accounts-api/wallets/deposit -> Endpoint for depositing money *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*  
-accounts-api/wallets/{id} -> Endpoint for getting wallet information (id is not required; if you do not input id, it will automatically get the logged in user's wallet information)  
-accounts-api/wallets/{currency} -> Endpoint for changing the wallet currency, by default the currency is USD *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*   
+#### Wallet  
+**GET accounts-api/wallets/{id?}** -> Endpoint for getting wallet information (id is not required; if you do not input id, it will automatically get the logged in user's wallet information)  
+**POST accounts-api/wallets/deposit** -> Endpoint for depositing money *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*  
+**POST accounts-api/wallets/{currency}** -> Endpoint for changing the wallet currency, by default the currency is USD *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*   
+
+#### Stocks  
+**POST accounts-api/stocks/buy-stock** -> Endpoint for buying a certain stock by providing a stock ticker and quantity  
+**POST accounts-api/stocks/sell-stock** -> Endpoint for selling stocks which the user owns  
 
 ## StockAPI
 
+### Routes
+**GET api/StockAPI/grouped-daily** ->  Gets the daily data from an external API and groups it
+**GET api/StockAPI/get-stock-by-date-and-ticker-from-api** ->  Gets stocks by date and stock ticker from an external API
+**GET api/StockAPI/get-stock-by-date-and-ticker** -> Gets stocks by date and stock ticker from a local database
+**GET api/StockAPI/get-stocks-by-date** ->  Gets stocks by date from an external API
+**GET api/StockAPI/get-market-characteristics** -> gets the market characteristics from a local database
+
 ## Settlement API
+
+### Routes
+**POST settlements-api/** -> Executes the transaction of buying or selling stocks
 
 ## Analyzer API

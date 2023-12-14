@@ -29,7 +29,7 @@ namespace API.Gateway.Controllers
         [HttpPost("sell-stock")]
         public async Task<IActionResult> SellStock([FromQuery] BuyStockDTO sellStock)
         {
-            //await _stockService.SellStockAsync(ticker, quantity);
+            await _stockService.SellStockAsync(sellStock);
 
             return Ok();
         }

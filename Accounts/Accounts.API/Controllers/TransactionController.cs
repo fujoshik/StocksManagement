@@ -1,10 +1,11 @@
 ﻿using Accounts.Domain.Abstraction.Services;
+using Accounts.Domain.DTOs.Transaction;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Accounts.API.Controllers
 {
-    [Route("accounts-api/transactions")]
     [ApiController]
+    [Route("accounts-api/transactions")]   
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
@@ -15,9 +16,10 @@ namespace Accounts.API.Controllers
         }
 
         [HttpGet("get-transactions")]
-        public async Task GetTransactionsAsync(Guid accountId, string stockTicker, DateTime dateTime)
+        public async Task<ActionResult<List<TransactionResponseDto>>> GetTransactionsAsync([FromQuery] Guid accountId, 
+            [FromQuery] string stockTicker)
         {
-            await _transactionService.GetTransactionsByAccountIdTickerAndDateAsync(accountId, stockTicker, dateTime);
+            return Ok(await _transactionService.GetTransactionsByAccountIdAndTickerAsync(accountId, stockTicker));
         }
     }
 }

@@ -6,6 +6,7 @@ namespace Gateway.Domain.Abstraction.Services
     public interface IStockService
     {
         Task BuyStockAsync(BuyStockDTO buyStock);
+        Task SellStockAsync(BuyStockDTO sellStock);
         Task<List<StockDTO>> GetGroupedDailyData();
         Task<List<StockDTO>> GetStocksByDate(string date);
         Task<StockDTO> GetStockByDateAndTicker(string date, string stockTicker);
