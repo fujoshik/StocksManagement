@@ -12,11 +12,8 @@ namespace Analyzer.Domain.Abstracions.Interfaces
         Task<List<Stock>> GetStock(string stockTicker, string startDate, string endDate);
         public Task<SettlementDto> GetExecuteDeal(TransactionResponseDto transaction);
         public Task<List<TransactionResponseDto>> GetTransactions(Guid accountId, string stockTicker);
-
         Task<HttpResponseMessage> GetAsync(string requestUri);
-
         Task<List<TransactionResponseDto>> GetTransactionsByAccountIdTickerAndDateAsync(Guid accountId, string ticker, DateTime dateTime);
-
 
         HttpClient GetAccountClient();
         HttpClient GetStockAPI();

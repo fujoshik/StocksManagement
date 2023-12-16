@@ -1,6 +1,5 @@
 ﻿using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.Domain.DTOs;
-using Accounts.Domain.Enums;
 using StockAPI.Infrastructure.Models;
 
 public class DailyYieldChangesService : IDailyYieldChanges

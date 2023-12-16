@@ -1,8 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Analyzer.Domain.Abstracions.Interfaces;
 using StockAPI.Infrastructure.Models;
 using Analyzer.Domain.Constants;
@@ -102,8 +98,6 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
                 }
             }
         }
-
-
 
         public async Task<List<TransactionResponseDto>> GetTransactions(Guid accountId, string stockTicker)
         {
@@ -263,4 +257,3 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
         }
     }
 }
-

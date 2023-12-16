@@ -51,8 +51,7 @@ namespace Analyzer.API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception: {ex.Message}");
-                return StatusCode(500, $"Error calculating current yield: {ex.Message}");
+                return BadRequest($"Error calculating percentage change: {ex.Message}");
             }
         }
 
@@ -86,11 +85,9 @@ namespace Analyzer.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error calculating daily yield changes: {ex.Message}");
+                return BadRequest($"Error calculating percentage change: {ex.Message}");
             }
         }
-
-
 
     }
 }

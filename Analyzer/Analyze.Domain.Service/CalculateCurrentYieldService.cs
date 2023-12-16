@@ -70,9 +70,6 @@ namespace Analyzer.API.Analyzer.Domain.Services
             }
         }
 
-
-
-
         public async Task<List<TransactionResponseDto>> GetTransactionsByAccountIdTickerAndDateAsync(Guid accountId, string ticker, DateTime dateTime)
         {
             try
@@ -86,32 +83,19 @@ namespace Analyzer.API.Analyzer.Domain.Services
                 {
                     var content = await response.Content.ReadAsStringAsync();
 
-                    // Deserialize the content into a List<TransactionResponseDto> using JSON deserialization
                     var transactions = JsonConvert.DeserializeObject<List<TransactionResponseDto>>(content);
                     return transactions;
                 }
                 else
                 {
-                    // Handle the case where the API request was not successful
                     throw new HttpRequestException($"Failed to retrieve transactions. Status code: {response.StatusCode}");
                 }
             }
             catch (Exception ex)
             {
-                // Handle any exceptions that might occur during the process
                 throw new InvalidOperationException($"Error retrieving transactions: {ex.Message}", ex);
             }
         }
-    
-
-
-
-
-
-    //public async Task<decimal> PercentageChange(Guid userId, string stockTicker, string data)
-    //{
-    //    return await percentageChangeService.PercentageChange(userId, stockTicker, data);
-    //}
 
     public bool IsValidMarketPrice(decimal marketPrice)
         {

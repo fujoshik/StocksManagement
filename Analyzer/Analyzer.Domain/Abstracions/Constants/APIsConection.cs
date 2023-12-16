@@ -16,5 +16,3 @@ namespace Analyzer.Domain.Constants
 
     }
 }
-
-//$"/api/StockAPI/get-stock-by-date-and-ticker?date={Data}&stockTicker={stockTicker}"
