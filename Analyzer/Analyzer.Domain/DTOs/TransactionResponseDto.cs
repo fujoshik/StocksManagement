@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Analyzer.Domain.DTOs
 {
     using Accounts.Domain.Enums;
-    using Analyzer.API.Analyzer.Domain.DTOs;
 
     public class TransactionResponseDto
     {

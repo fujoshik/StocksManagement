@@ -1,39 +1,61 @@
 ﻿using Analyzer.Domain.Abstracions.Interfaces;
-using Analyzer.API.Analyzer.Domain.DTOs;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Analyzer.Domain.DTOs;
-using Microsoft.AspNetCore.Mvc;
+using Accounts.Domain.Enums;
+using StockAPI.Infrastructure.Models;
 
-namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
+public class DailyYieldChangesService : IDailyYieldChanges
 {
-    public class DailyYieldChangesService : IDailyYieldChanges
+    private readonly IHttpClientService httpClientService;
+
+    public DailyYieldChangesService(IHttpClientService httpClientService)
     {
-        private readonly IHttpClientService httpClientService;
+        this.httpClientService = httpClientService;
+    }
 
-        public DailyYieldChangesService(IHttpClientService httpClientService)
+    public async Task<List<DailyYieldChangeDto>> DailyYieldChanges(Guid accountId, string stockTicker)
+    {
+        try
         {
-            this.httpClientService = httpClientService;
-        }
+            var transactions = await httpClientService.GetTransactions(accountId, stockTicker);
 
-        public List<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stockData)
-        {
-            List<decimal> dailyYieldChanges = new List<decimal>();
+            var stockPrices = await httpClientService.GetStock(stockTicker, transactions.Min(t => t.Date), transactions.Max(t => t.Date));
 
-            for (int i = 1; i < stockData.Count; i++)
-            {
-                decimal currentStockPrice = stockData[i].StockPrice;
-                decimal previousStockPrice = stockData[i - 1].StockPrice;
-
-                decimal dailyYieldChange = ((currentStockPrice - previousStockPrice) / previousStockPrice) * 100;
-
-                dailyYieldChanges.Add(dailyYieldChange);
-            }
+            var dailyYieldChanges = CalculateDailyYieldChanges(transactions, stockPrices);
 
             return dailyYieldChanges;
         }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Error calculating daily yield changes: {ex.Message}");
+        }
     }
+
+    private List<DailyYieldChangeDto> CalculateDailyYieldChanges(List<TransactionResponseDto> transactions, List<Stock> stockPrices)
+    {
+        var dailyYieldChanges = new List<DailyYieldChangeDto>();
+
+        foreach (var transaction in transactions)
+        {
+            var stockPrice = stockPrices.FirstOrDefault(sp => sp.Date == transaction.Date);
+
+            if (stockPrice != null)
+            {
+                var yieldChange = new DailyYieldChangeDto
+                {
+                    Date = transaction.Date,
+                    StockTicker = transaction.StockTicker,
+                    TransactionType = transaction.TransactionType,
+                    Quantity = transaction.Quantity,
+                    PurchasePrice = (decimal)(stockPrice.OpenPrice ?? 0),
+                    CurrentPrice = stockPrice.ClosestPrice ?? 0
+                };
+
+                dailyYieldChanges.Add(yieldChange);
+            }
+        }
+
+        return dailyYieldChanges;
+    }
+
+   
 }

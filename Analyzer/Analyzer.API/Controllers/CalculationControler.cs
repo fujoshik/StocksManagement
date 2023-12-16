@@ -1,4 +1,4 @@
-﻿using Accounts.Domain.DTOs.Wallet;
+using Accounts.Domain.DTOs.Wallet;
 using Analyzer.API.Analyzer.Domain;
 using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;
@@ -77,17 +77,11 @@ namespace Analyzer.API.Controllers
 
 
         [HttpGet("calculate-daily-yield-changes")]
-        public IActionResult CalculateDailyYieldChanges([FromBody] List<CalculationDTOs> stockData)
+        public async Task<IActionResult> CalculateDailyYieldChanges(Guid accountId, string stockTicker)
         {
             try
             {
-                if (stockData == null || stockData.Count < 2)
-                {
-                    return BadRequest("Insufficient data for calculating daily yield changes.");
-                }
-
-                List<decimal> result = yieldService.CalculateDailyYieldChanges(stockData);
-
+                var result = await yieldService.DailyYieldChanges(accountId, stockTicker);
                 return Ok(result);
             }
             catch (Exception ex)

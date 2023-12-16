@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Analyzer.Domain.Abstracions.Interfaces;
 using StockAPI.Infrastructure.Models;
 using Accounts.Domain.DTOs.Transaction;
@@ -45,7 +45,8 @@ namespace Analyze.Domain.Service
             {
                 string getUrl = APIsConection.GetStock
                     .Replace("{date}", Data)
-                    .Replace("{stockTicker}", stockTicker);
+                    .Replace("{stockTicker}", stockTicker)
+                    .Replace("{openPrice}",openPrice);
 
 
                 HttpResponseMessage response = await httpClient.GetAsync(getUrl);
@@ -63,10 +64,20 @@ namespace Analyze.Domain.Service
             }
         }
 
+        public async Task<List<Stock>> GetStock(string stockTicker, string startDate, string endDate)
+        {
+            try
+            {
+                return await httpClientAccaounts.GetStock(stockTicker, startDate, endDate);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error fetching stock data: {ex.Message}");
+            }
+        }
 
 
-
-        public async Task<Analyzer.Domain.DTOs.TransactionResponseDto> GetTransactions(string stockTicker)
+        public async Task<List<Analyzer.Domain.DTOs.TransactionResponseDto>> GetTransactions(Guid accountId, string stockTicker)
         {
             try
             {
@@ -85,16 +96,8 @@ namespace Analyze.Domain.Service
 
                         if (!string.IsNullOrWhiteSpace(data))
                         {
-                            Analyzer.Domain.DTOs.TransactionResponseDto transactionData = JsonConvert.DeserializeObject<Analyzer.Domain.DTOs.TransactionResponseDto>(data);
-
-                            if (transactionData != null)
-                            {
-                                return transactionData;
-                            }
-                            else
-                            {
-                                throw new InvalidOperationException("Deserialization resulted in a null TransactionResponseDto.");
-                            }
+                            var transactionData = JsonConvert.DeserializeObject<List<Analyzer.Domain.DTOs.TransactionResponseDto>>(data);
+                            return transactionData;
                         }
                         else
                         {
@@ -112,7 +115,85 @@ namespace Analyze.Domain.Service
                 throw new InvalidOperationException($"Error fetching or deserializing transaction data: {ex.Message}");
             }
         }
+
+
+
+
+
+        //public async Task<SettlementDto> GetExecuteDeal(Analyzer.Domain.DTOs.TransactionResponseDto transaction)
+        //{
+        //    using (var httpClient = new HttpClient())
+        //    {
+        //        var apiUrl = APIsConection.GetSettlementAPI;
+        //        var response = await httpClient.PostAsJsonAsync(apiUrl, transaction);
+
+        //        if (!response.IsSuccessStatusCode)
+        //        {
+        //            throw new HttpRequestException("Unsuccessful request");
+        //        }
+
+        //        var result = await response.Content.ReadAsStringAsync();
+
+        //        return JsonConvert.DeserializeObject<SettlementDto>(result);
+        //    }
+        //}
+
+
+        //public async Task<SettlementDto> ExecuteDealAsync(ExecuteDealDto executeDealDto)
+        //{
+        //    using (var httpClient = new HttpClient())
+        //    {
+        //        var transactionForSettlement = new TransactionForSettlementDto()
+        //        {
+        //            WalletId = executeDealDto.WalletId,
+        //            StockTicker = executeDealDto.Ticker,
+        //            Quantity = executeDealDto.Quantity,
+        //            TransactionType = executeDealDto.TransactionType,
+        //            AccountId = executeDealDto.AccountId
+        //        };
+
+        //        var transactionsInstance = new GetTransactions(); 
+        //        return await transactionsInstance.ExecuteDeal(transactionForSettlement);
+        //    }
+        //}
+
+
+
+
+
+        public async Task<List<Analyzer.Domain.DTOs.TransactionResponseDto>> GetTransactionsDetails(Guid userId, string stockTicker)
+        {
+            try
+            {
+                using (var httpClient = httpClientAccaounts.GetSettlementAPI())
+                {
+                    string apiUrl = $"{APIsConection.GetSettlementAPI}/transactions?userId={userId}&stockTicker={stockTicker}";
+
+                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string transactionDataJson = await response.Content.ReadAsStringAsync();
+                        List<Analyzer.Domain.DTOs.TransactionResponseDto> transactions = JsonConvert.DeserializeObject<List<Analyzer.Domain.DTOs.TransactionResponseDto>>(transactionDataJson);
+
+                        // Extract only Quantity and Price properties
+                        var transactionsDetails = transactions.Select(t => new Analyzer.Domain.DTOs.TransactionResponseDto
+                        {
+                            Quantity = t.Quantity, 
+                        }).ToList();
+
+                        return transactionsDetails;
+                    }
+                    else
+                    {
+                        throw new HttpRequestException($"Failed to get transactions. Status code: {response.StatusCode}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }
-
-
