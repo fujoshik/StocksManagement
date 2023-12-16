@@ -13,6 +13,5 @@ namespace Analyzer.Domain.DTOs
         public decimal CurrentBalance { get; set; }
         public CurrencyCode CurrencyCode { get; set; }
 
-        public UserDataDto? UserData { get; set; }
     }
 }

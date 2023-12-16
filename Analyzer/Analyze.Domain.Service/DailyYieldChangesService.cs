@@ -1,39 +1,67 @@
 ﻿using Analyzer.Domain.Abstracions.Interfaces;
-using Analyzer.API.Analyzer.Domain.DTOs;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Analyzer.Domain.DTOs;
-using Microsoft.AspNetCore.Mvc;
+using Accounts.Domain.Enums;
+using StockAPI.Infrastructure.Models;
 
-namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
+public class DailyYieldChangesService : IDailyYieldChanges
 {
-    public class DailyYieldChangesService : IDailyYieldChanges
+    private readonly IHttpClientService httpClientService;
+
+    public DailyYieldChangesService(IHttpClientService httpClientService)
     {
-        private readonly IHttpClientService httpClientService;
+        this.httpClientService = httpClientService;
+    }
 
-        public DailyYieldChangesService(IHttpClientService httpClientService)
+    public async Task<List<DailyYieldChangeDto>> DailyYieldChanges(Guid accountId, string stockTicker)
+    {
+        try
         {
-            this.httpClientService = httpClientService;
-        }
+            // Получаваме транзакциите за дадения акционер и символ на акцията
+            var transactions = await httpClientService.GetTransactions(accountId, stockTicker);
 
-        public List<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stockData)
-        {
-            List<decimal> dailyYieldChanges = new List<decimal>();
 
-            for (int i = 1; i < stockData.Count; i++)
-            {
-                decimal currentStockPrice = stockData[i].StockPrice;
-                decimal previousStockPrice = stockData[i - 1].StockPrice;
+            // Получаваме цените на акцията за всеки ден в рамките на периода на транзакциите
+            var stockPrices = await httpClientService.GetStock(stockTicker, transactions.Min(t => t.Date), transactions.Max(t => t.Date));
 
-                decimal dailyYieldChange = ((currentStockPrice - previousStockPrice) / previousStockPrice) * 100;
-
-                dailyYieldChanges.Add(dailyYieldChange);
-            }
+            // Изчисляваме промените в дохода за всеки ден
+            var dailyYieldChanges = CalculateDailyYieldChanges(transactions, stockPrices);
 
             return dailyYieldChanges;
         }
+        catch (Exception ex)
+        {
+            // Обработка на грешки
+            throw new InvalidOperationException($"Error calculating daily yield changes: {ex.Message}");
+        }
     }
+
+    // Преименувайте метода тук
+    private List<DailyYieldChangeDto> CalculateDailyYieldChanges(List<TransactionResponseDto> transactions, List<Stock> stockPrices)
+    {
+        var dailyYieldChanges = new List<DailyYieldChangeDto>();
+
+        foreach (var transaction in transactions)
+        {
+            var stockPrice = stockPrices.FirstOrDefault(sp => sp.Date == transaction.Date);
+
+            if (stockPrice != null)
+            {
+                var yieldChange = new DailyYieldChangeDto
+                {
+                    Date = transaction.Date,
+                    StockTicker = transaction.StockTicker,
+                    TransactionType = transaction.TransactionType,
+                    Quantity = transaction.Quantity,
+                    PurchasePrice = (decimal)(stockPrice.OpenPrice ?? 0),
+                    CurrentPrice = stockPrice.ClosestPrice ?? 0
+                };
+
+                dailyYieldChanges.Add(yieldChange);
+            }
+        }
+
+        return dailyYieldChanges;
+    }
+
+   
 }
