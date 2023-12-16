@@ -13,8 +13,6 @@ namespace Analyzer.Domain.Abstracions.Interfaces
     {
         Task<List<DailyYieldChangeDto>> DailyYieldChanges(Guid accountId, string stockTicker);
 
-       // Task<List<DailyYieldChangeDto>> DailyYieldChanges(Guid accountId, string stockTicker);
-        //Task<List<DailyYieldChangeDto>> CalculateAnotherDailyYieldChanges(Guid accountId, string stockTicker);
     }
 
 }

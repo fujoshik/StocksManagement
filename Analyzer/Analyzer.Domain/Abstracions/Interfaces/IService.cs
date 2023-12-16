@@ -15,7 +15,6 @@ namespace Analyzer.Domain.Abstracions.Interfaces
             public Task<List<TransactionResponseDto>> GetTransactionsByAccountIdTickerAndDateAsync(Guid accountId, string ticker, DateTime dateTime);
 
             Task<SettlementDto> GetExecuteDeal(TransactionResponseDto transaction);
-            //Task<List<TransactionResponseDto>> GetTransactionsForUserAndStockAsync(Guid userId, string stockTicker);
 
         }
     }

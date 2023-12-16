@@ -96,7 +96,6 @@ namespace Analyze.Domain.Service
 
                         if (!string.IsNullOrWhiteSpace(data))
                         {
-                            // Specify the full namespace for clarity
                             var transactionData = JsonConvert.DeserializeObject<List<Analyzer.Domain.DTOs.TransactionResponseDto>>(data);
                             return transactionData;
                         }

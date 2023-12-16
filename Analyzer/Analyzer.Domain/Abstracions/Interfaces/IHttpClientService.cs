@@ -18,7 +18,6 @@ namespace Analyzer.Domain.Abstracions.Interfaces
         Task<List<TransactionResponseDto>> GetTransactionsByAccountIdTickerAndDateAsync(Guid accountId, string ticker, DateTime dateTime);
 
 
-        //public Task<List<TransactionResponseDto>> GetTransactionsDetails(Guid userId, string stockTicker);
         HttpClient GetAccountClient();
         HttpClient GetStockAPI();
         public HttpClient GetStock();
@@ -26,6 +25,5 @@ namespace Analyzer.Domain.Abstracions.Interfaces
         HttpClient GetTransactionsDetails();
         HttpClient GetTransactions();
 
-        //Task<List<TransactionResponseDto>> GetTransactionsForUserAndStockAsync(Guid userId, string stockTicker);
     }
 }

@@ -2,17 +2,17 @@
 
 namespace Analyzer.Domain.DTOs
 {
-        using Accounts.Domain.Enums;  // Ако използвате TransactionType
+        using Accounts.Domain.Enums;  
 
         public class DailyYieldChangeDto
         {
-            public string Date { get; set; }  // Дата на транзакцията
-            public string StockTicker { get; set; }  // Символ на акцията
-            public TransactionType TransactionType { get; set; }  // Тип на транзакцията (покупка или продажба)
-            public int Quantity { get; set; }  // Брой закупени/продадени акции
-            public decimal PurchasePrice { get; set; }  // Цена на закупената акция
-            public decimal CurrentPrice { get; set; }  // Текуща цена на акцията
-            public decimal DailyYield { get; set; }  // Промяна в дохода за деня (CurrentPrice - PurchasePrice)
+            public string Date { get; set; } 
+            public string StockTicker { get; set; }  
+            public TransactionType TransactionType { get; set; }  
+            public int Quantity { get; set; } 
+            public decimal PurchasePrice { get; set; }  
+            public decimal CurrentPrice { get; set; } 
+            public decimal DailyYield { get; set; } 
         }
     
 }

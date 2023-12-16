@@ -98,7 +98,6 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
                 }
                 catch (Exception ex)
                 {
-                    // Handle exceptions
                     throw new InvalidOperationException($"Error fetching stock data: {ex.Message}");
                 }
             }
