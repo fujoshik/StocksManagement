@@ -1,4 +1,4 @@
-﻿using Accounts.Domain.DTOs.Wallet;
+using Accounts.Domain.DTOs.Wallet;
 using Analyzer.API.Analyzer.Domain;
 using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.API.Analyzer.Domain.DTOs;

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Analyzer.Domain.Abstracions.Interfaces;
 using StockAPI.Infrastructure.Models;
 using Accounts.Domain.DTOs.Transaction;
@@ -195,9 +195,5 @@ namespace Analyze.Domain.Service
                 throw;
             }
         }
-
-
-
-
     }
 }
