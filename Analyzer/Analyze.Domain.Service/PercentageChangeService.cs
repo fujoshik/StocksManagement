@@ -32,8 +32,6 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 
                 decimal? percentageChange = ((decimal)(stockData.OpenPrice * 100));
 
-
-
                 return percentageChange ?? 0;
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -45,7 +43,6 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
                 throw new ApplicationException($"Error calculating percentage change for stock {stockTicker}.", ex);
             }
         }
-
 
     }
 }
