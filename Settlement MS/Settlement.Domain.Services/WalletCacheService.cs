@@ -1,13 +1,7 @@
 ﻿using Accounts.Domain.DTOs.Wallet;
-using Amazon.Runtime.Internal.Util;
 using Microsoft.Extensions.Caching.Memory;
 using Settlement.Domain.Abstraction.Repository;
 using Settlement.Domain.Abstraction.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Settlement.Domain.Services
 {

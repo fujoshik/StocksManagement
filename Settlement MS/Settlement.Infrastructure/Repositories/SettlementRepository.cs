@@ -4,11 +4,9 @@ using Accounts.Domain.Enums;
 using Settlement.Domain.Abstraction.Repository;
 using Settlement.Domain.Constants;
 using Settlement.Domain.Constants.Queries;
-using Settlement.Domain.DTOs.FailedTransaction;
 using Settlement.Domain.DTOs.Handled;
 using Settlement.Domain.DTOs.Settlement;
 using Settlement.Domain.DTOs.Transaction;
-using Settlement.Domain.Enums;
 using System.Data.SqlClient;
 
 namespace Settlement.Infrastructure.Repository

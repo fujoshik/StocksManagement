@@ -11,5 +11,6 @@ namespace Settlement.Domain.DTOs.Transaction
         public Guid AccountId { get; set; }
         public TransactionType TransactionType { get; set; }
         public decimal StockPrice { get; set; }
+        public RoleType Role { get; set; }
     }
 }

@@ -27,8 +27,6 @@
 
         public const string GetHandledWalletIdsQuery = @"SELECT * FROM HandledWallets";
 
-        //            TransactionId uniqueidentifier NULL,
-        //            CONSTRAINT FK_FailedTransactions_Transactions FOREIGN KEY (TransactionId) REFERENCES Transactions(Id)
         public const string CreateTableTransactionFailed = @"
         IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'FailedTransactions')
         BEGIN
