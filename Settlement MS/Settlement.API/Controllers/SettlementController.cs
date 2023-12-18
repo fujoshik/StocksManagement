@@ -9,40 +9,10 @@ namespace Settlement.API.Controllers
     public class SettlementController : ControllerBase
     {
         private readonly ISettlementService settlementService;
-        private readonly IHttpClientService httpClientService;
 
-        public SettlementController(ISettlementService settlementService, IHttpClientService httpClientService)
+        public SettlementController(ISettlementService settlementService)
         {
             this.settlementService = settlementService;
-            this.httpClientService = httpClientService;
-        }
-
-        [HttpGet("{walletId}")]
-        public async Task<IActionResult> GetWalletBalance(Guid walletId, TransactionRequestDto transaction)
-        {
-            try
-            {
-                var response = await httpClientService.GetWalletBalance(walletId, transaction);
-                return Ok(response);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetStockByDateAndTicker(string date, string stockTicker)
-        {
-            try
-            {
-                var response = await httpClientService.GetStockByDateAndTicker(date, stockTicker);
-                return Ok(response);
-            }
-            catch(Exception e)
-            {
-                return BadRequest(e.Message);
-            }
         }
 
         [HttpPost]

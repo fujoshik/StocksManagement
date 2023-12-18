@@ -2,33 +2,22 @@
 using Accounts.Domain.DTOs.Wallet;
 using Newtonsoft.Json;
 using StockAPI.Infrastructure.Models;
-using Settlement.Domain.Abstraction.Routes;
 using System.Net;
 using Settlement.Domain.DTOs.Transaction;
-using Settlement.Domain.Abstraction.Repository;
-using Settlement.Domain.DTOs.Settlement;
 
 namespace Settlement.Domain.Services
 {
     public class ConnectionService : IHttpClientService
     {
-        private readonly HttpClient httpClient;
-        private readonly IWalletRoutes walletRoutes;
-        private readonly IStockRoutes stockRoutes;
-        private readonly ISettlementRepository settlementRepository;
-
-        public ConnectionService(HttpClient httpClient, IWalletRoutes walletRoutes,
-            IStockRoutes stockRoutes, ISettlementRepository settlementRepository)
+        private readonly IConnectionDependencies dependencies;
+        public ConnectionService(IConnectionDependencies dependencies)
         {
-            this.httpClient = httpClient;
-            this.walletRoutes = walletRoutes;
-            this.stockRoutes = stockRoutes;
-            this.settlementRepository = settlementRepository;
+            this.dependencies = dependencies;
         }
 
         public async Task<WalletResponseDto> GetWalletBalance(Guid walletId, TransactionRequestDto transaction)
         {
-            HttpResponseMessage response = await httpClient.GetAsync(walletRoutes.Routes["GET"].Replace("{id}", walletId.ToString()));
+            HttpResponseMessage response = await dependencies.Http.GetAsync(dependencies.Wallet.Routes["GET"].Replace("{id}", walletId.ToString()));
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 string data = await response.Content.ReadAsStringAsync();
@@ -37,14 +26,14 @@ namespace Settlement.Domain.Services
             }
             else
             {
-                await settlementRepository.InsertIntoFailedTransaction(transaction);
+                await dependencies.Repository.InsertIntoFailedTransaction(transaction);
                 return new WalletResponseDto();
             }
         }
 
         public async Task<Stock> GetStockByDateAndTicker(string date, string stockTicker)
         {
-            HttpResponseMessage response = await httpClient.GetAsync(stockRoutes.Routes["GET"]
+            HttpResponseMessage response = await dependencies.Http.GetAsync(dependencies.Stock.Routes["GET"]
                 .Replace("{date}", date)
                 .Replace("{stockTicker}", stockTicker));
 
