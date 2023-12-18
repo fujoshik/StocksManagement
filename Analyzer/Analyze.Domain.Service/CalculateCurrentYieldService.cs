@@ -29,27 +29,27 @@ namespace Analyzer.API.Analyzer.Domain.Services
         {
             try
             {
-                var settlementDto = await httpClientService.GetTransactions(accountId,stockTicker);
+                var transactionDataList = await httpClientService.GetTransactions(accountId, stockTicker);
 
-                if (settlementDto?.Quantity != null)
+                if (transactionDataList != null && transactionDataList.Any())
                 {
+                    var totalQuantity = transactionDataList.Sum(t => t.Quantity);
+
                     var stockData = await httpClientService.GetStockData(stockTicker, data);
 
                     if (stockData != null)
                     {
                         var closePrice = stockData.ClosestPrice.Value;
-                        var quantity = settlementDto.Quantity;
                         var openPrice = stockData.OpenPrice.Value;
 
-                        var currentYield = (((decimal)quantity * (decimal)openPrice) - closePrice);
+                        var currentYield = (((decimal)totalQuantity * (decimal)openPrice) - closePrice);
 
                         var transactionData = new TransactionResponseDto
                         {
                             WalletId = accountId,
                             StockTicker = stockTicker,
                             Date = DateTime.Now.ToString(),
-                            Quantity = quantity,
-                            // Add other properties as needed
+                            Quantity = totalQuantity, 
                         };
 
                         return transactionData;
@@ -69,14 +69,11 @@ namespace Analyzer.API.Analyzer.Domain.Services
                 throw new InvalidOperationException($"Error calculating current yield: {ex.Message}");
             }
         }
-    
-               
 
         public async Task<List<TransactionResponseDto>> GetTransactionsByAccountIdTickerAndDateAsync(Guid accountId, string ticker, DateTime dateTime)
         {
             try
             {
-                // Example of fetching transactions from an external API
                 var apiUrl = $"https://localhost:7073/accounts-api/transactions/get-transactions";
 
                 var response = await httpClientService.GetAsync(apiUrl);
@@ -86,32 +83,19 @@ namespace Analyzer.API.Analyzer.Domain.Services
                 {
                     var content = await response.Content.ReadAsStringAsync();
 
-                    // Deserialize the content into a List<TransactionResponseDto> using JSON deserialization
                     var transactions = JsonConvert.DeserializeObject<List<TransactionResponseDto>>(content);
                     return transactions;
                 }
                 else
                 {
-                    // Handle the case where the API request was not successful
                     throw new HttpRequestException($"Failed to retrieve transactions. Status code: {response.StatusCode}");
                 }
             }
             catch (Exception ex)
             {
-                // Handle any exceptions that might occur during the process
                 throw new InvalidOperationException($"Error retrieving transactions: {ex.Message}", ex);
             }
         }
-    
-
-
-
-
-
-    //public async Task<decimal> PercentageChange(Guid userId, string stockTicker, string data)
-    //{
-    //    return await percentageChangeService.PercentageChange(userId, stockTicker, data);
-    //}
 
     public bool IsValidMarketPrice(decimal marketPrice)
         {

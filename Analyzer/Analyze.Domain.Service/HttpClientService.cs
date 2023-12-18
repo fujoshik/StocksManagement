@@ -1,13 +1,9 @@
-﻿using System;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Analyzer.Domain.Abstracions.Interfaces;
-using Analyzer.Domain.DTOs;
 using StockAPI.Infrastructure.Models;
 using Analyzer.Domain.Constants;
 using System.Net.Http.Json;
+using Analyzer.Domain.DTOs;
 
 namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 {
@@ -17,6 +13,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
         private readonly HttpClient stockApi;
         private readonly HttpClient settlementApi;
         private readonly HttpClient settlementApiDetails;
+        private readonly HttpClient stock;
 
         public HttpClientService()
         {
@@ -31,6 +28,9 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 
             settlementApiDetails = new HttpClient();
             settlementApiDetails.BaseAddress = new Uri(APIsConection.GetTransactionsDetails);
+
+            stock = new HttpClient();
+            stock.BaseAddress = new Uri(APIsConection.GetStock);
         }
 
         public async Task<WalletDto> GetAccountInfoById(Guid id)
@@ -72,7 +72,34 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             }
         }
 
-        public async Task<TransactionResponseDto> GetTransactions(Guid accountId, string stockTicker)
+        public async Task<List<Stock>> GetStock(string stockTicker, string startDate, string endDate)
+        {
+            using (var httpClient = GetHttpClient())
+            {
+                try
+                {
+                    string apiUrl = $"/api/StockAPI/get-stock-by-date-and-ticker?stockTicker={stockTicker}&startDate={startDate}&endDate={endDate}";
+
+                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string stockData = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<List<Stock>>(stockData);
+                    }
+                    else
+                    {
+                        throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"Error fetching stock data: {ex.Message}");
+                }
+            }
+        }
+
+        public async Task<List<TransactionResponseDto>> GetTransactions(Guid accountId, string stockTicker)
         {
             try
             {
@@ -88,7 +115,7 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
                     if (response.IsSuccessStatusCode)
                     {
                         string data = await response.Content.ReadAsStringAsync();
-                        TransactionResponseDto transactionData = JsonConvert.DeserializeObject<TransactionResponseDto>(data);
+                        var transactionData = JsonConvert.DeserializeObject<List<TransactionResponseDto>>(data);
                         return transactionData;
                     }
                     else
@@ -188,7 +215,6 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
         private HttpClient GetHttpClient()
         {
             var httpClient = new HttpClient();
-            // Add any additional configuration for the HttpClient if needed
             return httpClient;
         }
 
@@ -210,6 +236,11 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             return stockApi;
         }
 
+        public HttpClient GetStock()
+        {
+            return stock;
+        }
+
         public HttpClient GetSettlementAPI()
         {
             return settlementApi;
@@ -226,4 +257,3 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
         }
     }
 }
-

@@ -2,6 +2,6 @@
 {
     public class CronExpressionConstant
     {
-        public const string cronExpression = "5 12 * * * ?";
+        public const string CronExpression = "0 0/3 * 1/1 * ? *";
     }
 }

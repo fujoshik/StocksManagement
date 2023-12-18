@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Accounts.Domain.DTOs.Wallet;
 using StockAPI.Infrastructure.Models;
-using Accounts.Domain.Abstraction.Services;
 using Analyzer.Domain.Abstracions.Interfaces;
 using Analyzer.Domain.DTOs;
-using Analyze.Domain.Service;
-using static Analyzer.Domain.Abstracions.Interfaces.IService;
+
 
 namespace Analyzer.API.Controllers
 {
@@ -20,34 +17,51 @@ namespace Analyzer.API.Controllers
         }
 
 
-
         [HttpGet("check-accounts")]
         public async Task<IActionResult> GetAccountInfo(Guid id)
         {
-            WalletDto accountData = await httpClientService.GetAccountInfoById(id);
-
-            if (accountData != null)
+            try
             {
-                return Ok(accountData);
-            }
+                WalletDto accountData = await httpClientService.GetAccountInfoById(id);
 
-            return StatusCode(500, "Woopsie Daisy! Looks like something went completely wrong. You can try again later. ;)");
+                if (accountData != null)
+                {
+                    return Ok(accountData);
+                }
+
+                return NotFound($"Account with ID '{id}' not found.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex}");
+
+                return BadRequest($"An error occurred while processing the request: {ex.Message}");
+            }
         }
+
 
         [HttpGet("check-stockAPI/ticker")]
-        public async Task<IActionResult> GetStockData(string stockTicker, string Data)
+        public async Task<IActionResult> GetStockData(string stockTicker, string data)
         {
-            Stock stock = await httpClientService.GetStockData(stockTicker, Data);
-
-            if (stock != null)
+            try
             {
-                return Ok(stock);
-            }
+                Stock stock = await httpClientService.GetStockData(stockTicker, data);
 
-            return StatusCode(500, "Woopsie Daisy! Looks like something went completely wrong. You can try again later. ;)");
+                if (stock != null)
+                {
+                    return Ok(stock);
+                }
+                return NotFound($"Stock with ticker '{stockTicker}' and data '{data}' not found.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex}");
+                return BadRequest($"An error occurred while processing the request: {ex.Message}");
+            }
         }
 
-        [HttpPost("get-transaction")]
+
+        [HttpPost("transactions")]
         public async Task<IActionResult> ExecuteDealAsync(TransactionResponseDto transaction)
         {
             try
@@ -57,12 +71,28 @@ namespace Analyzer.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error retrieving transactions: {ex.Message}");
+                return BadRequest(ex.Message);
             }
         }
 
-        
 
+        [HttpGet("get-transactions")]
+        public async Task<ActionResult<List<TransactionResponseDto>>> GetTransactionsAsync([FromQuery] Guid accountId, [FromQuery] string stockTicker)
+        {
+            try
+            {
+                var transactions = await httpClientService.GetTransactions(accountId, stockTicker);
+                return Ok(transactions);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
     }
 }
