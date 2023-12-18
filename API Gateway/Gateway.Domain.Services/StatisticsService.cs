@@ -1,9 +1,6 @@
-﻿using Gateway.Domain.Abstraction.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gateway.Domain.Abstraction.Factories;
+using Gateway.Domain.Abstraction.Services;
+using Gateway.Domain.DTOs.Stock;
 
 namespace Gateway.Domain.Services
 {
@@ -11,6 +8,20 @@ namespace Gateway.Domain.Services
     {
         private readonly Dictionary<string, int> _requestCounts = new Dictionary<string, int>();
         private readonly Dictionary<string, List<string>> _userRequests = new Dictionary<string, List<string>>();
+        private readonly IHttpClientFactoryCustom _httpClientFactoryCustom;
+
+        public StatisticsService(IHttpClientFactoryCustom httpClientFactoryCustom)
+        {
+            _httpClientFactoryCustom = httpClientFactoryCustom;
+        }
+
+        public async Task<decimal> CalculateAverageIncomeAsync(string stockTicker)
+        {
+            return await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetStockAccountClient()
+                .CalculateAverageIncomeAsync(stockTicker);
+        }
 
         public int GetRequestCount(string route)
         {

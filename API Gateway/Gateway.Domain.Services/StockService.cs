@@ -19,6 +19,7 @@ namespace Gateway.Domain.Services
         {
             await _httpClientFactoryCustom
                 .GetAccountClient()
+                .GetStockAccountClient()
                 .BuyStockAsync(buyStock);
         }
 
@@ -26,6 +27,7 @@ namespace Gateway.Domain.Services
         {
             await _httpClientFactoryCustom
                 .GetAccountClient()
+                .GetStockAccountClient()
                 .SellStockAsync(sellStock);
         }
 

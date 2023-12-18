@@ -1,6 +1,6 @@
-﻿
-using Gateway.Domain.Abstraction.Services;
+﻿using Gateway.Domain.Abstraction.Services;
 using Gateway.Domain.DTOs.User;
+using Gateway.Domain.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -22,10 +22,36 @@ namespace API.Gateway.Controllers
             _userService = userService;
         }
 
+        [HttpGet("{id}")]
+        [ActionName(nameof(GetByIdAsync))]
+        public async Task<ActionResult<UserResponseDTO>> GetByIdAsync([FromRoute] Guid id)
+        {
+            var user = await _userService.GetByIdAsync(id);
+
+            return Ok(user);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<PaginatedResult<UserResponseDTO>>> GetPageAsync(
+            [FromQuery] Paging pagingInfo)
+        {
+            var users = await _userService.GetPageAsync(pagingInfo);
+
+            return Ok(users);
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] UserWithoutAccountIdDto user)
         {
             await _userService.UpdateAsync(id, user);
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteAsync([FromRoute] Guid id)
+        {
+            await _userService.DeleteAsync(id);
 
             return NoContent();
         }
