@@ -29,11 +29,14 @@ Users without registration on the platform are only able to view stock prices.
 #### Stocks  
 **POST api/stocks/buy-stock** -> Endpoint for buying a certain stock by providing a stock ticker and quantity  
 **POST api/stocks/sell-stock** -> Endpoint for selling stocks which the user owns  
-**GET api/stocks/grouped-daily** ->  Gets the daily data from an external API and groups it
-**GET api/stocks/get-stock-by-date-and-ticker-from-api** ->  Gets stocks by date and stock ticker from an external API
-**GET api/stocks/get-stock-by-date-and-ticker** -> Gets stocks by date and stock ticker from a local database
-**GET api/stocks/get-stocks-by-date** ->  Gets stocks by date from an external API
-**GET api/stocks/get-market-characteristics** -> gets the market characteristics from a local database
+**GET api/stocks/grouped-daily** ->  Gets the daily data from an external API and groups it  
+**GET api/stocks/get-stock-by-date-and-ticker-from-api** ->  Gets stocks by date and stock ticker from an external API  
+**GET api/stocks/get-stock-by-date-and-ticker** -> Gets stocks by date and stock ticker from a local database  
+**GET api/stocks/get-stocks-by-date** ->  Gets stocks by date from an external API  
+**GET api/stocks/get-market-characteristics** -> gets the market characteristics from a local database  
+
+#### Analysis
+**GET api/analysis/average-income** -> Calculates average income of a user's bought stocks  
 
 ## Accounts API
 
@@ -54,14 +57,17 @@ Users without registration on the platform are only able to view stock prices.
 **POST accounts-api/stocks/buy-stock** -> Endpoint for buying a certain stock by providing a stock ticker and quantity  
 **POST accounts-api/stocks/sell-stock** -> Endpoint for selling stocks which the user owns  
 
+#### Analysis
+**GET account-api/analysis/average-income** -> Calculates average income of a user's bought stocks  
+
 ## StockAPI
 
 ### Routes
-**GET api/StockAPI/grouped-daily** ->  Gets the daily data from an external API and groups it
-**GET api/StockAPI/get-stock-by-date-and-ticker-from-api** ->  Gets stocks by date and stock ticker from an external API
-**GET api/StockAPI/get-stock-by-date-and-ticker** -> Gets stocks by date and stock ticker from a local database
-**GET api/StockAPI/get-stocks-by-date** ->  Gets stocks by date from an external API
-**GET api/StockAPI/get-market-characteristics** -> gets the market characteristics from a local database
+**GET api/StockAPI/grouped-daily** ->  Gets the daily data from an external API and groups it  
+**GET api/StockAPI/get-stock-by-date-and-ticker-from-api** ->  Gets stocks by date and stock ticker from an external API  
+**GET api/StockAPI/get-stock-by-date-and-ticker** -> Gets stocks by date and stock ticker from a local database  
+**GET api/StockAPI/get-stocks-by-date** ->  Gets stocks by date from an external API  
+**GET api/StockAPI/get-market-characteristics** -> gets the market characteristics from a local database  
 
 ## Settlement API
 ## About
@@ -555,7 +561,9 @@ It efficiently manages financial deals, executes transactions, handles failed tr
 ## Routes
 - **POST settlements-api/** -> Executes the transaction of buying or selling stocks
 
-### Routes
-**POST settlements-api/** -> Executes the transaction of buying or selling stocks
+## Analyzer API  
 
-## Analyzer API
+### Routes
+**GET api/Calculation/calculate-current-yield** -> Calculates average income of a user's bought stocks  
+**GET api/Calculation/percentage-change** ->  
+**GET api/Calculation/calculate-daily-yield-changes** ->  

@@ -73,6 +73,7 @@ namespace Gateway.Domain.Services
         {
             await _httpClientFactoryCustom
                 .GetAccountClient()
+                .GetAuthenticateAccountClient()
                 .RegisterAsync(registerDto);
         }
 
@@ -80,6 +81,7 @@ namespace Gateway.Domain.Services
         {
             await _httpClientFactoryCustom
                 .GetAccountClient()
+                .GetAuthenticateAccountClient()
                 .RegisterTrialAsync(registerDto);
         }
 
@@ -87,6 +89,7 @@ namespace Gateway.Domain.Services
         {
             return await _httpClientFactoryCustom
                 .GetAccountClient()
+                .GetAuthenticateAccountClient()
                 .LoginAsync(loginDto);
         }
 
@@ -94,6 +97,7 @@ namespace Gateway.Domain.Services
         {
             await _httpClientFactoryCustom
                 .GetAccountClient()
+                .GetAuthenticateAccountClient()
                 .VerifyCodeAsync(code);
         }
     }

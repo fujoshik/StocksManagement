@@ -11,5 +11,6 @@
         public string GetWalletInfoRoute { get; set; }
         public string BuyStockRoute { get; set; }
         public string SellStockRoute { get; set; }
+        public string CalculateAverageIncomeRoute { get; set; }
     }
 }
