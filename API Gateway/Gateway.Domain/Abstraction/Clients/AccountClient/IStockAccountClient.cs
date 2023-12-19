@@ -1,4 +1,5 @@
-﻿using Gateway.Domain.DTOs.Stock;
+﻿using Gateway.Domain.DTOs.Analyzer;
+using Gateway.Domain.DTOs.Stock;
 
 namespace Gateway.Domain.Abstraction.Clients.AccountClient
 {
@@ -6,6 +7,7 @@ namespace Gateway.Domain.Abstraction.Clients.AccountClient
     {
         Task BuyStockAsync(BuyStockDTO buyStock);
         Task SellStockAsync(BuyStockDTO sellStock);
-        Task<decimal> CalculateAverageIncomeAsync(string stockTicker, string date);
+        Task<CalculateCurrentYieldDTO> CalculateAverageIncomeAsync(string stockTicker, string date);
+        Task<PercentageChangeDTO> GetPercentageChangeAsync(string stockTicker, string date);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Gateway.Domain.Abstraction.Clients.AccountClient;
+using Gateway.Domain.DTOs.Analyzer;
 using Gateway.Domain.DTOs.Stock;
 using Gateway.Domain.Settings;
 using Microsoft.AspNetCore.Http;
@@ -44,7 +45,7 @@ namespace Gateway.Domain.Clients.AccountClient
             }
         }
 
-        public async Task<decimal> CalculateAverageIncomeAsync(string stockTicker, string date)
+        public async Task<CalculateCurrentYieldDTO> CalculateAverageIncomeAsync(string stockTicker, string date)
         {
             AddAuthorizationHeader();
 
@@ -57,7 +58,23 @@ namespace Gateway.Domain.Clients.AccountClient
                 throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
             }
 
-            return await response.Content.ReadFromJsonAsync<decimal>();
+            return await response.Content.ReadFromJsonAsync<CalculateCurrentYieldDTO>();
+        }
+
+        public async Task<PercentageChangeDTO> GetPercentageChangeAsync(string stockTicker, string date)
+        {
+            AddAuthorizationHeader();
+
+            var query = string.Format($"?stockTicker={stockTicker}&date={date}");
+
+            var response = await _httpClient.GetAsync(_accountApiUrl + _accountSettings.PercentageChangeRoute + query);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
+            }
+
+            return await response.Content.ReadFromJsonAsync<PercentageChangeDTO>();
         }
     }
 }

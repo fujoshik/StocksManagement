@@ -40,7 +40,8 @@ builder.Services.AddEndpointsApiExplorer()
                 .Configure<HostsSettings>(builder.Configuration.GetSection("HostsSettings"))
                 .Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDB"))
                 .Configure<ApiKeys>(builder.Configuration.GetSection("ApiKeys"))
-                .Configure<EndPoints>(builder.Configuration.GetSection("EndPoints"));
+                .Configure<EndPoints>(builder.Configuration.GetSection("EndPoints"))
+                .Configure<AnalyzerSettings>(builder.Configuration.GetSection("AnalyzerSettings"));
 
 builder.Services.AddSwaggerGen(c =>
 {

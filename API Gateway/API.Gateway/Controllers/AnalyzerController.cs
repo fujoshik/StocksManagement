@@ -1,8 +1,13 @@
 ﻿using Gateway.Domain.Abstraction.Services;
+using Gateway.Domain.DTOs.Analyzer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Gateway.Controllers
 {
+    [Authorize]
+    [ApiController]
+    [Route("api/analysis")]
     public class AnalyzerController : ControllerBase
     {
         private readonly IStockService _stockService;
@@ -89,11 +94,30 @@ namespace API.Gateway.Controllers
         //}
 
         [HttpGet("average-income")]
-        public async Task<ActionResult<decimal>> CalculateAverageIncome([FromQuery] string stockTicker, [FromQuery] string date)
+        public async Task<ActionResult<CalculateCurrentYieldDTO>> CalculateAverageIncome([FromQuery] string stockTicker, 
+            [FromQuery] string date)
         {
             var result = await _statisticsService.CalculateAverageIncomeAsync(stockTicker, date);
 
             return Ok(result);
+        }
+
+        [HttpGet("percentage-change")]
+        public async Task<ActionResult<PercentageChangeDTO>> GetPercentageChange([FromQuery] string stockTicker, 
+            [FromQuery] string date)
+        {
+            var percentageChange = await _statisticsService.GetPercentageChangeAsync(stockTicker, date);
+
+            return Ok(percentageChange);
+        }
+
+        [HttpGet("daily-yield-changes")]
+        public async Task<ActionResult<List<DailyYieldChangeDTO>>> GetDailyYieldChanges([FromQuery] string date, 
+            [FromQuery] string stockTicker)
+        {
+            var dailyYieldChanges = await _statisticsService.GetDailyYieldChanges(date, stockTicker);
+
+            return Ok(dailyYieldChanges);
         }
     }
 }
