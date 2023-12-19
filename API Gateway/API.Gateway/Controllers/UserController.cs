@@ -9,6 +9,7 @@ namespace API.Gateway.Controllers
 {
     [Route("api/users")]
     [ApiController]
+    [Authorize]
     public class UserController : Controller
     {
         private readonly ILogger<UserController> _logger;
@@ -56,23 +57,23 @@ namespace API.Gateway.Controllers
             return NoContent();
         }
 
-        [HttpGet("userData")]
-        [Authorize] 
-        public IActionResult GetUserData()
-        {
+        //[HttpGet("userData")]
+        //[Authorize] 
+        //public IActionResult GetUserData()
+        //{
             
-            if (!_cache.TryGetValue(User.Identity.Name, out UserData userData))
-            {
+        //    if (!_cache.TryGetValue(User.Identity.Name, out UserData userData))
+        //    {
                 
-                userData = FetchUserData(User.Identity.Name); 
-                _cache.Set(User.Identity.Name, userData, TimeSpan.FromHours(4));
-            }
+        //        userData = FetchUserData(User.Identity.Name); 
+        //        _cache.Set(User.Identity.Name, userData, TimeSpan.FromHours(4));
+        //    }
 
            
-            _logger.LogInformation("Request for user data: {Username}", User.Identity.Name);
+        //    _logger.LogInformation("Request for user data: {Username}", User.Identity.Name);
 
-            return Ok(userData);
-        }
+        //    return Ok(userData);
+        //}
        
         private UserData FetchUserData(string username)
         {

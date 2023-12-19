@@ -1,6 +1,5 @@
 ﻿using Gateway.Domain.Abstraction.Factories;
 using Gateway.Domain.Abstraction.Services;
-using Gateway.Domain.DTOs.Stock;
 
 namespace Gateway.Domain.Services
 {

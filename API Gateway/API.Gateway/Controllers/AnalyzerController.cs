@@ -42,19 +42,19 @@ namespace API.Gateway.Controllers
         //    }
         //}
 
-        [HttpGet("top-users")]
-        public IActionResult GetTopUsers()
-        {
-            try
-            {
-                var topUsers = _statisticsService.GetTopUsersByRequests(10); 
-                return Ok(topUsers);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error retrieving top users: {ex.Message}");
-            }
-        }
+        //[HttpGet("top-users")]
+        //public IActionResult GetTopUsers()
+        //{
+        //    try
+        //    {
+        //        var topUsers = _statisticsService.GetTopUsersByRequests(10); 
+        //        return Ok(topUsers);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error retrieving top users: {ex.Message}");
+        //    }
+        //}
         //[HttpGet("analyze/{symbol}")]
         //public IActionResult AnalyzeStockData(string symbol)
         //{
@@ -72,21 +72,21 @@ namespace API.Gateway.Controllers
         //    }
         //}
 
-        [HttpGet("request-statistics/{route}")]
-        public IActionResult GetRequestStatistics(string route)
-        {
-            try
-            {
-                _statisticsService.LogRequest(route); 
+        //[HttpGet("request-statistics/{route}")]
+        //public IActionResult GetRequestStatistics(string route)
+        //{
+        //    try
+        //    {
+        //        _statisticsService.LogRequest(route); 
 
-                var requestCount = _statisticsService.GetRequestCount(route);
-                return Ok(new { Route = route, RequestCount = requestCount });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error retrieving request statistics: {ex.Message}");
-            }
-        }
+        //        var requestCount = _statisticsService.GetRequestCount(route);
+        //        return Ok(new { Route = route, RequestCount = requestCount });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error retrieving request statistics: {ex.Message}");
+        //    }
+        //}
 
         [HttpGet("average-income")]
         public async Task<ActionResult<decimal>> CalculateAverageIncome([FromQuery] string stockTicker)
