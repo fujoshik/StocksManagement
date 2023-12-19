@@ -1,9 +1,7 @@
 ﻿using Accounts.Domain.Abstraction.Clients;
-using Accounts.Domain.DTOs.Settlement;
 using Accounts.Domain.Settings;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System.Net.Http.Json;
 
 namespace Accounts.Domain.Clients
 {
@@ -26,9 +24,9 @@ namespace Accounts.Domain.Clients
             return _httpClient;
         }
 
-        public async Task<decimal> CalculateAverageIncomeAsync(Guid accountId, string ticker)
+        public async Task<decimal> CalculateAverageIncomeForPeriodAsync(Guid accountId, string ticker, string date)
         {   
-            var query = $"?userId={accountId}&stockTicker={ticker}";
+            var query = $"?userId={accountId}&stockTicker={ticker}&data={date}";
             var response = await _httpClient.GetAsync(_analyzerApiUrl + "calculate-current-yield" + query);
 
             if (!response.IsSuccessStatusCode)

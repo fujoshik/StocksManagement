@@ -18,9 +18,9 @@ namespace Accounts.API.Controllers
 
         [HttpGet("average-income")]
         [Authorize(Policy = PolicyConstants.AllowAll)]
-        public async Task<ActionResult<decimal>> CalculateAverageIncome([FromQuery] string stockTicker)
+        public async Task<ActionResult<decimal>> CalculateAverageIncome([FromQuery] string stockTicker, [FromQuery] string date)
         {
-            var result = await _analyzerService.CalculateAverageIncomeAsync(stockTicker);
+            var result = await _analyzerService.CalculateAverageIncomeForPeriodAsync(stockTicker, date);
 
             return Ok(result);
         }

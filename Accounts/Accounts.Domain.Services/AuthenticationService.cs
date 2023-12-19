@@ -42,19 +42,21 @@ namespace Accounts.Domain.Services
 
         public async Task SendVerificationEmailAsync(RegisterDto registerDto)
         {
-            var verificationCode = Guid.NewGuid().ToString();
-            _emailService.SendEmail(registerDto.Email, verificationCode);
-
             UserDto userDto;
 
             if (registerDto is RegisterWithSumDto)
             {
+                await _validationProvider.TryValidateAsync(registerDto as RegisterWithSumDto);
                 userDto = _mapper.Map<UserDto>(registerDto as RegisterWithSumDto);
             }
             else
             {
+                await _validationProvider.TryValidateAsync(registerDto as RegisterTrialDto);
                 userDto = _mapper.Map<UserDto>(registerDto as RegisterTrialDto);
             }
+
+            var verificationCode = Guid.NewGuid().ToString();
+            _emailService.SendEmail(registerDto.Email, verificationCode);
 
             userDto.VerificationCode = verificationCode;
             

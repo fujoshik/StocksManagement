@@ -16,11 +16,11 @@ namespace Accounts.Domain.Services
             _analyzerClient = analyzerClient;
         }
 
-        public async Task<decimal> CalculateAverageIncomeAsync(string ticker)
+        public async Task<decimal> CalculateAverageIncomeForPeriodAsync(string ticker, string date)
         {
             var accountId = _userDetailsProvider.GetAccountId();
 
-            return await _analyzerClient.CalculateAverageIncomeAsync(accountId, ticker);
+            return await _analyzerClient.CalculateAverageIncomeForPeriodAsync(accountId, ticker, date);
         }
     }
 }

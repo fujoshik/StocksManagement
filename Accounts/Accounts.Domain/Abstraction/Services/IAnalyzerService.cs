@@ -2,6 +2,6 @@
 {
     public interface IAnalyzerService
     {
-        Task<decimal> CalculateAverageIncomeAsync(string ticker);
+        Task<decimal> CalculateAverageIncomeForPeriodAsync(string ticker, string date);
     }
 }

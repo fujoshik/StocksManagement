@@ -1,12 +1,14 @@
 using Accounts.API.AutofacModules;
 using Accounts.API.Extensions;
-using Autofac.Extensions.DependencyInjection;
-using Autofac;
-using Microsoft.OpenApi.Models;
 using Accounts.Domain.Settings;
+using Accounts.Domain.Validators.Authentication;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using FluentValidation;
+using Microsoft.OpenApi.Models;
 using StockAPI.Domain.Abstraction.DataBase;
-using StockAPI.Domain.Services.AppSettings;
 using StockAPI.Domain.Services;
+using StockAPI.Domain.Services.AppSettings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,9 @@ builder.Host
         autofacBuilder.RegisterModule<FactoriesModule>();
         autofacBuilder.RegisterModule<ClientsModule>();
     });
+
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();
 
 builder.Services.AddControllers();
 

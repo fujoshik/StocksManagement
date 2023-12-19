@@ -6,6 +6,6 @@ namespace Gateway.Domain.Abstraction.Clients.AccountClient
     {
         Task BuyStockAsync(BuyStockDTO buyStock);
         Task SellStockAsync(BuyStockDTO sellStock);
-        Task<decimal> CalculateAverageIncomeAsync(string stockTicker);
+        Task<decimal> CalculateAverageIncomeAsync(string stockTicker, string date);
     }
 }

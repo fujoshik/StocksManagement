@@ -89,9 +89,9 @@ namespace API.Gateway.Controllers
         //}
 
         [HttpGet("average-income")]
-        public async Task<ActionResult<decimal>> CalculateAverageIncome([FromQuery] string stockTicker)
+        public async Task<ActionResult<decimal>> CalculateAverageIncome([FromQuery] string stockTicker, [FromQuery] string date)
         {
-            var result = await _statisticsService.CalculateAverageIncomeAsync(stockTicker);
+            var result = await _statisticsService.CalculateAverageIncomeAsync(stockTicker, date);
 
             return Ok(result);
         }

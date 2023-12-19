@@ -13,12 +13,12 @@ Authorization: Bearer YOUR_API_KEY
 ```
 
 ## Roles
-The **Admin** role has access to absolutely everything on the program - he can view, create, delete and update all objects on the site for which such functionality is implemented. He can also create doctor and patient accounts. Each registration on the site creates an account of an ordinary user (patient), and doctor accounts are created only by the administrator.  
-**Trial** users are accounts which have not input any sum in their wallets and can use up to 10000 USD to buy stocks for 60 days. After that, they become inactive and can only view their wallet information and account information, unless they deposit enough money to become a Regular user. After 60 more days their accounts are automatically deleted.  
-**Regular** users have deposited up to 1000 USD in their walltes.  
-**Special** accounts have deposited between 1000 and 5000 USD in their wallets.  
-**VIP** accounts have depposited more than 5000 USD in their wallets.  
-Users without registration on the platform are only able to view stock prices.  
+- The **Admin** role has access to absolutely everything on the program - he can view, create, delete and update all objects on the site for which such functionality is implemented. He can also create doctor and patient accounts. Each registration on the site creates an account of an ordinary user (patient), and doctor accounts are created only by the administrator.  
+- **Trial** users are accounts which have not input any sum in their wallets and can use up to 10000 USD to buy stocks for 60 days. After that, they become inactive and can only view their wallet information and account information, unless they deposit enough money to become a Regular user. After 60 more days their accounts are automatically deleted.  
+- **Regular** users have deposited up to 1000 USD in their walltes.  
+- **Special** accounts have deposited between 1000 and 5000 USD in their wallets.  
+- **VIP** accounts have depposited more than 5000 USD in their wallets.  
+- Users without registration on the platform are only able to view stock prices.  
 
 ## Error Handling
 The API Gateway handles various error scenarios gracefully, providing meaningful error messages and appropriate HTTP status codes to clients.
@@ -30,35 +30,35 @@ It acts as a central point of entry for clients and provides functionalities suc
 
 ### Routes  
 
-#### Base URL  
+- #### Base URL  
 The base URL for accessing the StockAPI endpoints is: https://localhost:7071/api/  
 
-#### Other URLs  
-- #### Authentication  
-    - **POST api/authentication/register** -> Register with sum  
-    - **POST api/authentication/register-trial** -> Register without sum (trial)  
-    - **POST api/authentication/verify?code={authentication_code}** -> Endpoint for verifying the registration with the token that was send to the email  
-    - **POST api/authentication/login** -> Login  
+- #### Other URLs  
+    - #### Authentication  
+        - **POST api/authentication/register** -> Register with sum  
+        - **POST api/authentication/register-trial** -> Register without sum (trial)  
+        - **POST api/authentication/verify?code={authentication_code}** -> Endpoint for verifying the registration with the token that was send to the email  
+        - **POST api/authentication/login** -> Login  
 
-- #### Wallet  
-    - **GET api/wallets/{id?}** -> Endpoint for getting wallet information (id is not required; if you do not input id, it will automatically get the logged in user's wallet information)  
-    - **POST api/wallets/deposit** -> Endpoint for depositing money *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*  
-    - **POST api/wallets/{currency}** -> Endpoint for changing the wallet currency, by default the currency is USD *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*   
+    - #### Wallet  
+        - **GET api/wallets/{id?}** -> Endpoint for getting wallet information (id is not required; if you do not input id, it will automatically get the logged in user's wallet information)  
+        - **POST api/wallets/deposit** -> Endpoint for depositing money *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*  
+        - **POST api/wallets/{currency}** -> Endpoint for changing the wallet currency, by default the currency is USD *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*   
 
-- #### User (available only for ADMIN role)  
-    - **PUT api/users/{id}** -> Endpoint for updating a user by provided id  
-    - **GET api/users/{id}** -> Endpoint for getting a user by provided id
-    - **GET api/users** -> Endpoint getting all users in the database  
-    - **DELETE api/users/{id}** -> Endpoint for deleting a user by id  
+    - #### User (available only for ADMIN role)  
+        - **PUT api/users/{id}** -> Endpoint for updating a user by provided id  
+        - **GET api/users/{id}** -> Endpoint for getting a user by provided id
+        - **GET api/users** -> Endpoint getting all users in the database  
+        - **DELETE api/users/{id}** -> Endpoint for deleting a user by id  
 
-- #### Stocks  
-    - **POST api/stocks/buy-stock?ticker={stock_ticker}&quantity={quantity}** -> Endpoint for buying a certain stock by providing a stock ticker and quantity  
-    - **POST api/stocks/sell-stock?ticker={stock_ticker}&quantity={quantity}** -> Endpoint for selling stocks which the user owns  
-    - **GET api/stocks/grouped-daily** ->  Gets the daily data from an external API and groups it  
-    - **GET api/stocks/get-stock-by-date-and-ticker-from-api?date={date}&stockTicker={stock_ticker}** ->  Gets stocks by date and stock ticker from an external API  
-    - **GET api/stocks/get-stock-by-date-and-ticker?date={date}&stockTicker={stock_ticker}** -> Gets stocks by date and stock ticker from a local database  
-    - **GET api/stocks/get-stocks-by-date?date={date}** ->  Gets stocks by date from an external API  
-    - **GET api/stocks/get-market-characteristics?date={date}** -> gets the market characteristics from a local database  
+    - #### Stocks  
+        - **POST api/stocks/buy-stock?ticker={stock_ticker}&quantity={quantity}** -> Endpoint for buying a certain stock by providing a stock ticker and quantity  
+        - **POST api/stocks/sell-stock?ticker={stock_ticker}&quantity={quantity}** -> Endpoint for selling stocks which the user owns  
+        - **GET api/stocks/grouped-daily** ->  Gets the daily data from an external API and groups it  
+        - **GET api/stocks/get-stock-by-date-and-ticker-from-api?date={date}&stockTicker={stock_ticker}** ->  Gets stocks by date and stock ticker from an external API  
+        - **GET api/stocks/get-stock-by-date-and-ticker?date={date}&stockTicker={stock_ticker}** -> Gets stocks by date and stock ticker from a local database  
+        - **GET api/stocks/get-stocks-by-date?date={date}** ->  Gets stocks by date from an external API  
+        - **GET api/stocks/get-market-characteristics?date={date}** -> gets the market characteristics from a local database  
 
 - #### Analysis
     - **GET api/analysis/average-income** -> Calculates average income of a user's bought stocks  
@@ -73,54 +73,69 @@ It provides endpoints to handle user registration, login, account management, an
 Accounts API utilizes authentication and authorization mechanisms to secure endpoints and manage user access.  
 
 ### Routes
-#### Base URL  
+- #### Base URL  
 The base URL for accessing the Accounts API endpoints is: https://localhost:7073/accounts-api/  
 
-#### Other URLs  
-- #### Authentication  
-    - **POST accounts-api/authentication/register** -> Register with sum  
-    - **POST accounts-api/authentication/register-trial** -> Register without sum (trial)  
-    - **POST accounts-api/authentication/verify?code={authentication_code}** -> Endpoint for verifying the registration with the token that was send to the email  
-    - **POST accounts-api/authentication/login** -> Login  
-    - **POST accounts-api/authentication/check-token?token={bearer_token}** -> Endpoint that checks whether the provided token is valid  
+- #### Other URLs  
+    - #### Authentication  
+        - **POST accounts-api/authentication/register** -> Register with sum  
+        - **POST accounts-api/authentication/register-trial** -> Register without sum (trial)  
+        - **POST accounts-api/authentication/verify?code={authentication_code}** -> Endpoint for verifying the registration with the token that was send to the email  
+        - **POST accounts-api/authentication/login** -> Login  
+        - **POST accounts-api/authentication/check-token?token={bearer_token}** -> Endpoint that checks whether the provided token is valid  
 
-- #### Wallet  
-    - **GET accounts-api/wallets/{id?}** -> Endpoint for getting wallet information (id is not required; if you do not input id, it will automatically get the logged in user's wallet information)  
-    - **POST accounts-api/wallets/deposit** -> Endpoint for depositing money *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*  
-    - **POST accounts-api/wallets/{currency}** -> Endpoint for changing the wallet currency, by default the currency is USD *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*   
+    - #### Wallet  
+        - **GET accounts-api/wallets/{id?}** -> Endpoint for getting wallet information (id is not required; if you do not input id, it will automatically get the logged in user's wallet information)  
+        - **POST accounts-api/wallets/deposit** -> Endpoint for depositing money *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*  
+        - **POST accounts-api/wallets/{currency}** -> Endpoint for changing the wallet currency, by default the currency is USD *(CurrencyCode: 0 - USD; 1 - EUR; 2 - BGN)*   
 
-- #### User (available only for ADMIN role)  
-    - **PUT accounts-api/users/{id}** -> Endpoint for updating a user by provided id  
-    - **GET accounts-api/users/{id}** -> Endpoint for getting a user by provided id
-    - **GET accounts-api/users** -> Endpoint getting all users in the database  
-    - **DELETE accounts-api/users/{id}** -> Endpoint for deleting a user by id  
+    - #### User (available only for ADMIN role)  
+        - **PUT accounts-api/users/{id}** -> Endpoint for updating a user by provided id  
+        - **GET accounts-api/users/{id}** -> Endpoint for getting a user by provided id
+        - **GET accounts-api/users** -> Endpoint getting all users in the database  
+        - **DELETE accounts-api/users/{id}** -> Endpoint for deleting a user by id  
 
-- #### Stocks  
-    - **POST accounts-api/stocks/buy-stock?ticker={stock_ticker}&quantity={quantity}** -> Endpoint for buying a certain stock by providing a stock ticker and quantity  
-    - **POST accounts-api/stocks/sell-stock?ticker={stock_ticker}&quantity={quantity}** -> Endpoint for selling stocks which the user owns  
+    - #### Stocks  
+        - **POST accounts-api/stocks/buy-stock?ticker={stock_ticker}&quantity={quantity}** -> Endpoint for buying a certain stock by providing a stock ticker and quantity  
+        - **POST accounts-api/stocks/sell-stock?ticker={stock_ticker}&quantity={quantity}** -> Endpoint for selling stocks which the user owns  
 
-- #### Analysis
-    - **GET account-api/analysis/average-income?stockTicker={stock_ticker}** -> Calculates average income of a user's stocks by stock ticker  
+    - #### Analysis
+        - **GET account-api/analysis/average-income?stockTicker={stock_ticker}** -> Calculates average income of a user's stocks by stock ticker  
     
 ### Error Handling
-The Accounts API handles various error scenarios gracefully, providing meaningful error messages and appropriate HTTP status codes to clients.
+The Accounts API handles various error scenarios gracefully, providing meaningful error messages and appropriate HTTP status codes to clients.  
+
+## Analyzer API  
+### About  
+Analyzer API is an ASP.NET Core-based application that provides endpoints for analyzing stock prices. 
+This API allows users to perform various analytical operations on stock data, such as calculating moving averages, identifying trends, determining volatility, and more.
+
+### Routes
+
+- #### Base URL
+The base URL for accessing the AnalyzerAPI endpoints is: https://localhost:7122/api/Calculation/
+
+- #### Other URLs
+    - **GET api/Calculation/calculate-current-yield?userId={user_id}&stockTicker={stock_ticker}&date={date}** -> Calculates average income of a user's bought stocks  
+    - **GET api/Calculation/percentage-change?userId={user_id}&stockTicker={stock_ticker}&date={date}** ->  
+    - **GET api/Calculation/calculate-daily-yield-changes?accountId={account_id}&stockTicker={stock_ticker}** ->  
 
 ## StockAPI
 ### About
 StockAPI is an ASP.NET Core-based application that provides access to stock market data through a RESTful API.  
-This API allows users to retrieve information about stocks, such as stock quotes, historical data, company information, and more. 
+This API allows users to retrieve information about stocks, such as stock tickers, historical data, company information, and more. 
 
 ### Routes
 
-#### Base URL
+- #### Base URL
 The base URL for accessing the StockAPI endpoints is: https://localhost:7195/api/StockAPI/
 
-#### Other URLs
-- **GET api/StockAPI/grouped-daily** ->  Gets the daily data from an external API and groups it  
-- **GET api/StockAPI/get-stock-by-date-and-ticker-from-api?date={date}&stockTicker={stock_ticker}** ->  Gets stocks by date and stock ticker from an external API  
-- **GET api/StockAPI/get-stock-by-date-and-ticker?date={date}&stockTicker={stock_ticker}** -> Gets stocks by date and stock ticker from a local database  
-- **GET api/StockAPI/get-stocks-by-date?date={date}** ->  Gets stocks by date from an external API  
-- **GET api/StockAPI/get-market-characteristics?date={date}** -> gets the market characteristics from a local database  
+- #### Other URLs
+    - **GET api/StockAPI/grouped-daily** ->  Gets the daily data from an external API  
+    - **GET api/StockAPI/get-stock-by-date-and-ticker-from-api?date={date}&stockTicker={stock_ticker}** ->  Gets stocks by date and stock ticker from an external API  
+    - **GET api/StockAPI/get-stock-by-date-and-ticker?date={date}&stockTicker={stock_ticker}** -> Gets stocks by date and stock ticker from a local database; if no records are found in the local database, it gets them from an external API  
+    - **GET api/StockAPI/get-stocks-by-date?date={date}** ->  Gets stocks by date from local database
+    - **GET api/StockAPI/get-market-characteristics?date={date}** -> Gets the market characteristics from a local database  
 
 ## Settlement API
 ## About
@@ -613,18 +628,3 @@ It efficiently manages financial deals, executes transactions, handles failed tr
       }
 ## Routes
 - **POST settlements-api/** -> Executes the transaction of buying or selling stocks
-
-## Analyzer API  
-### About  
-Analyzer API is an ASP.NET Core-based application that provides endpoints for analyzing stock prices. 
-This API allows users to perform various analytical operations on stock data, such as calculating moving averages, identifying trends, determining volatility, and more.
-
-### Routes
-
-#### Base URL
-The base URL for accessing the AnalyzerAPI endpoints is: https://localhost:7122/api/Calculation/
-
-#### Other URLs
-- **GET api/Calculation/calculate-current-yield?userId={user_id}&stockTicker={stock_ticker}&date={date}** -> Calculates average income of a user's bought stocks  
-- **GET api/Calculation/percentage-change?userId={user_id}&stockTicker={stock_ticker}&date={date}** ->  
-- **GET api/Calculation/calculate-daily-yield-changes?accountId={account_id}&stockTicker={stock_ticker}** ->  

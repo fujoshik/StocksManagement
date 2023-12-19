@@ -44,11 +44,11 @@ namespace Gateway.Domain.Clients.AccountClient
             }
         }
 
-        public async Task<decimal> CalculateAverageIncomeAsync(string stockTicker)
+        public async Task<decimal> CalculateAverageIncomeAsync(string stockTicker, string date)
         {
             AddAuthorizationHeader();
 
-            var query = string.Format($"?stockTicker={stockTicker}");
+            var query = string.Format($"?stockTicker={stockTicker}&date={date}");
 
             var response = await _httpClient.GetAsync(_accountApiUrl + _accountSettings.CalculateAverageIncomeRoute + query);
 

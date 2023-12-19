@@ -2,17 +2,18 @@
 using Accounts.Domain.Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.Extensions.DependencyInjection;
 using ValidationException = Accounts.Domain.Exceptions.ValidationException;
 
 namespace Accounts.Domain.Providers
 {
     public class ValidationProvider : IValidationProvider
     {
-        private IValidatorFactory _validatorFactory;
+        private IServiceProvider _serviceProvider;
 
-        public ValidationProvider(IValidatorFactory validatorFactory)
+        public ValidationProvider(IServiceProvider serviceProvider)
         {
-            _validatorFactory = validatorFactory;
+            _serviceProvider = serviceProvider;
         }
 
         public void TryValidate<TDto>(TDto dto)
@@ -40,7 +41,7 @@ namespace Accounts.Domain.Providers
 
         private IValidator<TDto> TryGetValidator<TDto>()
         {
-            var dtoTypeValidator = _validatorFactory.GetValidator<TDto>();
+            var dtoTypeValidator = _serviceProvider.GetService<IValidator<TDto>>();
             if (dtoTypeValidator is null)
             {
                 throw new NoExistingValidatorForGivenTypeException(typeof(TDto));

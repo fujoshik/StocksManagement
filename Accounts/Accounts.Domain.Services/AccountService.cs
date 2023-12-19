@@ -1,9 +1,11 @@
-﻿using Accounts.Domain.Abstraction.Repositories;
+﻿using Accounts.Domain.Abstraction.Providers;
+using Accounts.Domain.Abstraction.Repositories;
 using Accounts.Domain.Abstraction.Services;
 using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.DTOs.Authentication;
 using Accounts.Domain.DTOs.Wallet;
 using AutoMapper;
+using System.Runtime.InteropServices;
 
 namespace Accounts.Domain.Services
 {
@@ -14,18 +16,21 @@ namespace Accounts.Domain.Services
         private readonly IWalletService _walletService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAssignRoleService _assignRoleService;
+        private readonly IUserDetailsProvider _userDetailsProvider;
 
         public AccountService(IUnitOfWork unitOfWork,
                               IPasswordService passwordService,
                               IWalletService walletService,
                               IMapper mapper,
-                              IAssignRoleService assignRoleService)
+                              IAssignRoleService assignRoleService,
+                              IUserDetailsProvider userDetailsProvider)
         {
             _unitOfWork = unitOfWork;
             _passwordService = passwordService;
             _walletService = walletService;
             _mapper = mapper;
             _assignRoleService = assignRoleService;
+            _userDetailsProvider = userDetailsProvider;
         }
 
         public async Task<AccountResponseDto> CreateAsync(RegisterDto registerDto)
@@ -71,6 +76,11 @@ namespace Accounts.Domain.Services
             }
 
             await _unitOfWork.AccountRepository.DeleteAsync(id);
+        }
+
+        public Guid GetLoggedAccount()
+        {
+            return _userDetailsProvider.GetAccountId();
         }
 
         private void GeneratePassword(AccountRequestDto account, RegisterDto registerDto)

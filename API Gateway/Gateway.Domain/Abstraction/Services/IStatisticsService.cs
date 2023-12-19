@@ -2,7 +2,7 @@
 {
     public interface IStatisticsService
     {
-        Task<decimal> CalculateAverageIncomeAsync(string stockTicker);
+        Task<decimal> CalculateAverageIncomeAsync(string stockTicker, string date);
         int GetRequestCount(string route);
         List<string> GetTopUsersByRequests(int count);
         void LogRequest(string route);

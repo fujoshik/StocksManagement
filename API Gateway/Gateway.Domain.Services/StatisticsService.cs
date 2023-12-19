@@ -14,12 +14,12 @@ namespace Gateway.Domain.Services
             _httpClientFactoryCustom = httpClientFactoryCustom;
         }
 
-        public async Task<decimal> CalculateAverageIncomeAsync(string stockTicker)
+        public async Task<decimal> CalculateAverageIncomeAsync(string stockTicker, string date)
         {
             return await _httpClientFactoryCustom
                 .GetAccountClient()
                 .GetStockAccountClient()
-                .CalculateAverageIncomeAsync(stockTicker);
+                .CalculateAverageIncomeAsync(stockTicker, date);
         }
 
         public int GetRequestCount(string route)
