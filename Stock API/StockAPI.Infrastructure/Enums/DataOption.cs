@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -9,13 +10,13 @@ namespace StockAPI.Infrastructure.Enums
 {
     public enum DataOption
     {
-        [EnumMember(Value = "DAILY")]
+        [Description("Daily")]
         DAILY,
 
-        [EnumMember(Value = "WEEKLY")]
+        [Description("Weekly")]
         WEEKLY,
 
-        [EnumMember(Value = "MONTHLY")]
+        [Description("Monthly")]
         MONTHLY
     }
 }
