@@ -33,7 +33,7 @@ namespace Accounts.Domain.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException("Unsuccessful request");
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
             }
 
             var result = await response.Content.ReadAsStringAsync();

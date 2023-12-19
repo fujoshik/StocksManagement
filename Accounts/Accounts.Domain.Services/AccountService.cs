@@ -4,7 +4,6 @@ using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.DTOs.Authentication;
 using Accounts.Domain.DTOs.Wallet;
 using AutoMapper;
-using System;
 
 namespace Accounts.Domain.Services
 {
@@ -31,6 +30,11 @@ namespace Accounts.Domain.Services
 
         public async Task<AccountResponseDto> CreateAsync(RegisterDto registerDto)
         {
+            if (registerDto == null)
+            {
+                throw new ArgumentNullException(nameof(registerDto));
+            }
+
             var account = _mapper.Map<AccountRequestDto>(registerDto);
             if (registerDto is RegisterTrialDto)
             {

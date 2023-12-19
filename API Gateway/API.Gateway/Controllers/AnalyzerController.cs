@@ -1,5 +1,4 @@
-﻿
-using Gateway.Domain.Abstraction.Services;
+﻿using Gateway.Domain.Abstraction.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Gateway.Controllers
@@ -15,33 +14,33 @@ namespace API.Gateway.Controllers
             _statisticsService = statisticsService ?? throw new ArgumentNullException(nameof(statisticsService));
         }
 
-        [HttpGet("current-price/{symbol}")]
-        public IActionResult GetCurrentStockPrice(string symbol)
-        {
-            try
-            {
-                var currentPrice = _stockService.GetCurrentPrice(symbol);
-                return Ok(currentPrice);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error retrieving current stock price: {ex.Message}");
-            }
-        }
+        //[HttpGet("current-price/{symbol}")]
+        //public IActionResult GetCurrentStockPrice(string symbol)
+        //{
+        //    try
+        //    {
+        //        var currentPrice = _stockService.GetCurrentPrice(symbol);
+        //        return Ok(currentPrice);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error retrieving current stock price: {ex.Message}");
+        //    }
+        //}
 
-        [HttpGet("historical-data/{symbol}")]
-        public IActionResult GetHistoricalStockData(string symbol)
-        {
-            try
-            {
-                var historicalData = _stockService.GetHistoricalData(symbol);
-                return Ok(historicalData);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error retrieving historical stock data: {ex.Message}");
-            }
-        }
+        //[HttpGet("historical-data/{symbol}")]
+        //public IActionResult GetHistoricalStockData(string symbol)
+        //{
+        //    try
+        //    {
+        //        var historicalData = _stockService.GetHistoricalData(symbol);
+        //        return Ok(historicalData);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error retrieving historical stock data: {ex.Message}");
+        //    }
+        //}
 
         [HttpGet("top-users")]
         public IActionResult GetTopUsers()
@@ -56,22 +55,22 @@ namespace API.Gateway.Controllers
                 return StatusCode(500, $"Error retrieving top users: {ex.Message}");
             }
         }
-        [HttpGet("analyze/{symbol}")]
-        public IActionResult AnalyzeStockData(string symbol)
-        {
-            try
-            {
-                //decimal currentStockValue = _stockAPIService.GetStockValue(symbol);
-                //string recommendation = currentStockValue < 50 ? "Buy" : "Sell";
-                //return new StockAnalysisResult { Symbol = symbol, Recommendation = recommendation };
-                var analysisResult = _stockService.AnalyzeStockData(symbol);
-                return Ok(analysisResult);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error analyzing stock data: {ex.Message}");
-            }
-        }
+        //[HttpGet("analyze/{symbol}")]
+        //public IActionResult AnalyzeStockData(string symbol)
+        //{
+        //    try
+        //    {
+        //        //decimal currentStockValue = _stockAPIService.GetStockValue(symbol);
+        //        //string recommendation = currentStockValue < 50 ? "Buy" : "Sell";
+        //        //return new StockAnalysisResult { Symbol = symbol, Recommendation = recommendation };
+        //        var analysisResult = _stockService.AnalyzeStockData(symbol);
+        //        return Ok(analysisResult);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error analyzing stock data: {ex.Message}");
+        //    }
+        //}
 
         [HttpGet("request-statistics/{route}")]
         public IActionResult GetRequestStatistics(string route)
@@ -89,6 +88,12 @@ namespace API.Gateway.Controllers
             }
         }
 
+        [HttpGet("average-income")]
+        public async Task<ActionResult<decimal>> CalculateAverageIncome([FromQuery] string stockTicker)
+        {
+            var result = await _statisticsService.CalculateAverageIncomeAsync(stockTicker);
 
+            return Ok(result);
+        }
     }
 }

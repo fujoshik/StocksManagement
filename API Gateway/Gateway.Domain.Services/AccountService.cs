@@ -9,40 +9,41 @@ namespace Gateway.Domain.Services
 
     public class AccountService : IAccountService
     {
-        private readonly IUserService _userService;
+        //private readonly IUserService _userService;
         private readonly IHttpClientFactoryCustom _httpClientFactoryCustom;
 
-        public AccountService(IUserService userService, IHttpClientFactory httpClientFactoryCustom)
+        public AccountService(//IUserService userService, 
+            IHttpClientFactoryCustom httpClientFactoryCustom)
         {
-            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            //_userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _httpClientFactoryCustom = (IHttpClientFactoryCustom?)httpClientFactoryCustom;
         }
 
         public void CreateAccount(string userId, decimal initialBalance)
         {
 
-            _userService.CreateUser(userId, initialBalance);
+            //_userService.CreateUser(userId, initialBalance);
         }
 
 
         public void DeleteAccount(string userId)
         {
 
-            _userService.DeleteAccount(userId);
+            //_userService.DeleteAccount(userId);
         }
 
         public void UpdateUserStatus(string userId, decimal accountBalance, decimal tradeResult)
         {
 
             UserType newStatus = CalculateNewStatus(accountBalance, tradeResult);
-            _userService.UpdateUserStatus(userId, newStatus, accountBalance);
+            //_userService.UpdateUserStatus(userId, newStatus, accountBalance);
         }
 
-        public UserType GetUserType(string userId)
-        {
+        //public UserType GetUserType(string userId)
+        //{
 
-            return _userService.GetUserType(userId);
-        }
+        //    return _userService.GetUserType(userId);
+        //}
 
         private UserType CalculateNewStatus(decimal accountBalance, decimal tradeResult)
         {
@@ -72,6 +73,7 @@ namespace Gateway.Domain.Services
         {
             await _httpClientFactoryCustom
                 .GetAccountClient()
+                .GetAuthenticateAccountClient()
                 .RegisterAsync(registerDto);
         }
 
@@ -79,6 +81,7 @@ namespace Gateway.Domain.Services
         {
             await _httpClientFactoryCustom
                 .GetAccountClient()
+                .GetAuthenticateAccountClient()
                 .RegisterTrialAsync(registerDto);
         }
 
@@ -86,11 +89,18 @@ namespace Gateway.Domain.Services
         {
             return await _httpClientFactoryCustom
                 .GetAccountClient()
+                .GetAuthenticateAccountClient()
                 .LoginAsync(loginDto);
         }
+
+        public async Task VerifyCodeAsync(string code)
+        {
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetAuthenticateAccountClient()
+                .VerifyCodeAsync(code);
+        }
     }
-
-
 }
 
 

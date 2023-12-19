@@ -9,6 +9,8 @@ namespace StockAPI.Domain.Abstraction.Services
 {
     public interface IPdfDataService
     {
-        void GeneratePdf(PdfData pdfData);
+        Task GeneratePdf(string beginningDate, string endDate);
+        Task<string> GetMostPopularStockTicker(string beginningDate, string endDate);
+
     }
 }

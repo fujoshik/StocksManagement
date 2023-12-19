@@ -97,7 +97,7 @@ namespace Gateway.Domain.Services
 
         public void Logout(string userId)
         {
-            _userService.Logout(userId);
+            //_userService.Logout(userId);
             _loggingService.LogActivity("Logout", $"User logged out: {userId}");
             ArchiveLog("Logout", $"User logged out: {userId}");
         }
@@ -109,7 +109,7 @@ namespace Gateway.Domain.Services
 
         public void DeleteAccount(string userId)
         {
-            _userService.DeleteAccount(userId);
+            //_userService.DeleteAccount(userId);
             _loggingService.LogActivity("DeleteAccount", $"User account deleted: {userId}");
             ArchiveLog("DeleteAccount", $"User account deleted: {userId}");
         }
@@ -121,17 +121,17 @@ namespace Gateway.Domain.Services
             ArchiveLog("UpdateUserStatus", $"User status updated: {userId}, Balance: {accountBalance}, Trade Result: {tradeResult}");
         }
 
-        public UserType GetUserType(string userId)
-        {
-            UserType userType = _userService.GetUserType(userId);
-            if (userType == UserType.Demo && DateTime.Now - _userService.GetRegistrationDate(userId) > TimeSpan.FromDays(30))
-            {
-                _userService.UpdateUserType(userId, UserType.Regular);
-                _loggingService.LogActivity("UserTypeUpdate", $"User type updated: {userId}, New type: Regular");
-            }
+        //public UserType GetUserType(string userId)
+        //{
+        //    UserType userType = _userService.GetUserType(userId);
+        //    if (userType == UserType.Demo && DateTime.Now - _userService.GetRegistrationDate(userId) > TimeSpan.FromDays(30))
+        //    {
+        //        _userService.UpdateUserType(userId, UserType.Regular);
+        //        _loggingService.LogActivity("UserTypeUpdate", $"User type updated: {userId}, New type: Regular");
+        //    }
 
-            return userType;
-        }
+        //    return userType;
+        //}
 
     }
 }

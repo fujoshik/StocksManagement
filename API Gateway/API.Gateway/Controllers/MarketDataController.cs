@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Gateway.Domain.DTOs.HistoricalData;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -40,7 +41,7 @@ namespace API.Gateway.Controllers
         public IActionResult GetHistoricalStockData()
         {
 
-            if (!_cache.TryGetValue("HistoricalStockData", out List<HistoricalData> historicalData))
+            if (!_cache.TryGetValue("HistoricalStockData", out List<HistoricalDataDto> historicalData))
             {
 
                 historicalData = FetchHistoricalStockData();
@@ -60,22 +61,16 @@ namespace API.Gateway.Controllers
             return 100.0;
         }
 
-        private List<HistoricalData> FetchHistoricalStockData()
+        private List<HistoricalDataDto> FetchHistoricalStockData()
         {
 
-            return new List<HistoricalData>
+            return new List<HistoricalDataDto>
         {
-            new HistoricalData { Date = DateTime.Now.AddYears(-1), Value = 90.0 },
-            new HistoricalData { Date = DateTime.Now.AddYears(-2), Value = 80.0 }
+            new HistoricalDataDto { Date = DateTime.Now.AddYears(-1), Value = 90.0 },
+            new HistoricalDataDto { Date = DateTime.Now.AddYears(-2), Value = 80.0 }
 
         };
         }
-    }
-
-    public class HistoricalData
-    {
-        public DateTime Date { get; set; }
-        public double Value { get; set; }
     }
 }
 

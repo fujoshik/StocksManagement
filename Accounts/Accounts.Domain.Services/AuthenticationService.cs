@@ -1,4 +1,5 @@
-﻿using Accounts.Domain.Abstraction.Repositories;
+﻿using Accounts.Domain.Abstraction.Providers;
+using Accounts.Domain.Abstraction.Repositories;
 using Accounts.Domain.Abstraction.Services;
 using Accounts.Domain.DTOs.Authentication;
 using Accounts.Domain.DTOs.MongoDB;
@@ -15,6 +16,7 @@ namespace Accounts.Domain.Services
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
         private readonly IMongoDBService _mongoDBService;
+        private readonly IValidationProvider _validationProvider;
         private readonly IMapper _mapper;
 
         public AuthenticationService(IAccountService accountService,
@@ -24,6 +26,7 @@ namespace Accounts.Domain.Services
                                      ITokenService tokenService,
                                      IEmailService emailService,
                                      IMongoDBService mongoDBService,
+                                     IValidationProvider validationProvider,
                                      IMapper mapper) 
         {
             _accountService = accountService;
@@ -33,6 +36,7 @@ namespace Accounts.Domain.Services
             _tokenService = tokenService;
             _emailService = emailService;
             _mongoDBService = mongoDBService;
+            _validationProvider = validationProvider;
             _mapper = mapper;
         }
 
@@ -59,6 +63,13 @@ namespace Accounts.Domain.Services
 
         public async Task<string> LoginAsync(LoginDto loginDto)
         {
+            if (loginDto == null)
+            {
+                throw new ArgumentNullException(nameof(loginDto));
+            }
+
+            await _validationProvider.TryValidateAsync(loginDto);
+
             var accounts = await _unitOfWork.AccountRepository.GetAccountsByEmail(loginDto.Email);
 
             if (accounts == null || accounts.Count == 0)
@@ -107,6 +118,8 @@ namespace Accounts.Domain.Services
 
         private async Task RegisterAccountAsync(RegisterDto registerDto)
         {
+            await _validationProvider.TryValidateAsync(registerDto);
+
             var account = await _accountService.CreateAsync(registerDto);
 
             await _userService.CreateAsync(registerDto, account.Id);

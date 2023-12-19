@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Gateway.Domain.Abstraction.Services;
+﻿using Gateway.Domain.Abstraction.Services;
 using Gateway.Domain.DTOs.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,53 +20,20 @@ namespace API.Gateway.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous] 
-        public async Task<ActionResult<string>> Login(LoginDto account)
+        public async Task<ActionResult> Login(LoginDto account)
         {
             var token = await _accountService.LoginAsync(account);
 
             if (token is null)
             {
+                _logger.LogWarning($"Login failed for user: {account.Email}");
                 return Unauthorized();
             }
 
+            _logger.LogInformation($"Successful user login: {account.Email}");
             return Ok(token);
         }
-        public IActionResult Login([FromBody] LoginModel model)
-        {
-           
-            if (IsUserAuthenticated(model.Username, model.Password))
-            {
-                _logger.LogInformation("Successful user login: {Username}", model.Username);
-                return Ok();
-            }
-            else
-            {
-                _logger.LogWarning("Login failed for user: {Username}", model.Username);
-                return Unauthorized("Wrong username or password");
-            }
-        }
 
-        [HttpPost("logout")]
-        [Authorize] 
-        public IActionResult Logout()
-        {
-            
-            _logger.LogInformation("User logout: {Username}", User.Identity.Name);
-
-            
-
-            return Ok();
-        }
-
-        private bool IsUserAuthenticated(string username, string password)
-        {
-            
-            if (username == "user" && password == "password")
-            {
-                return true;
-            }
-            return false;
-        }
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterWithSumDTO account)
         {
@@ -83,11 +49,13 @@ namespace API.Gateway.Controllers
 
             return NoContent();
         }
-    }
 
-    public class LoginModel
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
+        [HttpPost("verify")]
+        public async Task<ActionResult> VerifyCode(string code)
+        {
+            await _accountService.VerifyCodeAsync(code);
+
+            return NoContent();
+        }
     }
 }
