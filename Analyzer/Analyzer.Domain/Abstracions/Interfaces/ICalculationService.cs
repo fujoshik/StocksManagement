@@ -6,7 +6,7 @@ namespace Analyzer.Domain.Abstracions.Interfaces
 {
     public interface ICalculationService
     {
-        public Task<TransactionResponseDto> CalculateCurrentYield(Guid userId, string stockTicker, string data);
+        public Task<decimal> CalculateCurrentYield(Guid accountId, string stockTicker, string data);
         public bool IsValidMarketPrice(decimal currentBalance);
         
     }

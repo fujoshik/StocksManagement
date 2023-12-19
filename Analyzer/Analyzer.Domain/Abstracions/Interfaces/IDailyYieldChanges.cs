@@ -11,7 +11,7 @@ namespace Analyzer.Domain.Abstracions.Interfaces
 {
     public interface IDailyYieldChanges
     {
-        Task<List<DailyYieldChangeDto>> DailyYieldChanges(Guid accountId, string stockTicker);
+        public Task<List<DailyYieldChangeDto>> CalculateDailyYieldChanges(Guid accountId, string stockTicker, DateTime startDate, DateTime endDate, List<Stock> stockList);
 
     }
 

@@ -18,19 +18,22 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             this.httpClientService = httpClientService;
         }
 
-        public async Task<decimal> PercentageChange(Guid userId, string stockTicker, string data)
+        public async Task<decimal> PercentageChange(Guid walletId, string stockTicker, string data)
         {
             try
             {
-                var stockData = await httpClientService.GetStockData(stockTicker, data);
-                var getTransactions = await httpClientService.GetTransactions(userId, stockTicker);
+                var  stockData = await httpClientService.GetStockData(stockTicker, data);
+                var getTransactions = await httpClientService.GetAccountInfoById(walletId);
 
                 if (stockData == null)
                 {
                     throw new UserDataNotFoundException();
                 }
-
-                decimal? percentageChange = ((decimal)(stockData.OpenPrice * 100));
+                decimal closePrice = (decimal)stockData.ClosestPrice;
+                decimal openPrice = (decimal)stockData.OpenPrice;
+                decimal? percentageChange = closePrice < openPrice
+                     ? Math.Round(((closePrice - openPrice) / openPrice) * -100, 2)
+                     : Math.Round(((closePrice - openPrice) / openPrice) * 100, 2);
 
                 return percentageChange ?? 0;
             }

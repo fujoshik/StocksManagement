@@ -1,14 +1,7 @@
-using Accounts.Domain.DTOs.Wallet;
 using Analyzer.API.Analyzer.Domain;
 using Analyzer.Domain.Abstracions.Interfaces;
-using Analyzer.API.Analyzer.Domain.DTOs;
-using Analyzer.Domain.DTOs;
-using Analyzer.API.Analyzer.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
-using StockAPI.Infrastructure.Models;
-using System;
-using Analyze.Domain.Service;
-using Analyzer.API.Analyzer.Domain.Abstracions.Services;
+using Serilog;
 
 namespace Analyzer.API.Controllers
 {
@@ -20,6 +13,7 @@ namespace Analyzer.API.Controllers
         private readonly IHttpClientService httpClientService;
         private readonly IDailyYieldChanges yieldService;
         private readonly IPercentageChange pesantageChanges;
+       
 
 
         public CalculationController(ICalculationService calculationService, IHttpClientService httpClientService, IDailyYieldChanges yieldService, IPercentageChange pesantageChanges)
@@ -32,15 +26,14 @@ namespace Analyzer.API.Controllers
         }
 
 
-
         [HttpGet("calculate-current-yield")]
-        public async Task<IActionResult> CalculateCurrentYield(Guid userId, string stockTicker, string data)
+        public async Task<IActionResult> CalculateCurrentYield(Guid accountId, string stockTicker, string data)
         {
             try
             {
                 DateTime currentDateTime = DateTime.Now;
 
-                TransactionResponseDto currentYield = await calculationService.CalculateCurrentYield(userId, stockTicker, data);
+                decimal currentYield = await calculationService.CalculateCurrentYield(accountId, stockTicker, data);
 
                 return Ok(new { CurrentYield = currentYield, CurrentDateTime = currentDateTime });
             }
@@ -57,11 +50,11 @@ namespace Analyzer.API.Controllers
 
 
         [HttpGet("percentage-change")]
-        public async Task<IActionResult> PercentageChange([FromQuery] Guid userId, [FromQuery] string stockTicker, [FromQuery] string data)
+        public async Task<IActionResult> PercentageChange([FromQuery] Guid walletId, [FromQuery] string stockTicker, [FromQuery] string data)
         {
             try
             {
-                decimal percentageChange = await pesantageChanges.PercentageChange(userId, stockTicker, data);
+                decimal percentageChange = await pesantageChanges.PercentageChange(walletId, stockTicker, data);
                 return Ok(new { PercentageChange = percentageChange });
             }
             catch (UserDataNotFoundException ex)
@@ -75,19 +68,35 @@ namespace Analyzer.API.Controllers
         }
 
 
-        [HttpGet("calculate-daily-yield-changes")]
-        public async Task<IActionResult> CalculateDailyYieldChanges(Guid accountId, string stockTicker)
+        [HttpGet]
+        [Route("daily-yield-changes")]
+        public async Task<IActionResult> DailyYieldChanges([FromQuery] string date, [FromQuery] string stockTicker, [FromQuery] Guid accountId)
         {
             try
             {
-                var result = await yieldService.DailyYieldChanges(accountId, stockTicker);
-                return Ok(result);
+                DateTime startDate = DateTime.Parse(date);
+
+                DateTime endDate = startDate.AddDays(4); 
+                var stockList = await httpClientService.GetStock(stockTicker, startDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"));
+
+                if (stockList != null && stockList.Any())
+                {
+                    var dailyYieldChanges = await yieldService.CalculateDailyYieldChanges(accountId, stockTicker, startDate, endDate, stockList);
+                    return Ok(dailyYieldChanges);
+                }
+                else
+                {
+                    Log.Information($"No stock found for date '{date}' and stock ticker '{stockTicker}'.");
+                    return NotFound($"No stock found for date '{date}' and stock ticker '{stockTicker}'.");
+                }
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error calculating percentage change: {ex.Message}");
+                Log.Error(ex, "An error occurred while processing the request.");
+                return StatusCode(500, "Internal server error");
             }
         }
+
 
     }
 }

@@ -12,7 +12,7 @@ namespace StockAPI.Domain.Abstraction.DataBase
     {
         SqliteConnection GetConnection();
         void Dispose();
-        void InsertStockIntoDatabase(Stock stock);
-        void InitializeDatabase();
+        Task InsertStockIntoDatabase(Stock stock);
+        Task InitializeDatabase();
     }
 }

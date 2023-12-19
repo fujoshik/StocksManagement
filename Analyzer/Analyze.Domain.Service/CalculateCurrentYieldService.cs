@@ -11,21 +11,21 @@ namespace Analyzer.API.Analyzer.Domain.Services
         private readonly IHttpClientService httpClientService;
         private readonly IDailyYieldChanges dailyYieldChangesService;
         private readonly IPercentageChange percentageChangeService;
-        private readonly IService service;
+        
 
         public CalculateCurrentYieldService(
             IHttpClientService httpClientService,
             IDailyYieldChanges dailyYieldChangesService,
-            IPercentageChange percentageChangeService,
-            IService service)
+            IPercentageChange percentageChangeService
+            )
         {
             this.httpClientService = httpClientService;
             this.dailyYieldChangesService = dailyYieldChangesService;
             this.percentageChangeService = percentageChangeService;
-            this.service = service;
+           ;
         }
 
-        public async Task<TransactionResponseDto> CalculateCurrentYield(Guid accountId, string stockTicker, string data)
+        public async Task<decimal> CalculateCurrentYield(Guid accountId, string stockTicker, string data)
         {
             try
             {
@@ -44,15 +44,7 @@ namespace Analyzer.API.Analyzer.Domain.Services
 
                         var currentYield = (((decimal)totalQuantity * (decimal)openPrice) - closePrice);
 
-                        var transactionData = new TransactionResponseDto
-                        {
-                            WalletId = accountId,
-                            StockTicker = stockTicker,
-                            Date = DateTime.Now.ToString(),
-                            Quantity = totalQuantity, 
-                        };
-
-                        return transactionData;
+                        return currentYield;
                     }
                     else
                     {
