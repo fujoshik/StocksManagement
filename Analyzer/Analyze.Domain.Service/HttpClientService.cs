@@ -33,11 +33,11 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
             stock.BaseAddress = new Uri(APIsConection.GetStock);
         }
 
-        public async Task<WalletDto> GetAccountInfoById(Guid id)
+        public async Task<WalletDto> GetAccountInfoById(Guid walletId)
         {
             using (var httpClient = GetAccountClient())
             {
-                string getUrl = $"/accounts-api/wallets/{id}";
+                string getUrl = $"/accounts-api/wallets/{walletId}";
                 HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
                 if (response.IsSuccessStatusCode)

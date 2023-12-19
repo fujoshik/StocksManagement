@@ -11,50 +11,38 @@ public class DailyYieldChangesService : IDailyYieldChanges
         this.httpClientService = httpClientService;
     }
 
-    public async Task<List<DailyYieldChangeDto>> DailyYieldChanges(Guid accountId, string stockTicker)
+    public async Task<List<DailyYieldChangeDto>> CalculateDailyYieldChanges(Guid accountId, string stockTicker, DateTime startDate, DateTime endDate, List<Stock> stockList)
     {
-        try
-        {
-            var transactions = await httpClientService.GetTransactions(accountId, stockTicker);
+        List<DailyYieldChangeDto> dailyYieldChanges = new List<DailyYieldChangeDto>();
 
-            var stockPrices = await httpClientService.GetStock(stockTicker, transactions.Min(t => t.Date), transactions.Max(t => t.Date));
+        var transactions = await httpClientService.GetTransactions(accountId, stockTicker);
 
-            var dailyYieldChanges = CalculateDailyYieldChanges(transactions, stockPrices);
-
-            return dailyYieldChanges;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Error calculating daily yield changes: {ex.Message}");
-        }
-    }
-
-    private List<DailyYieldChangeDto> CalculateDailyYieldChanges(List<TransactionResponseDto> transactions, List<Stock> stockPrices)
-    {
-        var dailyYieldChanges = new List<DailyYieldChangeDto>();
+        var firstStock = stockList.FirstOrDefault();
 
         foreach (var transaction in transactions)
         {
-            var stockPrice = stockPrices.FirstOrDefault(sp => sp.Date == transaction.Date);
+            var purchasePrice = firstStock?.ClosestPrice ?? 0m;
 
-            if (stockPrice != null)
+            var correspondingStock = stockList.FirstOrDefault(stock =>
+                DateTime.TryParse(stock.Date, out var stockDate) && transaction.Date == stockDate.ToString("yyyy-MM-dd"));
+
+            if (correspondingStock != null)
             {
-                var yieldChange = new DailyYieldChangeDto
+                var dailyYieldChange = new DailyYieldChangeDto
                 {
                     Date = transaction.Date,
-                    StockTicker = transaction.StockTicker,
+                    StockTicker = stockTicker,
                     TransactionType = transaction.TransactionType,
                     Quantity = transaction.Quantity,
-                    PurchasePrice = (decimal)(stockPrice.OpenPrice ?? 0),
-                    CurrentPrice = stockPrice.ClosestPrice ?? 0
+                    PurchasePrice = purchasePrice,
+                    CurrentPrice = correspondingStock.ClosestPrice ?? 0m, 
+                    DailyYield = ((correspondingStock.ClosestPrice ?? 0m) - purchasePrice) * transaction.Quantity
                 };
 
-                dailyYieldChanges.Add(yieldChange);
+                dailyYieldChanges.Add(dailyYieldChange);
             }
         }
 
         return dailyYieldChanges;
     }
-
-   
 }
