@@ -1,4 +1,4 @@
-﻿namespace Settlement.Domain.Constants.Queries
+namespace Settlement.Domain.Constants.Queries
 {
     public class SqlQueriesConstants
     {
@@ -62,5 +62,38 @@
 
         public const string DeleteFailedTransaction = @"
         DELETE FROM FailedTransactions WHERE WalletId = @WalletId";
+
+        public const string CheckValidWalletId = @"
+        SELECT * FROM Accounts WHERE WalletId = @WalletId";
+
+        public const string CreateHandledWalletsTable = @"
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'HandledWallets')
+        BEGIN
+            CREATE TABLE HandledWallets (
+            Id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
+            WalletId uniqueidentifier,
+            AccountId uniqueidentifier,
+            TransactionId uniqueidentifier,
+            CONSTRAINT FK_HandledWallets_Wallets FOREIGN KEY (WalletId) REFERENCES Wallets(Id),
+            CONSTRAINT FK_HandledWallets_Accounts FOREIGN KEY (AccountId) REFERENCES Accounts(Id),
+            CONSTRAINT FK_HandledWallets_Transactions FOREIGN KEY (TransactionId) REFERENCES Transactions(Id)
+            );
+        END";
+
+        public const string GetWalltByIdQuery = @"
+        SELECT Id, InitialBalance, CurrentBalance, CurrencyCode
+        FROM Wallets
+        WHERE Id = @WalletId";
+
+        public const string UpdateTransactionQuery = @"
+        UPDATE Transactions
+        SET StockTicker = @StockTicker,
+            Price = @Price,
+            Quantity = @Quantity,
+            TransactionType = @TransactionType,
+            AccountId = @AccountId
+        WHERE Id = @TransactionId";
+
+
     }
 }
