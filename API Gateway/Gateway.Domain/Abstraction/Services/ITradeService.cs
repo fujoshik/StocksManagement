@@ -8,7 +8,7 @@ namespace Gateway.Domain.Abstraction.Services
 {
     public interface ITradeService
     {
-        void ExecuteTrade(string userId, string symbol, decimal amount, TradeType type);
+        //void ExecuteTrade(string userId, string symbol, decimal amount, TradeType type);
 
     }
 }

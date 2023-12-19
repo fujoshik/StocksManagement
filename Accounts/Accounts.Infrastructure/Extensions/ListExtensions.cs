@@ -1,5 +1,5 @@
-﻿using Accounts.Domain.Pagination;
-using System.ComponentModel.DataAnnotations;
+﻿using Accounts.Domain.Exceptions;
+using Accounts.Domain.Pagination;
 
 namespace Accounts.Infrastructure.Extensions
 {

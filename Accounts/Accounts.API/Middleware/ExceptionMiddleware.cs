@@ -35,12 +35,24 @@ namespace Accounts.API.Middleware
             {
                 switch (ex)
                 {
-                    case ArgumentNullException:
+                    case NotFoundException:
+                        statusCode = HttpStatusCode.NotFound;
+                        detail = ex.Message;
+                        break;
+                    case ValidationException:
                         statusCode = HttpStatusCode.BadRequest;
                         detail = ex.Message;
                         break;
+                    case ArgumentNullException:
+                        statusCode = HttpStatusCode.BadRequest;
+                        detail = ex.Message;
+                        break;                  
                     case IncorrectAccountIdException:
                         statusCode = HttpStatusCode.BadRequest;
+                        detail = ex.Message;
+                        break;
+                    case NoExistingValidatorForGivenTypeException:
+                        statusCode = HttpStatusCode.NotFound;
                         detail = ex.Message;
                         break;
                     case UnauthorizedAccessException:

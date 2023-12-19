@@ -44,7 +44,7 @@ namespace StockAPI.Domain.Services.Mappers
                 LowestPrice = reader["LowestPrice"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(reader["LowestPrice"]),
                 TransactionCount = reader["TransactionCount"] == DBNull.Value ? null : (int?)Convert.ToInt32(reader["TransactionCount"]),
                 OpenPrice = reader["OpenPrice"] == DBNull.Value ? null : (double?)Convert.ToDouble(reader["OpenPrice"]),
-                IsOTC = reader["IsOTC"] == DBNull.Value ? null : (bool?)(reader["IsOTC"]),
+                IsOTC = reader["IsOTC"] == DBNull.Value ? null : (bool?)(Convert.ToInt64(reader["IsOTC"]) != 0),
                 UnixTimestamp = reader["UnixTimestamp"] == DBNull.Value ? null : (long?)Convert.ToInt64(reader["UnixTimestamp"]),
                 TradingVolume = reader["TradingVolume"] == DBNull.Value ? null : (int?)Convert.ToInt32(reader["TradingVolume"]),
                 VolumeWeightedAveragePrice = reader["VolumeWeightedAveragePrice"] == DBNull.Value ? null : (double?)Convert.ToDouble(reader["VolumeWeightedAveragePrice"]),

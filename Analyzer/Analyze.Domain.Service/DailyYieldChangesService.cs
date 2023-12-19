@@ -1,55 +1,48 @@
 ﻿using Analyzer.Domain.Abstracions.Interfaces;
-using Analyzer.API.Analyzer.Domain.DTOs;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Analyzer.Domain.DTOs;
+using StockAPI.Infrastructure.Models;
 
-namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
+public class DailyYieldChangesService : IDailyYieldChanges
 {
-    public class DailyYieldChangesService : IDailyYieldChanges
+    private readonly IHttpClientService httpClientService;
+
+    public DailyYieldChangesService(IHttpClientService httpClientService)
     {
-        private readonly IHttpClientService httpClientService;
+        this.httpClientService = httpClientService;
+    }
 
-        public DailyYieldChangesService(IHttpClientService httpClientService)
+    public async Task<List<DailyYieldChangeDto>> CalculateDailyYieldChanges(Guid accountId, string stockTicker, DateTime startDate, DateTime endDate, List<Stock> stockList)
+    {
+        List<DailyYieldChangeDto> dailyYieldChanges = new List<DailyYieldChangeDto>();
+
+        var transactions = await httpClientService.GetTransactions(accountId, stockTicker);
+
+        var firstStock = stockList.FirstOrDefault();
+
+        foreach (var transaction in transactions)
         {
-            this.httpClientService = httpClientService;
-        }
+            var purchasePrice = firstStock?.ClosestPrice ?? 0m;
 
-        public async Task<decimal> CalculateDailyYieldChanges(List<CalculationDTOs> stocks)
-        {
-            try
+            var correspondingStock = stockList.FirstOrDefault(stock =>
+                DateTime.TryParse(stock.Date, out var stockDate) && transaction.Date == stockDate.ToString("yyyy-MM-dd"));
+
+            if (correspondingStock != null)
             {
-                if (stocks == null || !stocks.Any())
+                var dailyYieldChange = new DailyYieldChangeDto
                 {
-                    throw new ArgumentException("Stocks list is null or empty.");
-                }
+                    Date = transaction.Date,
+                    StockTicker = stockTicker,
+                    TransactionType = transaction.TransactionType,
+                    Quantity = transaction.Quantity,
+                    PurchasePrice = purchasePrice,
+                    CurrentPrice = correspondingStock.ClosestPrice ?? 0m, 
+                    DailyYield = ((correspondingStock.ClosestPrice ?? 0m) - purchasePrice) * transaction.Quantity
+                };
 
-                decimal totalDailyChanges = 0;
-
-                foreach (var stock in stocks)
-                {
-                    var stockData = await httpClientService.GetStockData(stock.Ticker, stock.Date);
-
-                    if (stockData == null)
-                    {
-                        throw new UserDataNotFoundException();
-                    }
-
-                    decimal? dailyChange = ((decimal)(stockData.LowestPrice - stockData.HighestPrice) / stockData.HighestPrice) * 100 ;
-
-                    totalDailyChanges += dailyChange.Value;
-                }
-
-                decimal averageDailyChange = totalDailyChanges / stocks.Count;
-
-                return averageDailyChange;
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException("Error calculating average daily yield changes.", ex);
+                dailyYieldChanges.Add(dailyYieldChange);
             }
         }
+
+        return dailyYieldChanges;
     }
 }

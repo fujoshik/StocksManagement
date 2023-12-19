@@ -11,7 +11,7 @@ namespace Gateway.Domain.DTOs.Trade
         public string UserId { get; set; }
         public string Symbol { get; set; }
         public decimal Amount { get; set; }
-        public TradeType Type { get; set; }
+        //public TradeType Type { get; set; }
         
     }
 

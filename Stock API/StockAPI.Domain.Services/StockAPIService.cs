@@ -47,12 +47,13 @@ namespace StockAPI.Domain.Services
             _stockMapper = stockMapper;
         }
 
+        //get daily stock data from polygon
         public async Task<List<Stock>> GetGroupedDailyData()
         {
             try
             {
-                string currentDate = DateTime.Now.AddDays(-15).ToString("yyyy-MM-dd");
-                string endpointUrl = $"{_groupedDaily}{currentDate}?adjusted=true&apiKey={_apiKey}";
+                string currentDate = DateTime.Now.AddDays(-50).ToString("yyyy-MM-dd");
+                string endpointUrl = string.Format(_groupedDaily, "2023-01-09", _apiKey);
 
                 HttpResponseMessage response = await _httpClientFactory.CreateClient()
                     .GetAsync(endpointUrl);
@@ -67,28 +68,38 @@ namespace StockAPI.Domain.Services
                 foreach (var item in result.results.Take(2))
                 {
                     var stock = _stockMapper.ResultToStock(item, currentDate);
-                    InsertStockIntoDatabase(stock);
+                    _dataBaseContext.InsertStockIntoDatabase(stock);
                     stocks.Add(stock);
                 }
 
+                Log.Information("daily stock data from polygon was " +
+                    "sucessfully retrieved and added to the database.");
                 return stocks;
+            }
+            catch(ArgumentNullException ex)
+            {
+                Log.Warning(ex, "there was no response from polygon.");
+                return new List<Stock>();
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "an error occurred while fetching grouped daily data and adding it to the database.");
+                Log.Error(ex, "an error occurred while fetching grouped daily " +
+                    "data and adding it to the database.");
                 throw;
             }
         }
 
+        //get stock data by a given date and ticker from polygon
         public async Task<Stock> GetStockByDateAndTickerFromAPI(string date, string stockTicker)
         {
             try
             {
-                string endpointUrl = $"{_dailyOpenClose}{stockTicker}/{date}?adjusted=true&apiKey={_apiKey}";
+                string endpointUrl = string.Format(_dailyOpenClose, stockTicker, date, _apiKey); 
 
                 HttpResponseMessage response = await _httpClientFactory.CreateClient()
                     .GetAsync(endpointUrl);
-                response.EnsureSuccessStatusCode();
+
+                if(!response.IsSuccessStatusCode) return null;
 
                 string responseData = await response.Content.ReadAsStringAsync();
 
@@ -97,39 +108,23 @@ namespace StockAPI.Domain.Services
                 var stock = new Stock();
 
                 stock = _stockMapper.StockByDateAndTickerRootToStock(result, date);
-                InsertStockIntoDatabase(stock);
 
+                _dataBaseContext.InsertStockIntoDatabase(stock);
+
+                Log.Information($"successfully retrieved {stockTicker} from {date} and added it " +
+                    "to the database.");
                 return stock;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"an error occurred while trying to add {stockTicker} from {date}" +
+                Log.Error(ex, $"an error occurred while trying to retrieve and " +
+                    $"add {stockTicker} from {date}" +
                     $" to the database.");
                 throw;
             }
         }
 
-        private void InsertStockIntoDatabase(Stock stock)
-        {
-            _dataBaseContext.InitializeDatabase();
-
-            using (var selectCommand = new SqliteCommand("SELECT COUNT(*) FROM Stocks " +
-                "WHERE Date = @Date AND StockTicker = @StockTicker", _dataBaseContext.GetConnection()))
-            {
-                selectCommand.Parameters.AddWithValue("@Date", stock.Date);
-                selectCommand.Parameters.AddWithValue("@StockTicker", stock.StockTicker);
-
-                int existingRecordsCount = Convert.ToInt32(selectCommand.ExecuteScalar());
-
-                if (existingRecordsCount > 0) Log.Information("a too recent record of the stock {@StockTicker} already exists.", stock.StockTicker);
-                else
-                {
-                    _dataBaseContext.InsertStockIntoDatabase(stock);
-                    Log.Information($"successfully added {stock.StockTicker} for {stock.Date}.");
-                }
-            }
-        }
-
+        //get all stocks from the database
         public async Task<List<Stock>> GetAllStocks()
         {
             List<Stock> stocks = new List<Stock>();
@@ -146,7 +141,6 @@ namespace StockAPI.Domain.Services
                         }
                     }
                 }
-
                 Log.Information("successfully retrieved all stocks from database.");
             }
             catch (Exception ex)
@@ -158,13 +152,16 @@ namespace StockAPI.Domain.Services
             return stocks;
         }
 
+        //get a stock by date and ticker from the database
         public async Task<Stock> GetStockByDateAndTicker(string date, string stockTicker)
         {
             try
             {
                 Stock stock = null;
 
-                using (var command = new SqliteCommand("SELECT * FROM Stocks WHERE Date = @Date AND StockTicker = @StockTicker", _dataBaseContext.GetConnection()))
+                using (var command = new SqliteCommand("SELECT * FROM Stocks " +
+                    "WHERE Date = @Date AND StockTicker = @StockTicker", 
+                    _dataBaseContext.GetConnection()))
                 {
                     command.Parameters.AddWithValue("@Date", date);
                     command.Parameters.AddWithValue("@StockTicker", stockTicker);
@@ -184,7 +181,39 @@ namespace StockAPI.Domain.Services
             }
             catch(Exception ex)
             {
-                Log.Error(ex, $"an error occured while trying to retrieve data for the stock {stockTicker} from {date}.");
+                Log.Error(ex, $"an error occured while trying to retrieve data for " +
+                    $"the stock {stockTicker} from {date}.");
+                throw;
+            }
+        }
+
+        //get all stocks by a certain date from the database
+        public async Task<List<Stock>> GetStocksByDate(string date)
+        {
+            try
+            {
+                List<Stock> stocks = new List<Stock>();
+
+                using (var command = new SqliteCommand("SELECT * FROM Stocks WHERE Date = @Date", _dataBaseContext.GetConnection()))
+                {
+                    command.Parameters.AddWithValue("@Date", date);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            stocks.Add(_stockMapper.DataToStock(reader));
+                        }
+                    }
+                }
+
+                Log.Information($"stocks from {date} successfully retrieved.");
+                return stocks;
+            }
+
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"an error occured while trying to retrieve stocks from {date}.");
                 throw;
             }
         }
@@ -206,7 +235,7 @@ namespace StockAPI.Domain.Services
                 if (!hundredDaysAgoClosestAverage.HasValue || !inputDateClosestAverage.HasValue)
                 {
                     Log.Information($"not enough stock data for the period from '{hundredDaysAgo}' to '{date}'.");
-                    throw new Exception("Not enough stock data for this period.");
+                    return null;
                 }
 
                 decimal difference = Math.Abs(inputDateClosestAverage.Value - hundredDaysAgoClosestAverage.Value);
@@ -239,37 +268,6 @@ namespace StockAPI.Domain.Services
             catch (Exception ex)
             {
                 Log.Error(ex, $"an error occured while trying to retrieve market characteristics for {date}.");
-                throw;
-            }
-            
-        }
-
-        public async Task<List<Stock>> GetStocksByDate(string date)
-        {
-            try
-            {
-                List<Stock> stocks = new List<Stock>();
-
-                using (var command = new SqliteCommand("SELECT * FROM Stocks WHERE Date = @Date", _dataBaseContext.GetConnection()))
-                {
-                    command.Parameters.AddWithValue("@Date", date);
-
-                    using (var reader = await command.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            stocks.Add(_stockMapper.DataToStock(reader));
-                        }
-                    }
-                }
-
-                Log.Information($"stocks from {date} successfully retrieved.");
-                return stocks;
-            }
-            
-            catch(Exception ex)
-            {
-                Log.Error(ex, $"an error occured while trying to retrieve stocks from {date}.");
                 throw;
             }
         }

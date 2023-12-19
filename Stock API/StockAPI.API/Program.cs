@@ -33,7 +33,7 @@ builder.Services.AddSingleton<IDataBaseContext>(provider => new DataBaseContext(
 builder.Services.Configure<ApiKeys>(configuration.GetSection("ApiKeys"));
 builder.Services.Configure<EndPoints>(configuration.GetSection("EndPoints"));
 builder.Services.Configure<PdfSettings>(configuration.GetSection("PdfSettings"));
-
+builder.Services.Configure<ConnectionStrings>(configuration.GetSection("ConnectionStrings"));
 
 //logger
 Log.Logger = new LoggerConfiguration()
@@ -87,9 +87,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-//fluentscheduler
+//fluentscheduler ad database initialization
 using (var scope = app.Services.CreateScope())
 {
+    var dbContext = scope.ServiceProvider.GetRequiredService<IDataBaseContext>();
+    dbContext.InitializeDatabase();
+
     var stockApiService = scope.ServiceProvider.GetRequiredService<IStockAPIService>();
     JobManager.Initialize(new MyRegistry(stockApiService));
 }

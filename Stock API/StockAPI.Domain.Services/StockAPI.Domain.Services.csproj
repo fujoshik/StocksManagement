@@ -21,6 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
+      <ProjectReference Include="..\..\Accounts\Accounts.Domain.Services\Accounts.Domain.Services.csproj" />
+      <ProjectReference Include="..\..\Accounts\Accounts.Domain\Accounts.Domain.csproj" />
+      <ProjectReference Include="..\..\Accounts\Accounts.Infrastructure\Accounts.Infrastructure.csproj" />
       <ProjectReference Include="..\StockAPI.Infrastructure\StockAPI.Infrastructure.csproj" />
 	  <ProjectReference Include="..\StockAPI.Domain\StockAPI.Domain.csproj" />
 

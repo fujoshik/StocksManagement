@@ -1,5 +1,4 @@
-﻿using API.Gateway.Controllers;
-using Gateway.Domain.Abstraction.Services;
+﻿using Gateway.Domain.Abstraction.Services;
 using Gateway.Domain.DTOs.User;
 using System;
 using System.Collections.Generic;

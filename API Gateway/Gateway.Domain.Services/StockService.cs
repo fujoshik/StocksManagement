@@ -1,80 +1,70 @@
-﻿
-using API.Gateway.Controllers;
+﻿using Gateway.Domain.Abstraction.Factories;
 using Gateway.Domain.Abstraction.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Gateway.Domain.DTOs.Stock;
 
 namespace Gateway.Domain.Services
 {
     public class StockService : IStockService
     {
-        private readonly IBlacklistService _blacklistService;
         private readonly ILoggingService _loggingService;
+        private readonly IHttpClientFactoryCustom _httpClientFactoryCustom;
 
-        public StockService(IBlacklistService blacklistService, ILoggingService loggingService)
+        public StockService(ILoggingService loggingService, IHttpClientFactoryCustom httpClientFactory)
         {
-            _blacklistService = blacklistService;
             _loggingService = loggingService;
+            _httpClientFactoryCustom = httpClientFactory;
         }
 
-        public decimal GetCurrentStockValue()
+        public async Task BuyStockAsync(BuyStockDTO buyStock)
         {
-
-            decimal stockValue = GetStockValueFromExternalAPI();
-
-            _loggingService.LogActivity("StockService", $"User requested current stock value: {stockValue}");
-
-            return stockValue;
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetStockAccountClient()
+                .BuyStockAsync(buyStock);
         }
 
-        private decimal GetStockValueFromExternalAPI()
+        public async Task SellStockAsync(BuyStockDTO sellStock)
         {
-            //API
-
-            Random random = new Random();
-            return (decimal)random.NextDouble() * 1000;
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetStockAccountClient()
+                .SellStockAsync(sellStock);
         }
 
-
-        public IEnumerable<HistoricalData> GetHistoricalData()
+        public async Task<List<StockDTO>> GetGroupedDailyData()
         {
-
-            IEnumerable<HistoricalData> historicalData = GetHistoricalDataFromSource();
-
-            _loggingService.LogActivity("StockService", "User requested historical stock data");
-
-            return historicalData;
+            return await _httpClientFactoryCustom
+                .GetStockClient()
+                .GetGroupedDaily();
         }
 
-        private IEnumerable<HistoricalData> GetHistoricalDataFromSource()
+        public async Task<StockDTO> GetStockByDateAndTickerFromAPI(string date, string stockTicker)
         {
-            // API 
-
-            List<HistoricalData> historicalData = new List<HistoricalData>
-    {
-        new HistoricalData { Date = DateTime.Now.AddDays(-5), Value = 150 },
-        new HistoricalData { Date = DateTime.Now.AddDays(-4), Value = 160 },
-        new HistoricalData { Date = DateTime.Now.AddDays(-3), Value = 145 },
-        new HistoricalData { Date = DateTime.Now.AddDays(-2), Value = 170 },
-        new HistoricalData { Date = DateTime.Now.AddDays(-1), Value = 155 }
-    };
-
-            return historicalData;
+            return await _httpClientFactoryCustom
+                .GetStockClient()
+                .GetStockByDateAndTickerFromAPI(date, stockTicker);
         }
 
-        public object GetCurrentPrice(string symbol)
+        public async Task<StockDTO> GetStockByDateAndTicker(string date, string stockTicker)
         {
-            throw new NotImplementedException();
+            return await _httpClientFactoryCustom
+                .GetStockClient()
+                .GetStockByDateAndTicker(date, stockTicker);
         }
 
-        IEnumerable<HistoricalData> IStockService.GetHistoricalData()
+        public async Task<List<StockDTO>> GetStocksByDate(string date)
         {
-            throw new NotImplementedException();
+            return await _httpClientFactoryCustom
+                .GetStockClient()
+                .GetStocksByDate(date);
+        }
+
+        public async Task<StockMarketCharacteristicsDTO> GetStockMarketCharacteristics(string date)
+        {
+            return await _httpClientFactoryCustom
+                .GetStockClient()
+                .GetStockMarketCharacteristics(date);
         }
     }
-
 }
 

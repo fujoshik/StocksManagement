@@ -13,8 +13,8 @@ namespace Gateway.Domain.Abstraction.Services
         public void LogRequest(string userId, string route);
         public bool IsEmailBlacklisted(string email);
         public void DeleteAccount(string userId);
-        public UserType CalculateNewStatus(decimal accountBalance, decimal tradeResult);
-        public void UpdateUserStatus(string userId, decimal accountBalance, decimal tradeResult);
+        //public UserType CalculateNewStatus(decimal accountBalance, decimal tradeResult);
+        //public void UpdateUserStatus(string userId, decimal accountBalance, decimal tradeResult);
     }
 
 }   

@@ -1,18 +1,16 @@
-﻿using API.Gateway.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gateway.Domain.DTOs.HistoricalData;
+using Gateway.Domain.DTOs.Stock;
 
 namespace Gateway.Domain.Abstraction.Services
 {
     public interface IStockService
     {
-        object AnalyzeStockData(string symbol);
-        object GetCurrentPrice(string symbol);
-        decimal GetCurrentStockValue();
-        IEnumerable<HistoricalData> GetHistoricalData();
+        Task BuyStockAsync(BuyStockDTO buyStock);
+        Task SellStockAsync(BuyStockDTO sellStock);
+        Task<List<StockDTO>> GetGroupedDailyData();
+        Task<List<StockDTO>> GetStocksByDate(string date);
+        Task<StockDTO> GetStockByDateAndTicker(string date, string stockTicker);
+        Task<StockDTO> GetStockByDateAndTickerFromAPI(string date, string stockTicker);
+        Task<StockMarketCharacteristicsDTO> GetStockMarketCharacteristics(string date);
     }
-
 }

@@ -36,7 +36,7 @@ namespace Accounts.API.Controllers
             return Ok();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id?}")]
         public async Task<ActionResult<WalletResponseDto>> GetWalletInfoAsync(Guid id = default)
         {
             var wallet = await _walletService.GetWalletInfoAsync(id);

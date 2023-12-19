@@ -1,4 +1,5 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
+using Accounts.Domain.Exceptions;
 using Accounts.Domain.Pagination;
 using Accounts.Infrastructure.Entities;
 using Accounts.Infrastructure.Extensions;
@@ -148,6 +149,11 @@ namespace Accounts.Infrastructure.Repositories
                 }
             }
 
+            if (dataTable.Rows.Count == 0)
+            {
+                throw new NotFoundException();
+            }
+
             return DataRowToEntity<TOutput>(dataTable.Rows[0]);
         }
 
@@ -220,7 +226,8 @@ namespace Accounts.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"DELETE FROM {TableName} WHERE Id = '{id}'", connection);
+                SqlCommand cmd = new SqlCommand($"DELETE FROM {TableName} WHERE Id = @Id", connection);
+                cmd.Parameters.Add(new SqlParameter("@Id", id));
                 await cmd.ExecuteNonQueryAsync();
             }
         }      
