@@ -1,7 +1,9 @@
 using Gateway.Domain.Abstraction.Clients;
+using Gateway.Domain.Abstraction.Clients.AccountClient;
 using Gateway.Domain.Abstraction.Factories;
 using Gateway.Domain.Abstraction.Services;
 using Gateway.Domain.Clients;
+using Gateway.Domain.Clients.AccountClient;
 using Gateway.Domain.Factories;
 using Gateway.Domain.Services;
 using Gateway.Domain.Settings;
@@ -27,6 +29,10 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IWalletCustomService, WalletCustomService>();
 
 builder.Services.AddScoped<IAccountClient, AccountClient>();
+builder.Services.AddScoped<IUserAccountClient, UserAccountClient>();
+builder.Services.AddScoped<IWalletAccountClient, WalletAccountClient>();
+builder.Services.AddScoped<IAuthenticateAccountClient, AuthenticateAccountClient>();
+builder.Services.AddScoped<IStockAccountClient, StockAccountClient>();
 builder.Services.AddScoped<ISettlementsClient, SettlementsClient>();
 builder.Services.AddScoped<IAnalyzerClient, AnalyzerClient>();
 builder.Services.AddScoped<IStockClient, StockClient>();

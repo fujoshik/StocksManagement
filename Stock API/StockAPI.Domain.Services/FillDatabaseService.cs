@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Serilog;
 using StockAPI.Domain.Abstraction.DataBase;
@@ -39,11 +40,12 @@ namespace StockAPI.Domain.Services
             _dailyWeeklyMonthly = endPoints.Value.DailyWeeklyMonthly;
         }
 
+        //get a list of all available tickers on polygon
         public async Task<List<string>> GetTickersList()
         {
             try
             {
-                string endpointUrl = $"{_tickers}tickers?market=stocks&active=true&limit=200&sort=market&apiKey={_polygonApiKey}";
+                string endpointUrl = string.Format(_tickers, _polygonApiKey);
                 HttpResponseMessage response = await _httpClientFactory.CreateClient()
                     .GetAsync(endpointUrl);
                 response.EnsureSuccessStatusCode();
@@ -63,17 +65,18 @@ namespace StockAPI.Domain.Services
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "an error occured while trying to retrieve all tickers available.");
+                Log.Error(ex, "an error occurred while trying to retrieve all tickers from polygon.");
                 throw;
             }
         }
 
+        //fill database with data from alphavantage
         public async Task<List<Stock>> FillData(DataOption dataOption, string symbol)
         {
             try
             {
-                string endpointUrl = $"{_dailyWeeklyMonthly}{dataOption}&symbol={symbol}&apikey={_alphaVantageApiKey}";
-                await Console.Out.WriteLineAsync(endpointUrl);
+                string endpointUrl = string.Format(_dailyWeeklyMonthly, dataOption, symbol, _alphaVantageApiKey);
+                
                 HttpResponseMessage response = await _httpClientFactory.CreateClient()
                     .GetAsync(endpointUrl);
                 response.EnsureSuccessStatusCode();
@@ -87,7 +90,7 @@ namespace StockAPI.Domain.Services
                     DataOption.DAILY => result.TimeSeriesDaily,
                     DataOption.WEEKLY => result.TimeSeriesWeekly,
                     DataOption.MONTHLY => result.TimeSeriesMonthly,
-                    _ => throw new ArgumentOutOfRangeException(nameof(dataOption), dataOption, null)
+                    _ => throw new ArgumentOutOfRangeException()
                 };
 
                 var stockList = new List<Stock>();
@@ -99,15 +102,24 @@ namespace StockAPI.Domain.Services
 
                     var stock =_stockMapper.TimeSeriesToStock(kvp.Value, stockSymbol, date);
                   
-                    //_dataBaseContext.InsertStockIntoDatabase(stock);
+                    if(dataOption==DataOption.DAILY)
+                    {
+                        await _dataBaseContext.InsertStockIntoDatabase(stock);
+                    }
+
                     stockList.Add(stock);
                 }
 
                 return stockList;
             }
+            catch(NullReferenceException ex)
+            {
+                return new List<Stock>();
+            }
             catch (Exception ex)
             {
-                Log.Error(ex, $"an error occured while trying to retrieve {dataOption} data.");
+                Log.Error(ex, $"an error occurred while trying to retrieve {dataOption} " +
+                                    $"data for '{symbol}' from alphavantage.");
                 throw;
             }
         }

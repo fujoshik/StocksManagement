@@ -1,6 +1,5 @@
 ﻿using Accounts.Domain.DTOs.Account;
 using Accounts.Domain.DTOs.Wallet;
-using Settlement.Domain.DTOs.FailedTransaction;
 using Settlement.Domain.DTOs.Handled;
 using Settlement.Domain.DTOs.Settlement;
 using Settlement.Domain.DTOs.Transaction;

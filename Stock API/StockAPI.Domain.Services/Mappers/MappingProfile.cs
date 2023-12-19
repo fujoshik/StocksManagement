@@ -36,18 +36,13 @@ namespace StockAPI.Domain.Services.Mappers
                 .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.from));
 
             CreateMap<TimeSeries, Stock>()
-            //.ForMember(dest => dest.StockTicker, opt => opt.MapFrom(src => result.MetaData.Symbol))
-            .ForMember(dest => dest.ClosestPrice, opt => opt.MapFrom(src => src.Close))
-            .ForMember(dest => dest.HighestPrice, opt => opt.MapFrom(src => src.High))
-            .ForMember(dest => dest.LowestPrice, opt => opt.MapFrom(src => src.Low))
-            .ForMember(dest => dest.TransactionCount, opt => opt.MapFrom(src => Convert.ToInt32(src.Volume)))
-            .ForMember(dest => dest.OpenPrice, opt => opt.MapFrom(src => Convert.ToDouble(src.Open)))
-            .ForMember(dest => dest.IsOTC, opt => opt.MapFrom(src => false))
-            //.ForMember(dest => dest.UnixTimestamp, opt => opt.MapFrom(src => DateTimeOffset.Parse(src.Date).ToUnixTimeSeconds()))
-            .ForMember(dest => dest.TradingVolume, opt => opt.MapFrom(src => Convert.ToDouble(src.Volume)));
-            //.ForMember(dest => dest.VolumeWeightedAveragePrice, opt => opt.MapFrom(src => null))
-            //.ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date));
-
+                .ForMember(dest => dest.ClosestPrice, opt => opt.MapFrom(src => src.Close))
+                .ForMember(dest => dest.HighestPrice, opt => opt.MapFrom(src => src.High))
+                .ForMember(dest => dest.LowestPrice, opt => opt.MapFrom(src => src.Low))
+                .ForMember(dest => dest.TransactionCount, opt => opt.MapFrom(src => Convert.ToInt32(src.Volume)))
+                .ForMember(dest => dest.OpenPrice, opt => opt.MapFrom(src => Convert.ToDouble(src.Open)))
+                .ForMember(dest => dest.IsOTC, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.TradingVolume, opt => opt.MapFrom(src => Convert.ToDouble(src.Volume)));
         }
     }
 }

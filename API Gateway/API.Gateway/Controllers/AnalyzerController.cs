@@ -1,5 +1,4 @@
-﻿
-using Gateway.Domain.Abstraction.Services;
+﻿using Gateway.Domain.Abstraction.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Gateway.Controllers
@@ -89,6 +88,12 @@ namespace API.Gateway.Controllers
             }
         }
 
+        [HttpGet("average-income")]
+        public async Task<ActionResult<decimal>> CalculateAverageIncome([FromQuery] string stockTicker)
+        {
+            var result = await _statisticsService.CalculateAverageIncomeAsync(stockTicker);
 
+            return Ok(result);
+        }
     }
 }

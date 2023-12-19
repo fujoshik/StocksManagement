@@ -1,9 +1,6 @@
 ﻿using Gateway.Domain.Abstraction.Clients;
+using Gateway.Domain.Abstraction.Clients.AccountClient;
 using Gateway.Domain.Abstraction.Factories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 namespace Gateway.Domain.Factories
 {
     public class HttpClientFactoryCustom : IHttpClientFactoryCustom

@@ -16,17 +16,26 @@ namespace Gateway.Domain.Services
 
         public async Task DepositSumAsync(DepositSumDto deposit)
         {
-            await _httpClientFactoryCustom.GetAccountClient().DepositSumAsync(deposit);
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetWalletAccountClient()
+                .DepositSumAsync(deposit);
         }
 
         public async Task ChangeCurrencyAsync(Currency currency)
         {
-            await _httpClientFactoryCustom.GetAccountClient().ChangeCurrencyAsync(currency);
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetWalletAccountClient()
+                .ChangeCurrencyAsync(currency);
         }
 
         public async Task<WalletResponse> GetWalletInfoAsync(Guid id)
         {
-            return await _httpClientFactoryCustom.GetAccountClient().GetWalletInfoAsync(id);
+            return await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetWalletAccountClient()
+                .GetWalletInfoAsync(id);
         }
     }
 }

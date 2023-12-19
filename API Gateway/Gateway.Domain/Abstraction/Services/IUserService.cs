@@ -1,5 +1,6 @@
 ﻿
 using Gateway.Domain.DTOs.User;
+using Gateway.Domain.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,9 @@ namespace Gateway.Domain.Abstraction.Services
         //void UpdateUserBalance(string userId, decimal tradeValue);
         //bool UserExists(string userId);
         Task UpdateAsync(Guid id, UserWithoutAccountIdDto user);
+        Task<UserResponseDTO> GetByIdAsync(Guid id);
+        Task<PaginatedResult<UserResponseDTO>> GetPageAsync(Paging paging);
+        Task DeleteAsync(Guid id);
         //void CreateUser(string userId, decimal initialBalance);
         bool ValidateCredentials(string email, string password);
         decimal GetLoadedAmount(string userId);

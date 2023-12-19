@@ -9,7 +9,7 @@ namespace Accounts.API.Controllers
 {
     [ApiController]
     [Route("accounts-api/users")]
-    [Authorize(Policy = PolicyConstants.AllowAll)]
+    [Authorize(Policy = PolicyConstants.AllowAdminRole)]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -29,7 +29,7 @@ namespace Accounts.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PaginatedResult<UserResponseDto>>> GetAllAsync(
+        public async Task<ActionResult<PaginatedResult<UserResponseDto>>> GetPageAsync(
             [FromQuery] PagingInfo pagingInfo)
         {
             var users = await _userService.GetPageAsync(pagingInfo);

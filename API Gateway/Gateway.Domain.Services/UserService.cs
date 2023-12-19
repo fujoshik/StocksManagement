@@ -1,10 +1,9 @@
-﻿
-using Gateway.Domain.Abstraction.Services;
+﻿using Gateway.Domain.Abstraction.Services;
 using Gateway.Domain.DTOs.User;
 using Microsoft.Extensions.Logging;
 using Gateway.Domain.Abstraction.Factories;
 using Gateway.Domain.Clients;
-using Gateway.Infrastructure.Mapper;
+using Gateway.Domain.Pagination;
 
 namespace Gateway.Domain.Services
 {
@@ -25,7 +24,33 @@ namespace Gateway.Domain.Services
 
         public async Task UpdateAsync(Guid id, UserWithoutAccountIdDto user)
         {
-            await _httpClientFactoryCustom.GetAccountClient().UpdateUser(id, user);
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetUserAccountClient()
+                .UpdateUserAsync(id, user);
+        }
+
+        public async Task<UserResponseDTO> GetByIdAsync(Guid id)
+        {
+            return await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetUserAccountClient()
+                .GetUserAsync(id);
+        }
+
+        public async Task<PaginatedResult<UserResponseDTO>> GetPageAsync(Paging paging)
+        {
+            return await _httpClientFactoryCustom.GetAccountClient()
+                .GetUserAccountClient()
+                .GetPageAsync(paging);
+        }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetUserAccountClient()
+                .DeleteAsync(id);
         }
 
         public bool IsEmailBlacklisted(string email)

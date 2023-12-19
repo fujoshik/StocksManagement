@@ -1,7 +1,6 @@
 ﻿using Quartz;
 using Settlement.Domain.Abstraction.Repository;
 using Settlement.Domain.Constants;
-using System.Linq;
 
 namespace Settlement.Domain
 {
@@ -36,6 +35,5 @@ namespace Settlement.Domain
                 }
             }
         }
-
     }
 }
