@@ -33,16 +33,12 @@ namespace StockAPI.API.Controllers
                     return BadRequest("please use yyyy-MM-dd format for inputting date.");
                 }
 
-                PdfData pdfData = new PdfData();
-                pdfData.Content = $"The most sold stock in the period between {beginningDate} " +
-                    $"and {endDate} is: " +
-                    $"{await _pdfDataService.GetMostPopularStockTicker(beginningDate, endDate)}.";
-                await _pdfDataService.GeneratePdf(pdfData);
+                await _pdfDataService.GeneratePdf(beginningDate, endDate);
                 return Created("PdfData/","pdf file generated successfully.");
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "an error occurred while trying to create the pdf file.");
+                Log.Error(ex, "An error occurred while processing the request.");
                 return StatusCode(500, "Internal server error");
             }
         }

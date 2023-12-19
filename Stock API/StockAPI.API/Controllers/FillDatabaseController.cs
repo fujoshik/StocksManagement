@@ -50,8 +50,8 @@ namespace StockAPI.API.Controllers
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "an error occurred while trying to retrieve daily, " +
-                    $"weekly or monthly data for '{symbol}' from alphavantage.");
+                Log.Error(ex, $"an error occurred while trying to retrieve {dataOption} " +
+                    $"data for '{symbol}' from alphavantage.");
                 return StatusCode(500, "Internal server error");
             }
         }

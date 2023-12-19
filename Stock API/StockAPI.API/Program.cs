@@ -87,9 +87,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-//fluentscheduler
+//fluentscheduler ad database initialization
 using (var scope = app.Services.CreateScope())
 {
+    var dbContext = scope.ServiceProvider.GetRequiredService<IDataBaseContext>();
+    dbContext.InitializeDatabase();
+
     var stockApiService = scope.ServiceProvider.GetRequiredService<IStockAPIService>();
     JobManager.Initialize(new MyRegistry(stockApiService));
 }

@@ -1,14 +1,17 @@
 ﻿using Accounts.Domain.Abstraction.Repositories;
 using Accounts.Infrastructure.Entities;
 using Accounts.Infrastructure.Repositories;
+using Amazon.Runtime.Internal.Transform;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Serilog;
+using SkiaSharp;
 using StockAPI.Domain.Abstraction.Services;
 using StockAPI.Domain.Services.AppSettings;
 using StockAPI.Infrastructure.Enums;
+using StockAPI.Infrastructure.Models;
 using StockAPI.Infrastructure.Models.PdfData;
 using System;
 using System.Collections.Generic;
@@ -40,10 +43,11 @@ namespace StockAPI.Domain.Services
         }
 
         //generate pdf file
-        public async Task GeneratePdf(PdfData pdfData)
+        public async Task GeneratePdf(string beginningDate, string endDate)
         {
             try
             {
+                PdfData pdfData = new PdfData();
                 string fileName = $"{_pdfFileName}{DateTime.Now:yyyyMMddHHmmss}.pdf";
                 string filePath = Path.Combine(_pdfFolderPath, fileName);
 
@@ -54,6 +58,14 @@ namespace StockAPI.Domain.Services
                         document.Open();
                         pdfData.Title = "--Summary Of The Most Popular Stocks--";
                         document.Add(new Paragraph(pdfData.Title));
+                        pdfData.Content = $"The most sold stock in the period between {beginningDate} " +
+                            $"and {endDate} is: " +
+                            $"{await GetMostPopularStockTicker(beginningDate, endDate)}, \n" +
+                            $"The most expensive stock for the same period is: ";
+                        var mostExpensiveStock = await GetTheMostExpensiveStock(beginningDate, endDate);
+                        pdfData.Content += $"{mostExpensiveStock.StockTicker} - " +
+                            $"{mostExpensiveStock.ClosestPrice}. \n";
+
                         document.Add(new Paragraph(pdfData.Content));
                         document.Close();
                     }
@@ -62,7 +74,7 @@ namespace StockAPI.Domain.Services
             }
             catch (Exception ex)
             {
-                Log.Error("an errror occured ");
+                Log.Error("an error occurred while trying to create the pdf file.");
             }
         }
 
@@ -103,6 +115,51 @@ namespace StockAPI.Domain.Services
             catch (Exception ex)
             {
                 Log.Error(ex, $"an error occured while trying to calculate the most popular ticker.");
+                throw;
+            }
+        }
+
+        //get the most expensive stock
+        public async Task<Stock> GetTheMostExpensiveStock(string beginningDate, string endDate)
+        {
+            try
+            {
+                Stock result = new Stock();
+                string stockTicker = null;
+                decimal price = 0;
+
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    using (var cmd = new SqlCommand("USE StocksDB " +
+                        "SELECT TOP 1 StockTicker, Price " +
+                        "FROM Transactions " +
+                        "WHERE [DateOfTransaction] BETWEEN @StartDate AND @EndDate " +
+                        "ORDER BY Price DESC", connection))
+                    {
+                        cmd.Parameters.AddWithValue("@StartDate", beginningDate);
+                        cmd.Parameters.AddWithValue("@EndDate", endDate);
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                stockTicker = reader["StockTicker"].ToString();
+                                price = (decimal)reader["Price"];
+                            }
+                        }
+                    }
+                }
+                result.StockTicker = stockTicker;
+                result.ClosestPrice = price;
+
+                Log.Information($"most expensive stock for the time period from '{beginningDate}'" +
+                    $"to {endDate} was retrieved.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"an error occured while trying to calculate the most expensive ticker.");
                 throw;
             }
         }
