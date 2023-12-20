@@ -15,6 +15,5 @@ namespace StockAPI.Domain.Abstraction.Services
         Task<Stock> GetStockByDateAndTicker(string date, string stockTicker);
         Task<List<Stock>> GetStocksByDate(string date);
         Task<StockMarketCharacteristics> GetStockMarketCharacteristics(string date);
-
     }
 }

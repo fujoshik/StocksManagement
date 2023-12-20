@@ -48,23 +48,21 @@ namespace StockAPI.Domain.Services
             }
         }
 
-        //create the database if it doesn't exist
+        //create the table if it doesn't exist
         public async Task InitializeDatabase()
         {
             try
             {
-                using (var command = new SqliteCommand("CREATE TABLE IF NOT EXISTS Stocks " +
+                await ExequteSqliteCommand("CREATE TABLE IF NOT EXISTS Stocks " +
                 "(StockTicker TEXT, ClosestPrice REAL, HighestPrice REAL, LowestPrice REAL, " +
                 "TransactionCount INTEGER, OpenPrice REAL, IsOTC INTEGER, UnixTimestamp INTEGER," +
-                " TradingVolume INTEGER, VolumeWeightedAveragePrice REAL, Date TEXT)", _connection))
-                {
-                    await command.ExecuteNonQueryAsync();
-                }
+                " TradingVolume INTEGER, VolumeWeightedAveragePrice REAL, Date TEXT)",
+                _connection, new Dictionary<string, object>());
                 Log.Information("the database was initialized.");
             }
             catch(Exception ex)
             {
-                Log.Error(ex, "an exception occured while trying to initialize the database.");
+                Log.Error(ex, "an exception occured while trying to initialize the table.");
             }
         }
 
@@ -79,7 +77,8 @@ namespace StockAPI.Domain.Services
                     selectCommand.Parameters.AddWithValue("@Date", stock.Date);
                     selectCommand.Parameters.AddWithValue("@StockTicker", stock.StockTicker);
 
-                    int existingRecordsCount = Convert.ToInt32(await selectCommand.ExecuteScalarAsync());
+                    int existingRecordsCount = Convert
+                        .ToInt32(await selectCommand.ExecuteScalarAsync());
 
                     if (existingRecordsCount > 0) 
                     {
@@ -131,6 +130,24 @@ namespace StockAPI.Domain.Services
             {
                 Log.Error(ex, $"an error occured while trying to add the stock " +
                     $"{stock.StockTicker} from {stock.Date}.");
+            }
+        }
+
+        //create broker table
+        public async Task InitializeBrokerTable()
+        {
+            try
+            {
+                using (var command = new SqliteCommand("CREATE TABLE IF NOT EXISTS Broker " +
+            "(BrokerId TEXT PRIMARY KEY, UserId TEXT, StockTicker TEXT)", _connection))
+                {
+                    await command.ExecuteNonQueryAsync();
+                }
+                Log.Information("the broker table was initialized.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "an exception occured while trying to initialize the broker table.");
             }
         }
 

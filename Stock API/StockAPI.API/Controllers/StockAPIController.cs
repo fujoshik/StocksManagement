@@ -28,8 +28,6 @@ namespace StockAPI.API.Controllers
             try
             {
                 var responseData = await _stockAPIService.GetGroupedDailyData();
-                //how to add custom header
-                //HttpContext.Response.Headers.Add("header", "value");
                 if(!responseData.Any())
                 {
                     return NoContent();
@@ -116,7 +114,6 @@ namespace StockAPI.API.Controllers
                 }
                 else
                 {
-
                     Log.Information($"No stock found for date '{date}' and stock ticker '{stockTicker}'.");
                     return NotFound($"No stock found for date '{date}' and stock ticker '{stockTicker}'.");
                 }
@@ -191,7 +188,7 @@ namespace StockAPI.API.Controllers
         }
 
         //daily event that periodically adds daily stocks to the database
-        [HttpGet]
+        /*[HttpGet]
         [Route("invoke-event")]
         public Task<IActionResult> InvokeEvent()
         {
@@ -206,6 +203,6 @@ namespace StockAPI.API.Controllers
                 Log.Error(ex, "An error occurred while processing the request.");
                 return Task.FromResult<IActionResult>(StatusCode(500, "Internal server error"));
             }
-        }
+        }*/
     }
 }
