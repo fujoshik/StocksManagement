@@ -1,3 +1,4 @@
+using API.Gateway.Middleware;
 using Gateway.Domain.Abstraction.Clients;
 using Gateway.Domain.Abstraction.Clients.AccountClient;
 using Gateway.Domain.Abstraction.Factories;
@@ -14,6 +15,8 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
@@ -102,7 +105,8 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

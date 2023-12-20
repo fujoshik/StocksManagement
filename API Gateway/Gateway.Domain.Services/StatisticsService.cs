@@ -1,6 +1,6 @@
 ﻿using Gateway.Domain.Abstraction.Factories;
 using Gateway.Domain.Abstraction.Services;
-using Gateway.Domain.DTOs.Stock;
+using Gateway.Domain.DTOs.Analyzer;
 
 namespace Gateway.Domain.Services
 {
@@ -15,12 +15,28 @@ namespace Gateway.Domain.Services
             _httpClientFactoryCustom = httpClientFactoryCustom;
         }
 
-        public async Task<decimal> CalculateAverageIncomeAsync(string stockTicker)
+        public async Task<CalculateCurrentYieldDTO> CalculateAverageIncomeAsync(string stockTicker, string date)
         {
             return await _httpClientFactoryCustom
                 .GetAccountClient()
                 .GetStockAccountClient()
-                .CalculateAverageIncomeAsync(stockTicker);
+                .CalculateAverageIncomeAsync(stockTicker, date);
+        }
+
+        public async Task<PercentageChangeDTO> GetPercentageChangeAsync(string stockTicker, string date)
+        {
+            return await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetStockAccountClient()
+                .GetPercentageChangeAsync(stockTicker, date);
+        }
+
+        public async Task<List<DailyYieldChangeDTO>> GetDailyYieldChangesAsync(string date, string stockTicker)
+        {
+            return await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetStockAccountClient()
+                .GetDailyYieldChangesAsync(stockTicker, date);
         }
 
         public int GetRequestCount(string route)

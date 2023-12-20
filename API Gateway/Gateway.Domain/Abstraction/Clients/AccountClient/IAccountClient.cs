@@ -1,6 +1,4 @@
-﻿using Gateway.Domain.DTOs.Stock;
-
-namespace Gateway.Domain.Abstraction.Clients.AccountClient
+﻿namespace Gateway.Domain.Abstraction.Clients.AccountClient
 {
     public interface IAccountClient
     {
