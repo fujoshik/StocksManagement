@@ -127,19 +127,26 @@ The base URL for accessing the AnalyzerAPI endpoints is: https://localhost:7122/
 ## StockAPI
 ### About
 StockAPI is an ASP.NET Core-based application that provides access to stock market data through a RESTful API.  
-This API allows users to retrieve information about stocks, such as stock tickers, historical data, company information, and more. 
+This API allows users to retrieve information about stocks, such as stock tickers, historical data and more. The local database that contains all of the stock information is being updated every day with new daily stock data.
 
 ### Routes
 
 - #### Base URL
-The base URL for accessing the StockAPI endpoints is: https://localhost:7195/api/StockAPI/
+The base URL for accessing the StockAPI endpoints is: https://localhost:7195/api/
 
 - #### Other URLs
-    - **GET api/StockAPI/grouped-daily** ->  Gets the daily data from an external API  
-    - **GET api/StockAPI/get-stock-by-date-and-ticker-from-api?date={date}&stockTicker={stock_ticker}** ->  Gets stocks by date and stock ticker from an external API  
-    - **GET api/StockAPI/get-stock-by-date-and-ticker?date={date}&stockTicker={stock_ticker}** -> Gets stocks by date and stock ticker from a local database; if no records are found in the local database, it gets them from an external API  
-    - **GET api/StockAPI/get-stocks-by-date?date={date}** ->  Gets stocks by date from local database
-    - **GET api/StockAPI/get-market-characteristics?date={date}** -> Gets the market characteristics from a local database  
+- **FillDatabaseController**
+    - **GET api/FillDatabase/tickers-list** ->  Gets list of all stock tickers available on an external API
+    - **POST api/FillDatabase/daily-weekly-monthly?dataOption={dataOption}&symbol={symbol}** ->  Retrieves daily, weekly or monthly stock data from an external API and adds it to a local database if picked daily
+- **PdfDataController**
+    - **GET api/PdfData/add-pdf-message?beginningDate={beginningDate}&endDate={endDate}** -> Generates a pdf file that contains information about the most expensive stock and the most popular stock (the most traded) for a given time period
+- **StockAPIController**
+    - **GET api/StockAPI/grouped-daily** ->  Gets daily data from an external API  
+    - **GET api/StockAPI/get-stock-by-date-and-ticker-from-api?date={date}&stockTicker={stockTicker}** ->  Gets stock by date and stock ticker from an external API
+    - **GET api/StockAPI/get-database-stocks** -> Gets all stocks from a local database
+    - **GET api/StockAPI/get-stock-by-date-and-ticker?date={date}&stockTicker={stockTicker}** ->  Gets stock by date and stock ticker from a local database and if no records are found on the local database it calls an external API 
+    - **GET api/StockAPI/get-stocks-by-date?date={date}** ->  Gets stocks by date from a local database
+    - **GET api/StockAPI/get-market-characteristics?date={date}** -> Gets the market characteristics from a local database
 
 ## Settlement API
 ## About
