@@ -52,13 +52,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IStockAPIService, StockAPIService>();
 builder.Services.AddScoped<IFillDatabaseService, FillDatabaseService>();
 builder.Services.AddScoped<IPdfDataService, PdfDataService>();
+//builder.Services.AddScoped<IBrokerService, BrokerService>();
 
 builder.Services.AddScoped<IStockMapper, StockMapper>();
 
 //using automapper
 var mappingConfig = new MapperConfiguration(mc =>
 {
-    mc.AddProfile(new MappingProfile()); // Add your mapping profile
+    mc.AddProfile(new MappingProfile()); 
 });
 
 IMapper mapper = mappingConfig.CreateMapper();
@@ -92,6 +93,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<IDataBaseContext>();
     dbContext.InitializeDatabase();
+    //dbContext.InitializeBrokerTable();
 
     var stockApiService = scope.ServiceProvider.GetRequiredService<IStockAPIService>();
     JobManager.Initialize(new MyRegistry(stockApiService));

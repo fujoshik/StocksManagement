@@ -10,9 +10,12 @@ namespace StockAPI.Domain.Abstraction.DataBase
 {
     public interface IDataBaseContext
     {
+        Task ExequteSqliteCommand(string commandText, SqliteConnection connection,
+            Dictionary<string, object> parameters);
         SqliteConnection GetConnection();
         void Dispose();
         Task InsertStockIntoDatabase(Stock stock);
         Task InitializeDatabase();
+        Task InitializeBrokerTable();
     }
 }

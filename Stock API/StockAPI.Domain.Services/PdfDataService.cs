@@ -47,7 +47,6 @@ namespace StockAPI.Domain.Services
         {
             try
             {
-                PdfData pdfData = new PdfData();
                 string fileName = $"{_pdfFileName}{DateTime.Now:yyyyMMddHHmmss}.pdf";
                 string filePath = Path.Combine(_pdfFolderPath, fileName);
 
@@ -55,17 +54,10 @@ namespace StockAPI.Domain.Services
                 {
                     using (var writer = PdfWriter.GetInstance(document, new FileStream(filePath, FileMode.Create)))
                     {
-                        document.Open();
-                        pdfData.Title = "--Summary Of The Most Popular Stocks--";
-                        document.Add(new Paragraph(pdfData.Title));
-                        pdfData.Content = $"The most sold stock in the period between {beginningDate} " +
-                            $"and {endDate} is: " +
-                            $"{await GetMostPopularStockTicker(beginningDate, endDate)}, \n" +
-                            $"The most expensive stock for the same period is: ";
-                        var mostExpensiveStock = await GetTheMostExpensiveStock(beginningDate, endDate);
-                        pdfData.Content += $"{mostExpensiveStock.StockTicker} - " +
-                            $"{mostExpensiveStock.ClosestPrice}. \n";
 
+                        document.Open();
+                        PdfData pdfData = await WritePdfFile(beginningDate, endDate);
+                        document.Add(new Paragraph(pdfData.Title));
                         document.Add(new Paragraph(pdfData.Content));
                         document.Close();
                     }
@@ -74,12 +66,38 @@ namespace StockAPI.Domain.Services
             }
             catch (Exception ex)
             {
-                Log.Error("an error occurred while trying to create the pdf file.");
+                Log.Error(ex, "an error occurred while trying to create the pdf file.");
+            }
+        }
+
+        //write the pdf information
+        private async Task<PdfData> WritePdfFile(string beginningDate, string endDate)
+        {
+            try
+            {
+                PdfData pdfData = new PdfData();
+                pdfData.Title = "--Summary Of The Most Popular Stocks--";
+                var mostPopularStock = await GetMostPopularStockTicker(beginningDate, endDate);
+                var mostExpensiveStock = await GetTheMostExpensiveStock(beginningDate, endDate);
+                pdfData.Content =
+                    mostPopularStock != null
+                    ? $"The most sold stock in the period between {beginningDate} and {endDate} is: {mostPopularStock}, \n"
+                    : $"Not enough data was found to calculate the most popular stock in the period between {beginningDate} and {endDate}, \n";
+                pdfData.Content +=
+                    mostExpensiveStock.StockTicker != null
+                    ? $"The most expensive stock for the same period is: {mostExpensiveStock.StockTicker} - {mostExpensiveStock.ClosestPrice}. \n"
+                    : $"Not enough data was found to calculate the most expensive stock in the period between {beginningDate} and {endDate}.";
+                return pdfData;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"an error occured while trying to generate the pdf file content.");
+                throw;
             }
         }
 
         //get the most popular stock ticker
-        public async Task<string> GetMostPopularStockTicker(string beginningDate, string endDate)
+        private async Task<string> GetMostPopularStockTicker(string beginningDate, string endDate)
         {
             try
             {
@@ -108,8 +126,8 @@ namespace StockAPI.Domain.Services
                         }
                     }
                 }
-                Log.Information($"most popular ticker for the time period from '{beginningDate}'" +
-                    $"to {endDate} is {mostPopularStockTicker}");
+                Log.Information($"most popular ticker information for the time period from '{beginningDate}'" +
+                    $"to {endDate} was retrieved.");
                 return mostPopularStockTicker;
             }
             catch (Exception ex)
@@ -120,7 +138,7 @@ namespace StockAPI.Domain.Services
         }
 
         //get the most expensive stock
-        public async Task<Stock> GetTheMostExpensiveStock(string beginningDate, string endDate)
+        private async Task<Stock> GetTheMostExpensiveStock(string beginningDate, string endDate)
         {
             try
             {
@@ -153,7 +171,8 @@ namespace StockAPI.Domain.Services
                 result.StockTicker = stockTicker;
                 result.ClosestPrice = price;
 
-                Log.Information($"most expensive stock for the time period from '{beginningDate}'" +
+                Log.Information($"most expensive stock information for the time period " +
+                    $"from '{beginningDate}'" +
                     $"to {endDate} was retrieved.");
                 return result;
             }

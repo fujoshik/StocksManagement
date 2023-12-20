@@ -102,10 +102,7 @@ namespace StockAPI.Domain.Services
 
                     var stock =_stockMapper.TimeSeriesToStock(kvp.Value, stockSymbol, date);
                   
-                    if(dataOption==DataOption.DAILY)
-                    {
-                        await _dataBaseContext.InsertStockIntoDatabase(stock);
-                    }
+                    await InsertStockIfDaily(dataOption, stock);
 
                     stockList.Add(stock);
                 }
@@ -121,6 +118,16 @@ namespace StockAPI.Domain.Services
                 Log.Error(ex, $"an error occurred while trying to retrieve {dataOption} " +
                                     $"data for '{symbol}' from alphavantage.");
                 throw;
+            }
+        }
+
+        //insert stock only if its daily values
+        //because the database is supposed to contain only daily values
+        private async Task InsertStockIfDaily(DataOption dataOption, Stock stock)
+        {
+            if (dataOption == DataOption.DAILY)
+            {
+                await _dataBaseContext.InsertStockIntoDatabase(stock);
             }
         }
     }
