@@ -76,5 +76,21 @@ namespace Gateway.Domain.Clients.AccountClient
 
             return await response.Content.ReadFromJsonAsync<PercentageChangeDTO>();
         }
+
+        public async Task<List<DailyYieldChangeDTO>> GetDailyYieldChangesAsync(string stockTicker, string date)
+        {
+            AddAuthorizationHeader();
+
+            var query = string.Format($"?date={date}&stockTicker={stockTicker}");
+
+            var response = await _httpClient.GetAsync(_accountApiUrl + _accountSettings.DailyYieldChangesRoute + query);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
+            }
+
+            return await response.Content.ReadFromJsonAsync<List<DailyYieldChangeDTO>>();
+        }
     }
 }

@@ -31,6 +31,14 @@ namespace Gateway.Domain.Services
                 .GetPercentageChangeAsync(stockTicker, date);
         }
 
+        public async Task<List<DailyYieldChangeDTO>> GetDailyYieldChangesAsync(string date, string stockTicker)
+        {
+            return await _httpClientFactoryCustom
+                .GetAccountClient()
+                .GetStockAccountClient()
+                .GetDailyYieldChangesAsync(stockTicker, date);
+        }
+
         public int GetRequestCount(string route)
         {
             return _requestCounts.TryGetValue(route, out int count) ? count : 0;

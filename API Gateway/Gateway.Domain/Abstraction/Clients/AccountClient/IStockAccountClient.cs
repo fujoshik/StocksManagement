@@ -9,5 +9,6 @@ namespace Gateway.Domain.Abstraction.Clients.AccountClient
         Task SellStockAsync(BuyStockDTO sellStock);
         Task<CalculateCurrentYieldDTO> CalculateAverageIncomeAsync(string stockTicker, string date);
         Task<PercentageChangeDTO> GetPercentageChangeAsync(string stockTicker, string date);
+        Task<List<DailyYieldChangeDTO>> GetDailyYieldChangesAsync(string stockTicker, string date);
     }
 }

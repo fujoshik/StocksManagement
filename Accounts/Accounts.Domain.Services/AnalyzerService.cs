@@ -29,7 +29,7 @@ namespace Accounts.Domain.Services
 
         public async Task<PercentageChangeDto> GetPercentageChangeAsync(string ticker, string date)
         {
-            var wallet = await _walletService.GetWalletInfoAsync(Guid.NewGuid());
+            var wallet = await _walletService.GetWalletInfoAsync(default(Guid));
 
             return await _analyzerClient.GetPercentageChangeAsync(wallet.Id, ticker, date);
         }

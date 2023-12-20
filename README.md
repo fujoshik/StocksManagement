@@ -61,7 +61,9 @@ The base URL for accessing the StockAPI endpoints is: https://localhost:7071/api
         - **GET api/stocks/get-market-characteristics?date={date}** -> gets the market characteristics from a local database  
 
 - #### Analysis
-    - **GET api/analysis/average-income** -> Calculates average income of a user's bought stocks  
+    - **GET api/analysis/average-income?stockTicker={stock_ticker}&date={date}** -> Calculates average income of a user's bought stocks  
+    - **GET api/analysis/percentage-change?stockTicker={stock_ticker}&date={date}** -> Calculates the change of a stock's price for the given date  
+    - **GET api/analysis/daily-yield-changes?date={date}&stockTicker={stock_ticker}** -> Calculates the price changes of a certain stock for a given period of time  
 
 ## Accounts API
 
@@ -101,6 +103,8 @@ The base URL for accessing the Accounts API endpoints is: https://localhost:7073
 
     - #### Analysis
         - **GET account-api/analysis/average-income?stockTicker={stock_ticker}** -> Calculates average income of a user's stocks by stock ticker  
+        - **GET accounts-api/analysis/percentage-change?stockTicker={stock_ticker}&date={date}** -> Calculates the change of a stock's price for the given date  
+        - **GET accounts-api/analysis/daily-yield-changes?date={date}&stockTicker={stock_ticker}** -> Calculates the price changes of a certain stock for a given period of time  
     
 ### Error Handling
 The Accounts API handles various error scenarios gracefully, providing meaningful error messages and appropriate HTTP status codes to clients.  
@@ -116,9 +120,9 @@ This API allows users to perform various analytical operations on stock data, su
 The base URL for accessing the AnalyzerAPI endpoints is: https://localhost:7122/api/Calculation/
 
 - #### Other URLs
-    - **GET api/Calculation/calculate-current-yield?userId={user_id}&stockTicker={stock_ticker}&date={date}** -> Calculates average income of a user's bought stocks  
-    - **GET api/Calculation/percentage-change?userId={user_id}&stockTicker={stock_ticker}&date={date}** ->  
-    - **GET api/Calculation/calculate-daily-yield-changes?accountId={account_id}&stockTicker={stock_ticker}** ->  
+    - **GET api/Calculation/calculate-current-yield?accountId={account_id}&stockTicker={stock_ticker}&data={date}** -> Calculates average income of a user's bought stocks  
+    - **GET api/Calculation/percentage-change?walletId={wallet_id}&stockTicker={stock_ticker}&data={date}** -> Calculates the change of a stock's price for the given date  
+    - **GET api/Calculation/daily-yield-changes?date={date}&stockTicker={stock_ticker}&accountId={account_id}** -> Calculates the price changes of a certain stock for a given period of time  
 
 ## StockAPI
 ### About

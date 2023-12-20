@@ -12,5 +12,7 @@
         public string BuyStockRoute { get; set; }
         public string SellStockRoute { get; set; }
         public string CalculateAverageIncomeRoute { get; set; }
+        public string PercentageChangeRoute{ get; set; }
+        public string DailyYieldChangesRoute { get; set; }
     }
 }

@@ -30,7 +30,7 @@ namespace Accounts.Domain.Clients
 
         public async Task<CalculateCurrentYieldDto> CalculateAverageIncomeForPeriodAsync(Guid accountId, string ticker, string date)
         {   
-            var query = $"?userId={accountId}&stockTicker={ticker}&data={date}";
+            var query = $"?accountId={accountId}&stockTicker={ticker}&data={date}";
             var response = await _httpClient.GetAsync(_analyzerApiUrl + _analyzerSettings.CurrentYieldRoute + query);
 
             if (!response.IsSuccessStatusCode)

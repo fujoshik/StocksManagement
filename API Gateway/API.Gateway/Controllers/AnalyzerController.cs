@@ -115,7 +115,7 @@ namespace API.Gateway.Controllers
         public async Task<ActionResult<List<DailyYieldChangeDTO>>> GetDailyYieldChanges([FromQuery] string date, 
             [FromQuery] string stockTicker)
         {
-            var dailyYieldChanges = await _statisticsService.GetDailyYieldChanges(date, stockTicker);
+            var dailyYieldChanges = await _statisticsService.GetDailyYieldChangesAsync(date, stockTicker);
 
             return Ok(dailyYieldChanges);
         }

@@ -1,4 +1,6 @@
-﻿namespace Gateway.Domain.DTOs.Analyzer
+﻿using Gateway.Domain.DTOs.Trade;
+
+namespace Gateway.Domain.DTOs.Analyzer
 {
     public class DailyYieldChangeDTO
     {
