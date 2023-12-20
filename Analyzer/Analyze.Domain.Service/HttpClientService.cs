@@ -9,251 +9,139 @@ namespace Analyzer.API.Analyzer.Domain.Abstracions.Services
 {
     public class HttpClientService : IHttpClientService
     {
-        private readonly HttpClient accountClient;
-        private readonly HttpClient stockApi;
-        private readonly HttpClient settlementApi;
-        private readonly HttpClient settlementApiDetails;
-        private readonly HttpClient stock;
+        private readonly HttpClient httpClient;
 
         public HttpClientService()
         {
-            accountClient = new HttpClient();
-            accountClient.BaseAddress = new Uri(APIsConection.GetWallet);
-
-            stockApi = new HttpClient();
-            stockApi.BaseAddress = new Uri(APIsConection.GetStock);
-
-            settlementApi = new HttpClient();
-            settlementApi.BaseAddress = new Uri(APIsConection.GetSettlementAPI);
-
-            settlementApiDetails = new HttpClient();
-            settlementApiDetails.BaseAddress = new Uri(APIsConection.GetTransactionsDetails);
-
-            stock = new HttpClient();
-            stock.BaseAddress = new Uri(APIsConection.GetStock);
+            httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri(APIsConection.BaseUrl);
         }
 
         public async Task<WalletDto> GetAccountInfoById(Guid walletId)
         {
-            using (var httpClient = GetAccountClient())
-            {
-                string getUrl = $"/accounts-api/wallets/{walletId}";
-                HttpResponseMessage response = await httpClient.GetAsync(getUrl);
+            string getUrl = APIsConection.GetWallet.Replace("{id}", walletId.ToString());
+            HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    string data = await response.Content.ReadAsStringAsync();
-                    WalletDto accountData = JsonConvert.DeserializeObject<WalletDto>(data);
-                    return accountData;
-                }
-                else
-                {
-                    throw new HttpRequestException($"Error fetching user data. Status code: {response.StatusCode}");
-                }
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                WalletDto accountData = JsonConvert.DeserializeObject<WalletDto>(data);
+                return accountData;
+            }
+            else
+            {
+                throw new HttpRequestException($"Error fetching user data. Status code: {response.StatusCode}");
             }
         }
 
         public async Task<Stock> GetStockData(string stockTicker, string data)
         {
-            using (var httpClient = GetStockAPI())
-            {
-                string getUrl = $"/api/StockAPI/get-stock-by-date-and-ticker?date={data}&stockTicker={stockTicker}";
-                HttpResponseMessage response = await httpClient.GetAsync(getUrl);
+            string getUrl = APIsConection.GetStock.Replace("{date}", data).Replace("{stockTicker}", stockTicker);
+            HttpResponseMessage response = await httpClient.GetAsync(getUrl);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    string stockData = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<Stock>(stockData);
-                }
-                else
-                {
-                    throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
-                }
+            if (response.IsSuccessStatusCode)
+            {
+                string stockData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Stock>(stockData);
+            }
+            else
+            {
+                throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
             }
         }
 
         public async Task<List<Stock>> GetStock(string stockTicker, string startDate, string endDate)
         {
-            using (var httpClient = GetHttpClient())
+            string apiUrl = APIsConection.GetStock.Replace("{stockTicker}", stockTicker)
+                                                .Replace("{startDate}", startDate)
+                                                .Replace("{endDate}", endDate);
+
+            HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+            if (response.IsSuccessStatusCode)
             {
-                try
-                {
-                    string apiUrl = $"/api/StockAPI/get-stock-by-date-and-ticker?stockTicker={stockTicker}&startDate={startDate}&endDate={endDate}";
-
-                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string stockData = await response.Content.ReadAsStringAsync();
-                        return JsonConvert.DeserializeObject<List<Stock>>(stockData);
-                    }
-                    else
-                    {
-                        throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException($"Error fetching stock data: {ex.Message}");
-                }
+                string stockData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<Stock>>(stockData);
+            }
+            else
+            {
+                throw new HttpRequestException($"Error fetching stock data. Status code: {response.StatusCode}");
             }
         }
 
         public async Task<List<TransactionResponseDto>> GetTransactions(Guid accountId, string stockTicker)
         {
-            try
+            string apiUrl = APIsConection.GetTransaction + $"?accountId={accountId}&stockTicker={stockTicker}";
+
+            HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+            if (response.IsSuccessStatusCode)
             {
-                using (var httpClient = GetTransactions())
-                {
-                    var apiUrl = APIsConection.GetTransaction;
-                    var queryParameters = $"?accountId={accountId}&stockTicker={stockTicker}";
-
-                    apiUrl += queryParameters;
-
-                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string data = await response.Content.ReadAsStringAsync();
-                        var transactionData = JsonConvert.DeserializeObject<List<TransactionResponseDto>>(data);
-                        return transactionData;
-                    }
-                    else
-                    {
-                        throw new HttpRequestException($"Error fetching transaction data. Status code: {response.StatusCode}");
-                    }
-                }
+                string data = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<TransactionResponseDto>>(data);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Exception: {ex.Message}");
-                throw;
+                throw new HttpRequestException($"Error fetching transaction data. Status code: {response.StatusCode}");
             }
         }
 
         public async Task<SettlementDto> GetExecuteDeal(TransactionResponseDto transaction)
         {
-            using (var httpClient = GetSettlementAPI())
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync(APIsConection.GetSettlementAPI, transaction);
+
+            if (response.IsSuccessStatusCode)
             {
-                var apiUrl = APIsConection.GetSettlementAPI;
-                var response = await httpClient.PostAsJsonAsync(apiUrl, transaction);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new HttpRequestException("Unsuccessful request");
-                }
-
-                var result = await response.Content.ReadAsStringAsync();
-
+                string result = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<SettlementDto>(result);
+            }
+            else
+            {
+                throw new HttpRequestException("Unsuccessful request");
             }
         }
 
         public async Task<List<TransactionResponseDto>> GetTransactionsDetails(Guid userId, string stockTicker)
         {
-            try
+            string apiUrl = $"{APIsConection.GetSettlementAPI}/transactions?userId={userId}&stockTicker={stockTicker}";
+
+            HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+            if (response.IsSuccessStatusCode)
             {
-                using (var httpClient = GetTransactionsDetails())
-                {
-                    string apiUrl = $"{APIsConection.GetSettlementAPI}/transactions?userId={userId}&stockTicker={stockTicker}";
+                string transactionDataJson = await response.Content.ReadAsStringAsync();
+                List<TransactionResponseDto> transactions = JsonConvert.DeserializeObject<List<TransactionResponseDto>>(transactionDataJson);
 
-                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string transactionDataJson = await response.Content.ReadAsStringAsync();
-                        List<TransactionResponseDto> transactions = JsonConvert.DeserializeObject<List<TransactionResponseDto>>(transactionDataJson);
-
-                        return transactions;
-                    }
-                    else
-                    {
-                        throw new HttpRequestException($"Failed to get transactions. Status code: {response.StatusCode}");
-                    }
-                }
+                return transactions;
             }
-            catch (Exception ex)
+            else
             {
-                Console.Error.WriteLine($"Exception: {ex.Message}");
-                throw;
+                throw new HttpRequestException($"Failed to get transactions. Status code: {response.StatusCode}");
             }
         }
 
         public async Task<List<TransactionResponseDto>> GetTransactionsByAccountIdTickerAndDateAsync(Guid accountId, string stockTicker, DateTime dateTime)
         {
-            try
+            string apiUrl = APIsConection.GetTransaction + $"?accountId={accountId}&stockTicker={stockTicker}&dateTime={dateTime:yyyy-MM-ddTHH:mm:ss}";
+
+            HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+            if (response.IsSuccessStatusCode)
             {
-                using (var httpClient = GetTransactions())
-                {
-                    var apiUrl = APIsConection.GetTransaction;
-                    var queryParameters = $"?accountId={accountId}&stockTicker={stockTicker}&dateTime={dateTime:yyyy-MM-ddTHH:mm:ss}";
+                string data = await response.Content.ReadAsStringAsync();
+                List<TransactionResponseDto> transactions = JsonConvert.DeserializeObject<List<TransactionResponseDto>>(data);
 
-                    apiUrl += queryParameters;
-
-                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string data = await response.Content.ReadAsStringAsync();
-                        List<TransactionResponseDto> transactions = JsonConvert.DeserializeObject<List<TransactionResponseDto>>(data);
-
-                        return transactions;
-                    }
-                    else
-                    {
-                        throw new HttpRequestException($"Error fetching transaction data. Status code: {response.StatusCode}");
-                    }
-                }
+                return transactions;
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Exception: {ex.Message}");
-                throw;
+                throw new HttpRequestException($"Error fetching transaction data. Status code: {response.StatusCode}");
             }
-        }
-
-        private HttpClient GetHttpClient()
-        {
-            var httpClient = new HttpClient();
-            return httpClient;
         }
 
         public async Task<HttpResponseMessage> GetAsync(string requestUri)
         {
-            using (var httpClient = GetHttpClient())
-            {
-                return await httpClient.GetAsync(requestUri);
-            }
-        }
-
-        public HttpClient GetAccountClient()
-        {
-            return accountClient;
-        }
-
-        public HttpClient GetStockAPI()
-        {
-            return stockApi;
-        }
-
-        public HttpClient GetStock()
-        {
-            return stock;
-        }
-
-        public HttpClient GetSettlementAPI()
-        {
-            return settlementApi;
-        }
-
-        public HttpClient GetTransactionsDetails()
-        {
-            return settlementApiDetails;
-        }
-
-        public HttpClient GetTransactions()
-        {
-            return settlementApiDetails;
+            return await httpClient.GetAsync(requestUri);
         }
     }
 }

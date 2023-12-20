@@ -44,7 +44,7 @@ namespace Analyzer.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error calculating percentage change: {ex.Message}");
+                return BadRequest($"Error calculate current yield: {ex.Message}");
             }
         }
 
