@@ -30,6 +30,7 @@ namespace Settlement.Domain.Services
 
             return response;
         }
+
         private bool IsValidStockData(Stock stockData)
         {
             return stockData != null && stockData.ClosestPrice.HasValue;
@@ -39,14 +40,15 @@ namespace Settlement.Domain.Services
         {
             return (closestPrice * quantity) * commissionPercentage;
         }
+
         private async Task<Stock> GetStockData(string date, string stockTicker)
         {
             return await dependencies.Http.GetStockByDateAndTicker(date, stockTicker);
         }
 
-        private bool IsTransactionSuccessful(WalletResponseDto userAccountBalance, decimal tradeCommission)
+        private bool IsTransactionSuccessful(decimal currentBalance, decimal tradeCommission)
         {
-            return userAccountBalance.CurrentBalance >= tradeCommission;
+            return currentBalance >= tradeCommission;
         }
 
         private async Task<WalletResponseDto> GetWalletData(Guid walletId, TransactionRequestDto transaction)
@@ -73,12 +75,12 @@ namespace Settlement.Domain.Services
             }
         }
 
-        private void SetResponseData(SettlementResponseDto response, bool success, string message, decimal totalBalance, decimal stockPrice)
+        private void SetResponseData(SettlementResponseDto response, bool success, string message, decimal totalBalance, decimal closestPrice)
         {
             response.Success = success;
             response.Message = message;
             response.TotalBalance = totalBalance;
-            response.StockPrice = stockPrice;
+            response.StockPrice = closestPrice;
         }
 
         private void SetErrorResponseData(SettlementResponseDto response, bool success, string message)
@@ -103,6 +105,23 @@ namespace Settlement.Domain.Services
             }
         }
 
+        private bool HasLossThresholdReached(decimal initialBalance, decimal currentBalance)
+        {
+            return currentBalance <= initialBalance * 0.85m;
+        }
+
+        private void CheckLossThresholdReached(SettlementResponseDto response, decimal initialBalance, decimal currentBalance, decimal closestPrice)
+        {
+            if (HasLossThresholdReached(initialBalance, currentBalance))
+            {
+                SetResponseData(response, false, ResponseMessagesConstants.LossOfFifteenPercent, currentBalance, closestPrice);
+            }
+            else
+            {
+                SetResponseData(response, true, ResponseMessagesConstants.AccountInGoodStanding, currentBalance, closestPrice);
+            }    
+        }
+
         private async Task<SettlementResponseDto> ProcessTransaction(TransactionRequestDto transactionRequest, SettlementResponseDto response)
         {
             var stockData = await GetStockData(transactionRequest.Date, transactionRequest.StockTicker);
@@ -125,15 +144,15 @@ namespace Settlement.Domain.Services
 
             bool isValidWalletId = await dependencies.Repository.CheckValidWalletId(transactionRequest.WalletId);
 
-            bool transactionSucceeded = IsTransactionSuccessful(userAccountBalance, tradeCommission);
+            bool transactionSucceeded = IsTransactionSuccessful(userAccountBalance.CurrentBalance, tradeCommission);
 
             if (transactionSucceeded)
             {
                 AdjustBalance(transactionRequest.TransactionType, userAccountBalance, tradeCommission);
 
-                SetResponseData(response, true, ResponseMessagesConstants.AccountInGoodStanding, userAccountBalance.CurrentBalance, closestPrice);
+                CheckLossThresholdReached(response, userAccountBalance.InitialBalance, userAccountBalance.CurrentBalance, closestPrice);
 
-                if (isValidWalletId)
+                if (isValidWalletId && response.Success)
                 {
                     await HandleTransaction(transactionRequest, userAccountBalance, response);
                 }
