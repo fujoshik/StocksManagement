@@ -153,6 +153,11 @@ The base URL for accessing the StockAPI endpoints is: https://localhost:7195/api
 The settlement system is an adaptable financial transaction platform built on ASP.NET Core. 
 It efficiently manages financial deals, executes transactions, handles failed transactions, and maintains wallet balances.
 
+### Routes
+
+- #### Base URL
+The base URL for accessing the SettlementAPI endpoints is: https://localhost:7019/settlements-api
+
 ## Settlement.API (Assembly)
 ### Controllers
 - **SettlementController:** Handles incoming requests for deal execution by calling upon the `SettlementService`.
