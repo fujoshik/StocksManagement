@@ -1,0 +1,5 @@
+Diana Tsvetanova - Gateway
+Gergana Koleva - Accounts
+Darina Vasileva - StockAPI
+Rada Ilieva - Analyzer
+Nikolai Mashkov - Settlements

@@ -13,7 +13,7 @@ Authorization: Bearer YOUR_API_KEY
 ```
 
 ## Roles
-- The **Admin** role has access to absolutely everything on the program - he can view, create, delete and update all objects on the site for which such functionality is implemented. He can also create doctor and patient accounts. Each registration on the site creates an account of an ordinary user (patient), and doctor accounts are created only by the administrator.  
+- The **Admin** role has access to absolutely everything on the program - he can view, create, delete and update all objects on the site for which such functionality is implemented.  
 - **Trial** users are accounts which have not input any sum in their wallets and can use up to 10000 USD to buy stocks for 60 days. After that, they become inactive and can only view their wallet information and account information, unless they deposit enough money to become a Regular user. After 60 more days their accounts are automatically deleted.  
 - **Regular** users have deposited up to 1000 USD in their walltes.  
 - **Special** accounts have deposited between 1000 and 5000 USD in their wallets.  

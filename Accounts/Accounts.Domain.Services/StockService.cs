@@ -39,7 +39,6 @@ namespace Accounts.Domain.Services
                 await _walletService.ChangeCurrencyAsync(CurrencyCode.USD);
             }
 
-            //add Role and calculate based on the type of client
             var result = await _settlementService.ExecuteDealAsync(new ExecuteDealDto
             {
                 Ticker = ticker,
